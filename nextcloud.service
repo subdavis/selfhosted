@@ -1,0 +1,16 @@
+[Unit]
+Description=Nextcloud
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill nextcloud
+ExecStartPre=-/usr/bin/docker rm nextcloud
+ExecStart=/usr/bin/docker run -d \
+    --name nextcloud -p 9093:80 \
+    -v nextcloud:/var/www/html \
+    nextcloud
+
+[Install]
+WantedBy=multi-user.target
