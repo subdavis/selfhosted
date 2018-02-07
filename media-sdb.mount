@@ -1,0 +1,11 @@
+[Unit]
+Description=General data
+
+[Mount]
+What=/dev/sdb1
+Where=/media/sdb
+Type=ext4
+Options=defaults,auto,noatime,noexec
+
+[Install]
+WantedBy=multi-user.target hab.service plex.service torrent.service shout.service i2p.service samba.service

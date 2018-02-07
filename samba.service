@@ -1,0 +1,17 @@
+[Unit]
+Description=Samba
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill samba
+ExecStartPre=-/usr/bin/docker rm samba
+ExecStart=/usr/bin/docker run --name samba \
+    -itd -p 137-139:137-139 \
+    -p 445:445 \
+    -v /dockmount:/data \
+    kaixhin/samba
+
+[Install]
+WantedBy=multi-user.target

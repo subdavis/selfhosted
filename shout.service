@@ -1,0 +1,18 @@
+[Unit]
+Description=Shout
+After=docker.service
+Requires=i2p.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill shout
+ExecStartPre=-/usr/bin/docker rm shout
+ExecStart=/usr/bin/docker run --name=shout \
+    -e PRIVATE=true \
+    --link i2p:i2p \
+    -v /dockmount/shout:/shout -p 9090:9000 \
+    -d --restart=always \
+    arbourd/shout
+
+[Install]
+WantedBy=multi-user.target

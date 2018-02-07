@@ -1,0 +1,20 @@
+[Unit]
+Description=Plex
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill plex
+ExecStartPre=-/usr/bin/docker rm plex
+ExecStart=/usr/bin/docker run -d \
+    --name plex --network=host \
+    -e TZ="America/New_York" \
+    -e PLEX_CLAIM="CLAIM-FJQ1MV91MF4DBPNMNKB8" \
+    -v /dockmount/plex/config:/config \
+    -v /tmp/plex/transcode:/transcode \
+    -v /dockmount/plex/media:/data \
+    plexinc/pms-docker
+
+[Install]
+WantedBy=multi-user.target
