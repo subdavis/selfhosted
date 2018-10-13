@@ -1,0 +1,16 @@
+[Unit]
+Description=NginxProxy
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill nginxproxy
+ExecStartPre=-/usr/bin/docker rm nginxproxy
+ExecStart=/usr/bin/docker run --name nginxproxy \
+    -p 80:80 \
+    -v /var/run/docker.sock:/tmp/docker.sock:ro \
+    jwilder/nginx-proxy
+
+[Install]
+WantedBy=multi-user.target

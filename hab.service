@@ -4,11 +4,13 @@ After=docker.service
 Requires=docker.service
 
 [Service]
+EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill openhab
 ExecStartPre=-/usr/bin/docker rm openhab
 ExecStart=/usr/bin/docker run --name openhab \
-    -p 8081:8080 --net=host \
+    --net=host \
+    -p 8080 \
     --tty \
     -v /dockmount/openhab/openhab_addons:/openhab/addons \
     -v /dockmount/openhab/openhab_conf:/openhab/conf \
