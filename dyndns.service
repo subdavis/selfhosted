@@ -1,0 +1,19 @@
+[Unit]
+Description=Dyndns
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill dyndns
+ExecStartPre=-/usr/bin/docker rm dyndns
+ExecStart=/usr/bin/docker run --name dyndns \
+    -e APIURL=https://api.subdavis.com/ddns \
+    -e APIKEY=${APIKEY} \
+    -e HOSTNAME=${DNS_DOMAIN} \
+    -e SECRET=${SECRET} \
+    -e CRON_SCHEDULE="@hourly" \
+    dyndns-local
+
+[Install]
+WantedBy=multi-user.target

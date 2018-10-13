@@ -1,0 +1,18 @@
+[Unit]
+Description=Syncthing
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill syncthing
+ExecStartPre=-/usr/bin/docker rm syncthing
+ExecStart=/usr/bin/docker run -d --restart=always \
+  -v /dockmount/syncthing/data:/srv/data \
+  -v /dockmount/syncthing/config:/srv/config \
+  -p 22000:22000 -p 21027:21027/udp -p 8080:8080 \
+  --name syncthing \
+  joeybaker/syncthing
+
+[Install]
+WantedBy=multi-user.target
