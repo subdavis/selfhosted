@@ -4,6 +4,7 @@ After=docker.service
 Requires=docker.service
 
 [Service]
+EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill syncthing
 ExecStartPre=-/usr/bin/docker rm syncthing
