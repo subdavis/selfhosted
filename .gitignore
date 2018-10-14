@@ -1,2 +1,2 @@
 *.wants/
-override.conf
+*.conf
