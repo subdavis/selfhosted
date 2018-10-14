@@ -7,8 +7,12 @@ Requires=docker.service
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill nginxproxy
 ExecStartPre=-/usr/bin/docker rm nginxproxy
-ExecStart=/usr/bin/docker run --name nginxproxy \
+ExecStart=/usr/bin/docker run -d \
+    --name nginxproxy \
     -p 80:80 \
+    -v /dockmount/ssl/vhost:/etc/nginx/vhost.d \
+    -v /dockmount/ssl/html:/usr/share/nginx/html \
+    --label com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy \
     -v /var/run/docker.sock:/tmp/docker.sock:ro \
     jwilder/nginx-proxy
 

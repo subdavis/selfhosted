@@ -8,9 +8,13 @@ TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill syncthing
 ExecStartPre=-/usr/bin/docker rm syncthing
 ExecStart=/usr/bin/docker run -d --restart=always \
+  -e VIRTUAL_HOST=syncthing.${DNS_DOMAIN} \
+  -e VIRTUAL_PORT=8080 \
+  -e "LETSENCRYPT_HOST=syncthing.${DNS_DOMAIN}" \
+  -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
   -v /dockmount/syncthing/data:/srv/data \
   -v /dockmount/syncthing/config:/srv/config \
-  -p 22000:22000 -p 21027:21027/udp -p 8080:8080 \
+  -p 22000:22000 -p 21027:21027/udp \
   --name syncthing \
   joeybaker/syncthing
 

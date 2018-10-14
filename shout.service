@@ -11,6 +11,8 @@ ExecStartPre=-/usr/bin/docker rm shout
 ExecStart=/usr/bin/docker run --name=shout \
     -e VIRTUAL_HOST=shout.${DNS_DOMAIN} \
     -e VIRTUAL_PORT=9090 \
+    -e "LETSENCRYPT_HOST=shout.${DNS_DOMAIN}" \
+    -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
     -e PRIVATE=true \
     --link i2p:i2p \
     -v /dockmount/shout:/shout \

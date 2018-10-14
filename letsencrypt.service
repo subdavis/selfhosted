@@ -1,0 +1,18 @@
+[Unit]
+Description=NginxProxy
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill nginxproxy
+ExecStartPre=-/usr/bin/docker rm nginxproxy
+ExecStart=/usr/bin/docker run -d \
+    --name nginx-letsencrypt \
+    --volumes-from nginxproxy \
+    -v /dockmount/ssl/certs:/etc/nginx/certs:rw \
+    -v /var/run/docker.sock:/var/run/docker.sock:ro \
+    jrcs/letsencrypt-nginx-proxy-companion
+
+[Install]
+WantedBy=multi-user.target
