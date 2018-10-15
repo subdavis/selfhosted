@@ -12,9 +12,9 @@ ExecStart=/usr/bin/docker run --name openhab \
     --net=host \
     -p 8080 \
     --tty \
-    -v /dockmount/openhab/openhab_addons:/openhab/addons \
-    -v /dockmount/openhab/openhab_conf:/openhab/conf \
-    -v /dockmount/openhab/openhab_userdata:/openhab/userdata \
+    -v ${MOUNT_ROOT}/openhab/openhab_addons:/openhab/addons \
+    -v ${MOUNT_ROOT}/openhab/openhab_conf:/openhab/conf \
+    -v ${MOUNT_ROOT}/openhab/openhab_userdata:/openhab/userdata \
     -d --restart=always \
     openhab/openhab:2.1.0-amd64
 

@@ -5,12 +5,13 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
+EnvironmentFile=/etc/profile.env
 ExecStartPre=-/usr/bin/docker kill nginx-letsencrypt
 ExecStartPre=-/usr/bin/docker rm nginx-letsencrypt
 ExecStart=/usr/bin/docker run -d \
     --name nginx-letsencrypt \
     --volumes-from nginxproxy \
-    -v /dockmount/ssl/certs:/etc/nginx/certs:rw \
+    -v ${MOUNT_ROOT}/ssl/certs:/etc/nginx/certs:rw \
     -v /var/run/docker.sock:/var/run/docker.sock:ro \
     jrcs/letsencrypt-nginx-proxy-companion
 

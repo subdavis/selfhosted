@@ -14,7 +14,7 @@ ExecStart=/usr/bin/docker run \
     --cap-add=NET_ADMIN \
     --device=/dev/net/tun -d \
     --name torrent \
-    -v /dockmount/plex/media/:/data \
+    -v ${MOUNT_ROOT}/plex/media/:/data \
     -v /etc/localtime:/etc/localtime:ro  \
     -e "OPENVPN_PROVIDER=NORDVPN" \
     -e "OPENVPN_CONFIG=ca104.nordvpn.com.tcp" \
