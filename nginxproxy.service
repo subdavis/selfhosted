@@ -5,15 +5,16 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
+EnvironmentFile=/etc/profile.env
 ExecStartPre=-/usr/bin/docker kill nginxproxy
 ExecStartPre=-/usr/bin/docker rm nginxproxy
 ExecStart=/usr/bin/docker run -d \
     --name nginxproxy \
     -p 443:443 \
-    -v /dockmount/nginx:/var/log/nginx \
-    -v /dockmount/ssl/vhost:/etc/nginx/vhost.d \
-    -v /dockmount/ssl/html:/usr/share/nginx/html \
-    -v /dockmount/ssl/certs:/etc/nginx/certs:rw \
+    -v ${MOUNT_ROOT}/nginx:/var/log/nginx \
+    -v ${MOUNT_ROOT}/ssl/vhost:/etc/nginx/vhost.d \
+    -v ${MOUNT_ROOT}/ssl/html:/usr/share/nginx/html \
+    -v ${MOUNT_ROOT}/ssl/certs:/etc/nginx/certs:rw \
     --label com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy \
     -v /var/run/docker.sock:/tmp/docker.sock:ro \
     jwilder/nginx-proxy

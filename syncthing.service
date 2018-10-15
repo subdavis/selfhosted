@@ -13,8 +13,8 @@ ExecStart=/usr/bin/docker run -d --restart=always \
   -e VIRTUAL_PORT=8384 \
   -e "LETSENCRYPT_HOST=syncthing.${DNS_DOMAIN}" \
   -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  -v /dockmount/syncthing/data:/mnt/data \
-  -v /dockmount/syncthing/config:/config \
+  -v ${MOUNT_ROOT}/syncthing/data:/mnt/data \
+  -v ${MOUNT_ROOT}/syncthing/config:/config \
   -p 22000:22000 -p 21027:21027/udp -p 8384:8384 \
   --name syncthing \
   linuxserver/syncthing

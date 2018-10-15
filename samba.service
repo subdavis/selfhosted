@@ -5,12 +5,13 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
+EnvironmentFile=/etc/profile.env
 ExecStartPre=-/usr/bin/docker kill samba
 ExecStartPre=-/usr/bin/docker rm samba
 ExecStart=/usr/bin/docker run --name samba \
     -itd -p 137-139:137-139 \
     -p 445:445 \
-    -v /dockmount:/data \
+    -v ${MOUNT_ROOT}:/data \
     kaixhin/samba
 
 [Install]

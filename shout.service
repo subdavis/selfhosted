@@ -15,7 +15,7 @@ ExecStart=/usr/bin/docker run --name=shout \
     -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
     -e PRIVATE=true \
     --link i2p:i2p \
-    -v /dockmount/shout:/shout \
+    -v ${MOUNT_ROOT}/shout:/shout \
     -p 9090:9000 \
     -d --restart=always \
     arbourd/shout
