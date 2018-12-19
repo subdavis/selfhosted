@@ -10,7 +10,7 @@ ExecStartPre=-/usr/bin/docker kill nginxproxy
 ExecStartPre=-/usr/bin/docker rm nginxproxy
 ExecStart=/usr/bin/docker run -d \
     --name nginxproxy \
-    -p 443:443 \
+    -p 80:80 -p 443:443 \
     -v ${MOUNT_ROOT}/nginx:/var/log/nginx \
     -v ${MOUNT_ROOT}/ssl/vhost:/etc/nginx/vhost.d \
     -v ${MOUNT_ROOT}/ssl/html:/usr/share/nginx/html \
