@@ -8,6 +8,7 @@ TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill torrent
 ExecStartPre=-/usr/bin/docker rm torrent
 ExecStart=/usr/bin/docker run \
+    -e CREATE_TUN_DEVICE=true \
     -e NETWORK_ACCESS=internal \
     -e VIRTUAL_HOST=torrent.${LOCAL_DOMAIN} \
     -e VIRTUAL_PORT=9091 \
@@ -17,7 +18,6 @@ ExecStart=/usr/bin/docker run \
     -v ${MOUNT_ROOT}/plex/media/:/data \
     -v /etc/localtime:/etc/localtime:ro  \
     -e "OPENVPN_PROVIDER=NORDVPN" \
-    -e "OPENVPN_CONFIG=ca104.nordvpn.com.tcp" \
     -e "OPENVPN_USERNAME=${USERNAME}" \
     -e "OPENVPN_PASSWORD=${PASSWORD}" \
     -e "TRANSMISSION_UMASK=0" \
