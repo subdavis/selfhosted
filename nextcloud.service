@@ -6,6 +6,7 @@ Requires=docker.service
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
+ExecStop=-/usr/bin/docker kill nextcloud
 ExecStartPre=-/usr/bin/docker kill nextcloud
 ExecStartPre=-/usr/bin/docker rm nextcloud
 ExecStart=/usr/bin/docker run -d \

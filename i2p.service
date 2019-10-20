@@ -6,6 +6,7 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 EnvironmentFile=/etc/profile.env
+ExecStop=-/usr/bin/docker kill i2p
 ExecStartPre=-/usr/bin/docker kill i2p
 ExecStartPre=-/usr/bin/docker rm i2p
 ExecStart=/usr/bin/docker run --name i2p \

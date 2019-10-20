@@ -6,6 +6,7 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 EnvironmentFile=/etc/profile.env
+ExecStop=-/usr/bin/docker kill samba
 ExecStartPre=-/usr/bin/docker kill samba
 ExecStartPre=-/usr/bin/docker rm samba
 ExecStart=/usr/bin/docker run --name samba \
