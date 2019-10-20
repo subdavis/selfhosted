@@ -5,6 +5,7 @@ Requires=docker.service
 
 [Service]
 TimeoutStartSec=0
+ExecStop=-/usr/bin/docker kill torrent
 ExecStartPre=-/usr/bin/docker kill torrent
 ExecStartPre=-/usr/bin/docker rm torrent
 ExecStart=/usr/bin/docker run \
@@ -25,6 +26,7 @@ ExecStart=/usr/bin/docker run \
     -e LOCAL_NETWORK=10.0.1.1/24 \
     --dns 1.1.1.1  \
     haugene/transmission-openvpn
+ExecStop=-/usr/bin/docker kill torrentprox
 ExecStartPost=-/usr/bin/docker kill torrentprox
 ExecStartPost=-/usr/bin/docker rm torrentprox
 ExecStartPost=/usr/bin/docker run -d \
