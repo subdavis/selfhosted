@@ -4,7 +4,7 @@ Description=USB media
 [Mount]
 What=/dev/sdc1
 Where=/media/sdc
-Type=ntfs
+Type=ext4
 Options=defaults,auto,noatime,exec
 
 [Install]
