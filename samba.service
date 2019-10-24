@@ -11,7 +11,7 @@ ExecStartPre=-/usr/bin/docker rm samba
 ExecStart=/usr/bin/docker run --name samba \
     -itd -p 137-139:137-139 \
     -p 445:445 \
-    -v ${MOUNT_ROOT_C}:/data \
+    -v /media:/data \
     kaixhin/samba
 
 [Install]
