@@ -16,9 +16,9 @@ ExecStart=/usr/bin/docker run \
     --cap-add=NET_ADMIN \
     --device=/dev/net/tun -d \
     --name torrent \
-    -v ${MOUNT_ROOT}/plex/media/:/data \
+    -v ${MOUNT_ROOT_C}/plex/media/:/data \
     -v /etc/localtime:/etc/localtime:ro  \
-    -e "OPENVPN_PROVIDER=NORDVPN" \
+    -e "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}" \
     -e "OPENVPN_USERNAME=${USERNAME}" \
     -e "OPENVPN_PASSWORD=${PASSWORD}" \
     -e "TRANSMISSION_UMASK=0" \

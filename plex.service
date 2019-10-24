@@ -26,9 +26,9 @@ ExecStart=/usr/bin/docker run -d \
     -e TZ="America/New_York" \
     -e ADVERTISE_IP="https://plex.${DNS_DOMAIN}/" \
     -e PLEX_CLAIM="CLAIM-FJQ1MV91MF4DBPNMNKB8" \
-    -v ${MOUNT_ROOT}/plex/config:/config \
+    -v ${MOUNT_ROOT_C}/plex/config:/config \
     -v /tmp/plex/transcode:/transcode \
-    -v ${MOUNT_ROOT}/plex/media:/data \
+    -v ${MOUNT_ROOT_C}/plex/media:/data \
     plexinc/pms-docker:beta
 
 [Install]
