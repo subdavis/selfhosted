@@ -1,0 +1,10 @@
+[Unit]
+Description=Runs rsync nextcloud backup every hour
+
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=1h
+Unit=rsync.service
+
+[Install]
+WantedBy=multi-user.target
