@@ -6,7 +6,6 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 EnvironmentFile=/etc/profile.env
-ExecStop=-/usr/bin/docker kill nginx-letsencrypt
 ExecStartPre=-/usr/bin/docker kill nginx-letsencrypt
 ExecStartPre=-/usr/bin/docker rm nginx-letsencrypt
 ExecStart=/usr/bin/docker run -d \

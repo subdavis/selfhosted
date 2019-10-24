@@ -15,7 +15,7 @@ Environment="PORT_STAT=22070:22070/tcp"
 
 # To override environment variables, `systemctl edit docker-syncthing-relay`:
 # https://www.freedesktop.org/software/systemd/man/systemctl.html
-ExecStop=-/usr/bin/docker rm -f $NAME
+
 # Clean-up bad state if still hanging around
 ExecStartPre=-/usr/bin/docker rm -f $NAME
 

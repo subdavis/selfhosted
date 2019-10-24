@@ -6,7 +6,6 @@ Requires=docker.service
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
-ExecStop=-/usr/bin/docker kill openhab
 ExecStartPre=-/usr/bin/docker kill openhab
 ExecStartPre=-/usr/bin/docker rm openhab
 ExecStart=/usr/bin/docker run --name openhab \

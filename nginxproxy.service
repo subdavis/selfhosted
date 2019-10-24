@@ -6,7 +6,6 @@ Requires=docker.service
 [Service]
 TimeoutStartSec=0
 EnvironmentFile=/etc/profile.env
-ExecStop=-/usr/bin/docker kill nginxproxy
 ExecStartPre=-/usr/bin/docker kill nginxproxy
 ExecStartPre=-/usr/bin/docker rm nginxproxy
 ExecStart=/usr/bin/docker run -d \
