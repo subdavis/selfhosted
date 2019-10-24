@@ -1,9 +1,0 @@
-# This config is meant to be consumed by the config transpiler, which will
-# generate the corresponding Ignition config. Do not pass this config directly
-# to instances of Container Linux.
-
-passwd:
-  users:
-    - name: core
-      ssh_authorized_keys:
-        - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABAQDGdByTgSVHq.......

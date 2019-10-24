@@ -1,2 +1,3 @@
 *.wants/
 *.conf
+ignition.yml

@@ -57,22 +57,21 @@ Resolving the IP address of your home network is annoying because most DNS provi
 
 Now that we have a DNS provider setup, we need to create the container service that will keep it up to date.
 
-* In `cd dockerfiles/lambda-dns`, run `docker build -t dyndns-local .` -- the trailing `.` is IMPORTANT :)
+* In `cd dockerfiles/lambda-dns`, run `docker build -t dyndns-local .`
 * In `dyndns.service.d`, create a copy of the example config called `override.conf` and set the `APIKEY`, `SECRET`, and `APIURL` to the values from step 3 above.
 
 Test it by running:
-
+F
 ```bash
-export APIURL=YOURURL
-export APIKEY=YOURKEY
-export DNS_DOMAIN=YOURDOMAIN
-export SECRET=YOURSECRET
+APIURL=YOURURL
+APIKEY=YOURKEY
+DNS_DOMAIN=YOURDOMAIN
+SECRET=YOURSECRET
 /usr/bin/docker run --name dyndns --rm -it \
     -e APIURL="${APIURL}" \
     -e APIKEY="${APIKEY}" \
     -e HOSTNAME="${DNS_DOMAIN}" \
     -e SECRET="${SECRET}" \
-    -e CRON_SCHEDULE="@hourly" \
     dyndns-local
 ```
 
