@@ -14,7 +14,7 @@ ExecStart=/usr/bin/docker run --name dyndns -d \
     -e HOSTNAME="${DNS_DOMAIN}" \
     -e SECRET="${SECRET}" \
     -e CRON_SCHEDULE="@hourly" \
-    dyndns-local
+    subdavis/dyndns
 
 [Install]
 WantedBy=multi-user.target

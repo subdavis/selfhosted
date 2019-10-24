@@ -11,7 +11,7 @@ ExecStartPre=-/usr/bin/docker rm rsync
 ExecStart=/usr/bin/docker run --name rsync \
     -v ${MOUNT_ROOT_B}/nextcloud:/source \
     -v ${MOUNT_ROOT_C}/nextcloud_backup:/dest \
-    rsync
+    subdavis/rsync
 
 [Install]
 WantedBy=multi-user.target
