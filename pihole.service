@@ -1,0 +1,26 @@
+[Unit]
+Description=Pihole
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill pihole
+ExecStartPre=-/usr/bin/docker rm pihole
+ExecStart=/usr/bin/docker run -d \
+    --name pihole \
+    -p "53:53/udp" \
+    -p "53:53/tcp" \
+    -p "67:67/udp" \
+    -p "9093:80" \
+    -e TZ='America/NewYork' \
+    -e WEBPASSWORD="${WEBPASSWORD}" \
+    -v "${MOUNT_ROOT_B}/etc-pihole/:/etc/pihole/" \
+    -v "${MOUNT_ROOT_B}/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
+    --dns 127.0.0.1 \
+    --dns 1.1.1.1 \
+    pihole/pihole:latest
+
+[Install]
+WantedBy=multi-user.target
