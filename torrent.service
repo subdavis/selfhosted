@@ -9,9 +9,6 @@ ExecStartPre=-/usr/bin/docker kill torrent
 ExecStartPre=-/usr/bin/docker rm torrent
 ExecStart=/usr/bin/docker run \
     -e CREATE_TUN_DEVICE=true \
-    -e NETWORK_ACCESS=internal \
-    -e VIRTUAL_HOST=torrent.${LOCAL_DOMAIN} \
-    -e VIRTUAL_PORT=9091 \
     --cap-add=NET_ADMIN \
     --device=/dev/net/tun -d \
     --name torrent \
@@ -30,7 +27,9 @@ ExecStartPost=-/usr/bin/docker rm torrentprox
 ExecStartPost=/usr/bin/docker run -d \
     --name torrentprox \
     --link torrent:transmission \
-    -p 9092:8080 \
+    -e VIRTUAL_HOST="${LOCAL_DOMAIN}" \
+    -e VIRTUAL_PORT=8080 \
+    -e NETWORK_ACCESS=internal \
     haugene/transmission-openvpn-proxy
 
 [Install]
