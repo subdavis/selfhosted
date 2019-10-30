@@ -28,8 +28,9 @@ ExecStartPost=/usr/bin/docker run -d \
     --name torrentprox \
     --link torrent:transmission \
     -e VIRTUAL_HOST="${LOCAL_DOMAIN}" \
-    -e VIRTUAL_PORT=8080 \
+    -e VIRTUAL_PORT=9092 \
     -e NETWORK_ACCESS=internal \
+    -p 9092:8080 \
     haugene/transmission-openvpn-proxy
 
 [Install]
