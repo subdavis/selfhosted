@@ -14,8 +14,9 @@ ExecStart=/usr/bin/docker run -d \
     -p "53:53/tcp" \
     -p "67:67/udp" \
     -p "9093:80" \
-    -e TZ='America/NewYork' \
+    -e TZ='America/New_York' \
     -e WEBPASSWORD="${WEBPASSWORD}" \
+    -e DNSSEC=true \
     -v "${MOUNT_ROOT_B}/etc-pihole/:/etc/pihole/" \
     -v "${MOUNT_ROOT_B}/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
     --dns 127.0.0.1 \
