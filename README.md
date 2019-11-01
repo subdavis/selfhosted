@@ -2,7 +2,7 @@
 
 This repository consists of a list of services I run on a headless Lenovo ThinkCentre workstation.  You should be able to run this on any reasonably powerful computer (pentium 4 or greater??).  This probably won't work on a Raspberry Pi.
 
-This repo contains my examples for:
+This repo contains my examples for these services and others:
 
 * Plex Media Server
 * Shout IRC client
@@ -10,6 +10,7 @@ This repo contains my examples for:
 * Syncthing
 * Samba Fileshare Server
 * Torrent server with OpenVPN over NordVPN
+* PiHole DNS Server
 
 When you're done, you will be able to access your home services from anywhere over HTTPS, using
 
@@ -18,13 +19,13 @@ When you're done, you will be able to access your home services from anywhere ov
 
 ## Prerequisites
 
-* A linux server on your local network running CoreOS, Ubuntu >= 15.04, or really whatever.
-  * systemd installed
-  * docker CE installed
-* Your own domain name
-* An AWS Account for Dynamic DNS -- will be (mostly) contrained to free tier usage.
+* A linux server on your local network (CoreOS, Ubuntu >= 15.04, whatever...) with `Docker CE` and `systemd` installed.
+* A domain name.
+* An AWS Account for Dynamic DNS.  Our use will be constrained to permanent free-tier except for a single Route53 Hosted Zone, which is $0.50 a month.
 
-**IMPORTANT** - `media-sdb.service` may or may NOT apply to you, and you might have to disable it.  My server has a secondary spinning disk that I mount all my docker container's shared volumes to.  I mount this disk at `/media/sdb`, then symlink that directory to `/dockmount`.  All these containers mount shared volumes at `/dockmount/<containername>`.  Some containers share a filespace.  I'm then free to completely wipe my boot disk without losing any data.
+### Volume Mounts
+
+**IMPORTANT** - Some of my services, like `media-sdb.service`, may or may NOT apply to you, and you might have to disable them.  My server has 3 separate storage volumes that I spread my volume mounts across.  I mount my secondary disks at `/media/sdX`, then symlink that directory to `/dockmount`.  All these containers bind-mount volumes at `/media/sdX/<containername>`.  Some containers share mounts, like plex and samba.  You can change the container mount points in `profile.env` without having to modify service files.
 
 # Setup
 
@@ -32,36 +33,29 @@ I won't walk you through [setting up CoreOS (guide here)](https://coreos.com/os/
 
 ## Home network prep
 
-You need to make sure that ports 80 and 443 are port-forwarded through your router to whatever host this will be on.  I also recommend setting your server to be assigned a static IP by your router.  You can usually do this by interface MAC address.  `ifconfig` will list your interfaces.
+You need to make sure that ports 80 and/or 443 are port-forwarded through your router to whatever host this will be on.  I also recommend setting your server to be assigned a static private IP by your router.  You can usually do this by interface MAC address.  `ifconfig` will list your interfaces.  Refer to the [docker-pi-hole](https://github.com/pi-hole/docker-pi-hole) docs for further network setup related to that service.
 
-## When you get an OS installed: (run as root)
+## Installation
 
 * Clone this repo in `/etc/systemd/system`
 * For any overrides, like `torrent.service.d`, copy the template to a new `override.conf` file with the correct values.
-* Create a symlink: `ln -s /etc/systemd/system/profile.env /etc/profile.env`, and edit `profile.env` for your needs (see DNS section)
+* Create a symlink: `ln -s /etc/systemd/system/profile.env /etc/profile.env`, and edit `profile.env` for your needs.
 * If you're using Lambda Dynamic DNS, go complete that section below!
-* Reload systemd: `systemctl daemon-reload`  -- this must be run ANY TIME any of your `.service` or `.conf` files change.
-* Enable all the services: `systemctl enable <name>.service` -- you'll need to do this for any additional services you add in the future.
+* Reload systemd: `systemctl daemon-reload`. This must be run ANY TIME any of your `.service` or `.conf` files change.
+* Enable all the services: `systemctl enable <name>.service`
 
 ## Dynamic DNS (recommended)
 
 Resolving the IP address of your home network is annoying because most DNS providers change your IP every now and again.  Services like No-IP combat this, but they aren't the most reliable.  However, setting DNS programatically is (conceptually) trivial with AWS, Route53, and Lambda.  I've found it to be quite reliable.
 
-### AWS Stuff
 
 1. [Setup a Hosted Zone with Route53](https://docs.aws.amazon.com/Route53/latest/DeveloperGuide/CreatingHostedZone.html). **Costs $0.50 per month**
 2. Deploy [Route53 Dynamic DNS Lambda](https://github.com/awslabs/route53-dynamic-dns-with-lambda) as directed.  Note that the cloudformation stack name **must be lowercase**.  Use `route53ZoneId` option to specify the ID of the hosted zone in step 1.  `route53ZoneName` must match the zone name.
 3. Pay attention to the [stack outputs](https://github.com/awslabs/route53-dynamic-dns-with-lambda#cloudformation-stack-outputs) - you'll need these later.
-
-### Docker Stuff
-
-Now that we have a DNS provider setup, we need to create the container service that will keep it up to date.
-
-* In `cd dockerfiles/lambda-dns`, run `docker build -t dyndns-local .`
-* In `dyndns.service.d`, create a copy of the example config called `override.conf` and set the `APIKEY`, `SECRET`, and `APIURL` to the values from step 3 above.
+4. In `dyndns.service.d`, create a copy of the example config called `override.conf` and set the `APIKEY`, `SECRET`, and `APIURL` to the values from step 3 above.
 
 Test it by running:
-F
+
 ```bash
 APIURL=YOURURL
 APIKEY=YOURKEY
