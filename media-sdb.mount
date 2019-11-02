@@ -8,4 +8,4 @@ Type=ext4
 Options=defaults,auto,noatime,exec
 
 [Install]
-WantedBy=multi-user.target hab.service plex.service torrent.service shout.service i2p.service samba.service
+WantedBy=multi-user.target hab.service plex.service torrent.service shout.service i2p.service samba.service nginxproxy.service postgres.service pihole.service
