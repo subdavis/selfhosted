@@ -1,7 +1,7 @@
 [Unit]
 Description=Shout
 After=docker.service
-Requires=i2p.service
+Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/profile.env
@@ -14,10 +14,8 @@ ExecStart=/usr/bin/docker run --name=shout \
     -e "LETSENCRYPT_HOST=shout.${DNS_DOMAIN}" \
     -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
     -e PRIVATE=true \
-    --link i2p:i2p \
     -v ${MOUNT_ROOT_B}/shout:/shout \
     -p 9090:9000 \
-    -d --restart=always \
     arbourd/shout
 
 [Install]
