@@ -10,6 +10,7 @@ ExecStartPre=-/usr/bin/docker kill nextcloud
 ExecStartPre=-/usr/bin/docker rm nextcloud
 ExecStart=/usr/bin/docker run -d \
     -e VIRTUAL_HOST=nc.${DNS_DOMAIN} \
+    -e VIRTUAL_PROTO=https \
     -e "LETSENCRYPT_HOST=nc.${DNS_DOMAIN}" \
     -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
     --name nextcloud \

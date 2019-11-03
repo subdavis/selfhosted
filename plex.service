@@ -11,6 +11,7 @@ ExecStartPre=-/usr/bin/docker rm plex
 ExecStart=/usr/bin/docker run -d \
     -e VIRTUAL_HOST=plex.${DNS_DOMAIN} \
     -e VIRTUAL_PORT=32400 \
+    -e VIRTUAL_PROTO=https \
     -e "LETSENCRYPT_HOST=plex.${DNS_DOMAIN}" \
     -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
     --name plex \
