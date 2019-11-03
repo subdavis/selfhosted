@@ -1,3 +1,2 @@
 *.wants/
 *.service.d/*.conf
-ignition.yml
