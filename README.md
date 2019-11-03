@@ -87,17 +87,3 @@ systemctl status name.service
 systemctl restart name.service
 systemctl disable name.service
 ```
-
-## shout
-
-You need to set up a user
-
-```
-# Start a shout container, bound to the same volume as the service
-docker run --rm -it -e PRIVATE=true --entrypoint /bin/sh -v /media/sdb/shout:/shout arbourd/shout
-
-# add a user
-shout add <username>
-
-# then restart the service
-```

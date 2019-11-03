@@ -11,7 +11,6 @@ ExecStartPre=-/usr/bin/docker rm syncthing
 ExecStart=/usr/bin/docker run -d --restart=always \
   -e VIRTUAL_HOST=syncthing.${DNS_DOMAIN} \
   -e VIRTUAL_PORT=8384 \
-  -e VIRTUAL_PROTO=https \
   -e "LETSENCRYPT_HOST=syncthing.${DNS_DOMAIN}" \
   -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
   -v ${MOUNT_ROOT_B}/syncthing/data:/mnt/data \
