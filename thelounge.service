@@ -8,7 +8,7 @@ EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
 ExecStartPre=-/usr/bin/docker kill thelounge
 ExecStartPre=-/usr/bin/docker rm thelounge
-ExecStart=/usr/bin/docker run --name=shout \
+ExecStart=/usr/bin/docker run --name=thelounge \
     -e VIRTUAL_HOST=shout.${DNS_DOMAIN} \
     -e VIRTUAL_PORT=9090 \
     -e "LETSENCRYPT_HOST=shout.${DNS_DOMAIN}" \
