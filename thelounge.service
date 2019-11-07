@@ -1,7 +1,7 @@
 [Unit]
 Description=Thelounge
 After=docker.service
-Requires=i2p.service
+Requires=tor.service
 
 [Service]
 EnvironmentFile=/etc/profile.env
@@ -15,7 +15,7 @@ ExecStart=/usr/bin/docker run --name=thelounge \
     -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
     -v ${MOUNT_ROOT_B}/shout:/var/opt/thelounge \
     -p 9090:9000 \
-    --link i2p:i2p \
+    --link tor:tor \
     thelounge/thelounge
 
 [Install]

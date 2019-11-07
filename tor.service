@@ -1,0 +1,16 @@
+[Unit]
+Description=tor
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+EnvironmentFile=/etc/profile.env
+ExecStartPre=-/usr/bin/docker kill tor
+ExecStartPre=-/usr/bin/docker rm tor
+ExecStart=/usr/bin/docker run --name tor \
+  -p 9050:9050 \
+  niruix/tor:latest
+
+[Install]
+WantedBy=multi-user.target
