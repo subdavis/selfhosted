@@ -9,7 +9,7 @@ EnvironmentFile=/etc/profile.env
 ExecStartPre=-/usr/bin/docker kill i2p
 ExecStartPre=-/usr/bin/docker rm i2p
 ExecStart=/usr/bin/docker run --name i2p \
-    -v ${MOUNT_ROOT_B}/i2p:/var/lib/i2p \
+    -v ${MOUNT_ROOT_B}/i2p:/var/lib/i2p:z \
     -p 4444:4444 -p 6668:6668 -p 7657:7657 \
     geti2p/i2p
 
