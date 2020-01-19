@@ -6,15 +6,16 @@ This repository consists of a list of services I run on a headless Lenovo ThinkC
 
 This repo contains my examples for these services and others:
 
-* Plex Media Server
-* Shout IRC client
+* Plex Media
+* Shout IRC
 * NextCloud
 * Syncthing
-* Samba Fileshare Server
+* Calibre Web
+* Samba Fileshare
 * Torrent server with OpenVPN over NordVPN
-* PiHole DNS Server
+* PiHole DNS
 
-When you're done, you will be able to access your home services from anywhere over HTTPS, using
+When you're done, you will be able to access your services from anywhere over HTTPS, using
 
 * Nginx Proxy: https://github.com/jwilder/nginx-proxy
 * LetsEncrypt companion: https://github.com/JrCs/docker-letsencrypt-nginx-proxy-companion
@@ -36,15 +37,6 @@ I won't walk you through [setting up CoreOS (guide here)](https://coreos.com/os/
 ## Home network prep
 
 You need to make sure that ports 80 and/or 443 are port-forwarded through your router to whatever host this will be on.  I also recommend setting your server to be assigned a static private IP by your router.  You can usually do this by interface MAC address.  `ifconfig` will list your interfaces.  Refer to the [docker-pi-hole](https://github.com/pi-hole/docker-pi-hole) docs for further network setup related to that service.
-
-## Installation
-
-* Clone this repo in `/etc/systemd/system`
-* For any overrides, like `torrent.service.d`, copy the template to a new `override.conf` file with the correct values.
-* Create a symlink: `ln -s /etc/systemd/system/profile.env /etc/profile.env`, and edit `profile.env` for your needs.
-* If you're using Lambda Dynamic DNS, go complete that section below!
-* Reload systemd: `systemctl daemon-reload`. This must be run ANY TIME any of your `.service` or `.conf` files change.
-* Enable all the services: `systemctl enable <name>.service`
 
 ## Dynamic DNS (recommended)
 
@@ -75,7 +67,18 @@ SECRET=YOURSECRET
 
 In this setup, each container's service will serve from a different subdomain of your Route53 hosted zone dyndns subdomain.  If you set up a hosted zone at `route53.example.com`, then set `DNS_DOMAIN=myserver.route53.example.com`, your services would be publically available on `https://service.myserver.route53.example.com`.
 
-For each service, you'll need to create CNAME records for each `service.myserver.route53.example.com` to point to `myserver.route53.example.com` because all of your services are running on the same hostm but the host needs to be able to do virtual host routing based on domain name.
+For each service, you'll need to create CNAME records for each `service.myserver.route53.example.com` to point to `myserver.route53.example.com` because all of your services are running on the same host but the host needs to be able to do virtual host routing based on domain name.
+
+## Installation
+
+Don't do this until you have your CNAMEs and Dynamic DNS working.
+
+* Clone this repo in `/etc/systemd/system` on your newly provisioned server.
+* For any overrides, like `torrent.service.d`, copy the template to a new `override.conf` file with the correct values.
+* Create a symlink: `ln -s /etc/systemd/system/profile.env /etc/profile.env`, and edit `profile.env` for your needs.
+* If you're using Lambda Dynamic DNS, go complete that section below!
+* Reload systemd: `systemctl daemon-reload`. This must be run ANY TIME any of your `.service` or `.conf` files change.
+* Enable all the services and timers: `systemctl enable <name>.<service|timer>`
 
 # Troubleshooting
 
@@ -85,6 +88,7 @@ docker ps
 docker logs <name>
 
 # Systemctl
+systemctl daemon-reload
 systemctl status name.service
 systemctl restart name.service
 systemctl disable name.service
