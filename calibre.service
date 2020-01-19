@@ -14,8 +14,8 @@ ExecStart=/usr/bin/docker run -d \
   -e VIRTUAL_PORT=8083 \
   -e "LETSENCRYPT_HOST=calibre.${DNS_DOMAIN}" \
   -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  -e PUID=1000 \
-  -e PGID=1000 \
+  -e PUID=0 \
+  -e PGID=0 \
   -e TZ=America/New_York \
   -e DOCKER_MODS=linuxserver/calibre-web:calibre \
   -p 8083:8083 \
