@@ -1,0 +1,27 @@
+[Unit]
+Description=Calibre
+After=docker.service
+Requires=docker.service postgres.service
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+ExecStartPre=-/usr/bin/docker kill calibre
+ExecStartPre=-/usr/bin/docker rm calibre
+ExecStart=/usr/bin/docker run -d \
+  --name=calibre-web \
+  -e VIRTUAL_HOST=calibre.${DNS_DOMAIN} \
+  -e VIRTUAL_PORT=8083 \
+  -e "LETSENCRYPT_HOST=calibre.${DNS_DOMAIN}" \
+  -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  -e PUID=1000 \
+  -e PGID=1000 \
+  -e TZ=America/New_York \
+  -e DOCKER_MODS=linuxserver/calibre-web:calibre \
+  -p 8083:8083 \
+  -v ${MOUNT_ROOT_B}/calibre/config:/config \
+  -v ${MOUNT_ROOT_B}/calibre/books:/books \
+  linuxserver/calibre-web
+
+[Install]
+WantedBy=multi-user.target
