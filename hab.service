@@ -15,7 +15,7 @@ ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --net=host \
-  --port 8080 \
+  --publish 8080 \
   --tty \
   --volume ${MOUNT_ROOT_B}/openhab/openhab_addons:/openhab/addons \
   --volume ${MOUNT_ROOT_B}/openhab/openhab_conf:/openhab/conf \

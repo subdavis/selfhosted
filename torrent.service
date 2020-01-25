@@ -32,7 +32,7 @@ ExecStartPost=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n-proxy \
   --link %n:transmission \
-  --port 9092:8080 \
+  --publish 9092:8080 \
   haugene/transmission-openvpn-proxy
 
 [Install]

@@ -22,7 +22,7 @@ ExecStart=/opt/systemd-docker \
   --env PGID=0 \
   --env TZ=America/New_York \
   --env DOCKER_MODS=linuxserver/calibre-web:calibre \
-  --port 8083:8083 \
+  --publish 8083:8083 \
   --volume ${MOUNT_ROOT_B}/calibre/config:/config \
   --volume ${MOUNT_ROOT_B}/calibre/books:/books \
   linuxserver/calibre-web

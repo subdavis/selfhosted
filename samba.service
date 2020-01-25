@@ -14,8 +14,8 @@ ExecStartPre=-/usr/bin/docker pull kaixhin/samba
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --port 137-139:137-139 \
-  --port 445:445 \
+  --publish 137-139:137-139 \
+  --publish 445:445 \
   --volume /media:/data \
   kaixhin/samba
 

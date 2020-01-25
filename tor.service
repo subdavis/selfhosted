@@ -14,7 +14,7 @@ ExecStartPre=-/usr/bin/docker pull niruix/tor:latest
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --port 9050:9050 \
+  --publish 9050:9050 \
   niruix/tor:latest
 
 [Install]

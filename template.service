@@ -18,7 +18,7 @@ ExecStart=/opt/systemd-docker \
   --env VIRTUAL_PORT=8080 \
   --env "LETSENCRYPT_HOST=hellp.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  --port 8080:8080 \
+  --publish 8080:8080 \
   hello-world
  
 [Install]

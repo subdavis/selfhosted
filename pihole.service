@@ -14,10 +14,10 @@ ExecStartPre=-/usr/bin/docker pull pihole/pihole:latest
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --port "53:53/udp" \
-  --port "53:53/tcp" \
-  --port "67:67/udp" \
-  --port "9093:9093" \
+  --publish "53:53/udp" \
+  --publish "53:53/tcp" \
+  --publish "67:67/udp" \
+  --publish "9093:9093" \
   --env TZ='America/New_York' \
   --env WEBPASSWORD="${WEBPASSWORD}" \
   --env DNSSEC=true \

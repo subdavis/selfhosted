@@ -20,9 +20,9 @@ ExecStart=/opt/systemd-docker \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
   --volume ${MOUNT_ROOT_B}/syncthing/data:/mnt/data \
   --volume ${MOUNT_ROOT_B}/syncthing/config:/config \
-  --port 22000:22000 \
-  --port 21027:21027/udp \
-  --port 8384:8384 \
+  --publish 22000:22000 \
+  --publish 21027:21027/udp \
+  --publish 8384:8384 \
   linuxserver/syncthing
 
 [Install]

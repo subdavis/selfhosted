@@ -19,15 +19,15 @@ ExecStart=/opt/systemd-docker \
   --env "LETSENCRYPT_HOST=plex.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
   --name plex \
-  --port 32400:32400/tcp \
-  --port 3005:3005/tcp \
-  --port 8324:8324/tcp \
-  --port 32469:32469/tcp \
-  --port 1900:1900/udp \
-  --port 32410:32410/udp \
-  --port 32412:32412/udp \
-  --port 32413:32413/udp \
-  --port 32414:32414/udp \
+  --publish 32400:32400/tcp \
+  --publish 3005:3005/tcp \
+  --publish 8324:8324/tcp \
+  --publish 32469:32469/tcp \
+  --publish 1900:1900/udp \
+  --publish 32410:32410/udp \
+  --publish 32412:32412/udp \
+  --publish 32413:32413/udp \
+  --publish 32414:32414/udp \
   --env TZ="America/New_York" \
   --env ADVERTISE_IP="https://plex.${DNS_DOMAIN}/" \
   --env PLEX_CLAIM="CLAIM-FJQ1MV91MF4DBPNMNKB8" \

@@ -15,9 +15,9 @@ ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --volume ${MOUNT_ROOT_B}/i2p:/var/lib/i2p:z \
-  --port 4444:4444 \
-  --port 6668:6668 \
-  --port 7657:7657 \
+  --publish 4444:4444 \
+  --publish 6668:6668 \
+  --publish 7657:7657 \
   geti2p/i2p
 
 [Install]

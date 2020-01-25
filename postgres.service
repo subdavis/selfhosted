@@ -15,7 +15,7 @@ ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --volume ${MOUNT_ROOT_B}/postgres/data:/var/lib/postgresql/data/ \
-  --port 5432:5432 \
+  --publish 5432:5432 \
   postgres
 
 [Install]
