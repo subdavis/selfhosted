@@ -2,13 +2,14 @@
 Description=Syncthing
 After=docker.service
 Requires=docker.service
-
+ 
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill syncthing
-ExecStartPre=-/usr/bin/docker rm syncthing
-ExecStart=/usr/bin/docker run -d --restart=always \
+ExecStartPre=/usr/bin/docker pull linuxserver/syncthing
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
   -e VIRTUAL_HOST=syncthing.${DNS_DOMAIN} \
   -e VIRTUAL_PORT=8384 \
   -e "LETSENCRYPT_HOST=syncthing.${DNS_DOMAIN}" \
@@ -18,6 +19,10 @@ ExecStart=/usr/bin/docker run -d --restart=always \
   -p 22000:22000 -p 21027:21027/udp -p 8384:8384 \
   --name syncthing \
   linuxserver/syncthing
-
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ 
 [Install]
 WantedBy=multi-user.target
