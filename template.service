@@ -1,8 +1,8 @@
 [Unit]
-Description=Nextcloud
+Description=Docker in Systemd
 After=docker.service
-Requires=docker.service postgres.service media-sdb.mount
-
+Requires=docker.service media-sdb.mount media-sdc.mount
+ 
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
@@ -10,16 +10,16 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull nextcloud
+ExecStartPre=/usr/bin/docker pull hello-world
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --env VIRTUAL_HOST=nc.${DNS_DOMAIN} \
-  --env "LETSENCRYPT_HOST=nc.${DNS_DOMAIN}" \
+  --env VIRTUAL_HOST=hello.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=8080 \
+  --env "LETSENCRYPT_HOST=hellp.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  --link postgres:postgres \
-  --volume ${MOUNT_ROOT_B}/nextcloud:/var/www/html \
-  nextcloud
-
+  --port 8080:8080 \
+  hello-world
+ 
 [Install]
 WantedBy=multi-user.target

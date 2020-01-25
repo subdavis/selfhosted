@@ -1,22 +1,27 @@
 [Unit]
 Description=Samba
 After=docker.service
-Requires=docker.service
+Requires=docker.service media-sdb.service
 
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill openhab
-ExecStartPre=-/usr/bin/docker rm openhab
-ExecStart=/usr/bin/docker run --name openhab \
-    --net=host \
-    -p 8080 \
-    --tty \
-    -v ${MOUNT_ROOT_B}/openhab/openhab_addons:/openhab/addons \
-    -v ${MOUNT_ROOT_B}/openhab/openhab_conf:/openhab/conf \
-    -v ${MOUNT_ROOT_B}/openhab/openhab_userdata:/openhab/userdata \
-    -d --restart=always \
-    openhab/openhab:2.1.0-amd64
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull openhab/openhab:2.1.0-amd64
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --net=host \
+  --port 8080 \
+  --tty \
+  --volume ${MOUNT_ROOT_B}/openhab/openhab_addons:/openhab/addons \
+  --volume ${MOUNT_ROOT_B}/openhab/openhab_conf:/openhab/conf \
+  --volume ${MOUNT_ROOT_B}/openhab/openhab_userdata:/openhab/userdata \
+  -d --restart=always \
+  openhab/openhab:2.1.0-amd64
 
 [Install]
 WantedBy=multi-user.target

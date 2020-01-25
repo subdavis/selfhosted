@@ -1,17 +1,24 @@
 [Unit]
 Description=i2p
 After=docker.service
-Requires=docker.service
+Requires=docker.service media-sdb.mount
 
 [Service]
-TimeoutStartSec=0
 EnvironmentFile=/etc/profile.env
-ExecStartPre=-/usr/bin/docker kill i2p
-ExecStartPre=-/usr/bin/docker rm i2p
-ExecStart=/usr/bin/docker run --name i2p \
-    -v ${MOUNT_ROOT_B}/i2p:/var/lib/i2p:z \
-    -p 4444:4444 -p 6668:6668 -p 7657:7657 \
-    geti2p/i2p
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull geti2p/i2p
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --volume ${MOUNT_ROOT_B}/i2p:/var/lib/i2p:z \
+  --port 4444:4444 \
+  --port 6668:6668 \
+  --port 7657:7657 \
+  geti2p/i2p
 
 [Install]
 WantedBy=multi-user.target

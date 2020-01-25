@@ -1,17 +1,20 @@
 [Unit]
 Description=Rsync Backup
 After=docker.service
-Requires=docker.service
+Requires=docker.service media-sdb.mount media-sdc.mount
 
 [Service]
-TimeoutStartSec=0
 EnvironmentFile=/etc/profile.env
-ExecStartPre=-/usr/bin/docker kill rsync
-ExecStartPre=-/usr/bin/docker rm rsync
-ExecStart=/usr/bin/docker run --name rsync-calibre \
-    -v ${MOUNT_ROOT_B}/calibre:/source \
-    -v ${MOUNT_ROOT_C}/calibre_backup:/dest \
-    subdavis/rsync
+TimeoutStartSec=0
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull subdavis/rsync
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --volume ${MOUNT_ROOT_B}/calibre:/source \
+  --volume ${MOUNT_ROOT_C}/calibre_backup:/dest \
+  subdavis/rsync
 
 [Install]
 WantedBy=multi-user.target

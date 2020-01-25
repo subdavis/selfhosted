@@ -1,28 +1,32 @@
 [Unit]
 Description=Pihole
 After=docker.service
-Requires=docker.service
+Requires=docker.service media-sdb.mount
 
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill pihole
-ExecStartPre=-/usr/bin/docker rm pihole
-ExecStart=/usr/bin/docker run -d \
-    --name pihole \
-    -p "53:53/udp" \
-    -p "53:53/tcp" \
-    -p "67:67/udp" \
-    -p "9093:9093" \
-    -e TZ='America/New_York' \
-    -e WEBPASSWORD="${WEBPASSWORD}" \
-    -e DNSSEC=true \
-    -e WEB_PORT=9093 \
-    -v "${MOUNT_ROOT_B}/etc-pihole/:/etc/pihole/" \
-    -v "${MOUNT_ROOT_B}/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
-    --dns 127.0.0.1 \
-    --dns 1.1.1.1 \
-    pihole/pihole:latest
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull pihole/pihole:latest
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --port "53:53/udp" \
+  --port "53:53/tcp" \
+  --port "67:67/udp" \
+  --port "9093:9093" \
+  --env TZ='America/New_York' \
+  --env WEBPASSWORD="${WEBPASSWORD}" \
+  --env DNSSEC=true \
+  --env WEB_PORT=9093 \
+  --volume "${MOUNT_ROOT_B}/etc-pihole/:/etc/pihole/" \
+  --volume "${MOUNT_ROOT_B}/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
+  --dns 127.0.0.1 \
+  --dns 1.1.1.1 \
+  pihole/pihole:latest
 
 [Install]
 WantedBy=multi-user.target

@@ -1,19 +1,23 @@
 [Unit]
 Description=Letsencrypt
 After=docker.service
-Requires=docker.service
+Requires=docker.service media-sdb.mount nginxproxy.service
 
 [Service]
-TimeoutStartSec=0
 EnvironmentFile=/etc/profile.env
-ExecStartPre=-/usr/bin/docker kill nginx-letsencrypt
-ExecStartPre=-/usr/bin/docker rm nginx-letsencrypt
-ExecStart=/usr/bin/docker run -d \
-    --name nginx-letsencrypt \
-    --volumes-from nginxproxy \
-    -v ${MOUNT_ROOT_B}/ssl/certs:/etc/nginx/certs:rw \
-    -v /var/run/docker.sock:/var/run/docker.sock:ro \
-    jrcs/letsencrypt-nginx-proxy-companion
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull jrcs/letsencrypt-nginx-proxy-companion
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --volumes-from nginxproxy \
+  --volume ${MOUNT_ROOT_B}/ssl/certs:/etc/nginx/certs:rw \
+  --volume /var/run/docker.sock:/var/run/docker.sock:ro \
+  jrcs/letsencrypt-nginx-proxy-companion
 
 [Install]
 WantedBy=multi-user.target

@@ -4,15 +4,20 @@ After=docker.service
 Requires=docker.service
 
 [Service]
-TimeoutStartSec=0
 EnvironmentFile=/etc/profile.env
-ExecStartPre=-/usr/bin/docker kill samba
-ExecStartPre=-/usr/bin/docker rm samba
-ExecStart=/usr/bin/docker run --name samba \
-    -itd -p 137-139:137-139 \
-    -p 445:445 \
-    -v /media:/data \
-    kaixhin/samba
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull kaixhin/samba
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --port 137-139:137-139 \
+  --port 445:445 \
+  --volume /media:/data \
+  kaixhin/samba
 
 [Install]
 WantedBy=multi-user.target

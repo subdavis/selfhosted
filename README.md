@@ -56,10 +56,10 @@ APIKEY=YOURKEY
 DNS_DOMAIN=YOURDOMAIN
 SECRET=YOURSECRET
 /usr/bin/docker run --name dyndns --rm -it \
-    -e APIURL="${APIURL}" \
-    -e APIKEY="${APIKEY}" \
-    -e HOSTNAME="${DNS_DOMAIN}" \
-    -e SECRET="${SECRET}" \
+    --env APIURL="${APIURL}" \
+    --env APIKEY="${APIKEY}" \
+    --env HOSTNAME="${DNS_DOMAIN}" \
+    --env SECRET="${SECRET}" \
     dyndns-local
 ```
 

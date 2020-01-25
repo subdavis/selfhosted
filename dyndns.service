@@ -6,15 +6,20 @@ Requires=docker.service
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill dyndns
-ExecStartPre=-/usr/bin/docker rm dyndns
-ExecStart=/usr/bin/docker run --name dyndns -d \
-    -e APIURL="${APIURL}" \
-    -e APIKEY="${APIKEY}" \
-    -e HOSTNAME="${DNS_DOMAIN}" \
-    -e SECRET="${SECRET}" \
-    -e CRON_SCHEDULE="@hourly" \
-    subdavis/dyndns
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull subdavis/dyndns
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env APIURL="${APIURL}" \
+  --env APIKEY="${APIKEY}" \
+  --env HOSTNAME="${DNS_DOMAIN}" \
+  --env SECRET="${SECRET}" \
+  --env CRON_SCHEDULE="@hourly" \
+  subdavis/dyndns
 
 [Install]
 WantedBy=multi-user.target

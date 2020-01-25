@@ -1,35 +1,40 @@
 [Unit]
 Description=Plex
 After=docker.service
-Requires=docker.service
+Requires=docker.service media-sdc.mount
 
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill plex
-ExecStartPre=-/usr/bin/docker rm plex
-ExecStart=/usr/bin/docker run -d \
-    -e VIRTUAL_HOST=plex.${DNS_DOMAIN} \
-    -e VIRTUAL_PORT=32400 \
-    -e "LETSENCRYPT_HOST=plex.${DNS_DOMAIN}" \
-    -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-    --name plex \
-    -p 32400:32400/tcp \
-    -p 3005:3005/tcp \
-    -p 8324:8324/tcp \
-    -p 32469:32469/tcp \
-    -p 1900:1900/udp \
-    -p 32410:32410/udp \
-    -p 32412:32412/udp \
-    -p 32413:32413/udp \
-    -p 32414:32414/udp \
-    -e TZ="America/New_York" \
-    -e ADVERTISE_IP="https://plex.${DNS_DOMAIN}/" \
-    -e PLEX_CLAIM="CLAIM-FJQ1MV91MF4DBPNMNKB8" \
-    -v ${MOUNT_ROOT_C}/plex/config:/config \
-    -v /tmp/plex/transcode:/transcode \
-    -v ${MOUNT_ROOT_C}/plex/media:/data \
-    plexinc/pms-docker:beta
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull plexinc/pms-docker:beta
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env VIRTUAL_HOST=plex.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=32400 \
+  --env "LETSENCRYPT_HOST=plex.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --name plex \
+  --port 32400:32400/tcp \
+  --port 3005:3005/tcp \
+  --port 8324:8324/tcp \
+  --port 32469:32469/tcp \
+  --port 1900:1900/udp \
+  --port 32410:32410/udp \
+  --port 32412:32412/udp \
+  --port 32413:32413/udp \
+  --port 32414:32414/udp \
+  --env TZ="America/New_York" \
+  --env ADVERTISE_IP="https://plex.${DNS_DOMAIN}/" \
+  --env PLEX_CLAIM="CLAIM-FJQ1MV91MF4DBPNMNKB8" \
+  --volume ${MOUNT_ROOT_C}/plex/config:/config \
+  --volume /tmp/plex/transcode:/transcode \
+  --volume ${MOUNT_ROOT_C}/plex/media:/data \
+  plexinc/pms-docker:beta
 
 [Install]
 WantedBy=multi-user.target

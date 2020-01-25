@@ -1,24 +1,28 @@
 [Unit]
 Description=NginxProxy
 After=docker.service
-Requires=docker.service
+Requires=docker.service media-sdb.mount
 
 [Service]
-TimeoutStartSec=0
 EnvironmentFile=/etc/profile.env
-ExecStartPre=-/usr/bin/docker kill nginxproxy
-ExecStartPre=-/usr/bin/docker rm nginxproxy
-ExecStart=/usr/bin/docker run -d \
-    --name nginxproxy \
-    -p 80:80 -p 443:443 \
-    -v ${MOUNT_ROOT_B}/nginx:/var/log/nginx \
-    -v ${MOUNT_ROOT_B}/ssl/vhost:/etc/nginx/vhost.d \
-    -v ${MOUNT_ROOT_B}/ssl/html:/usr/share/nginx/html \
-    -v ${MOUNT_ROOT_B}/ssl/certs:/etc/nginx/certs:rw \
-    --label com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy \
-    -v /var/run/docker.sock:/tmp/docker.sock:ro \
-    -v ${SYSTEMD_ROOT}/etc/max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro \
-    jwilder/nginx-proxy
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull jwilder/nginx-proxy
+ExecStart/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --port 80:80 --port 443:443 \
+  --volume ${MOUNT_ROOT_B}/nginx:/var/log/nginx \
+  --volume ${MOUNT_ROOT_B}/ssl/vhost:/etc/nginx/vhost.d \
+  --volume ${MOUNT_ROOT_B}/ssl/html:/usr/share/nginx/html \
+  --volume ${MOUNT_ROOT_B}/ssl/certs:/etc/nginx/certs:rw \
+  --label com.github.jrcs.letsencrypt_nginx_proxy_companion.nginx_proxy \
+  --volume /var/run/docker.sock:/tmp/docker.sock:ro \
+  --volume ${SYSTEMD_ROOT}/etc/max_body_size.conf:/etc/nginx/conf.d/client_max_body_size.conf:ro \
+  jwilder/nginx-proxy
 
 [Install]
 WantedBy=multi-user.target

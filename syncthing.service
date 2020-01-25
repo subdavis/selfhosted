@@ -1,28 +1,29 @@
 [Unit]
 Description=Syncthing
 After=docker.service
-Requires=docker.service
+Requires=docker.service media-sdb.mount media-sdc.mount
  
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
-ExecStartPre=/usr/bin/docker pull linuxserver/syncthing
-ExecStart=/opt/systemd-docker \
-  --cgroups name=systemd \
-  run --rm --name %n \
-  -e VIRTUAL_HOST=syncthing.${DNS_DOMAIN} \
-  -e VIRTUAL_PORT=8384 \
-  -e "LETSENCRYPT_HOST=syncthing.${DNS_DOMAIN}" \
-  -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  -v ${MOUNT_ROOT_B}/syncthing/data:/mnt/data \
-  -v ${MOUNT_ROOT_B}/syncthing/config:/config \
-  -p 22000:22000 -p 21027:21027/udp -p 8384:8384 \
-  --name syncthing \
-  linuxserver/syncthing
 Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
- 
+ExecStartPre=/usr/bin/docker pull linuxserver/syncthing
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env VIRTUAL_HOST=syncthing.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=8384 \
+  --env "LETSENCRYPT_HOST=syncthing.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --volume ${MOUNT_ROOT_B}/syncthing/data:/mnt/data \
+  --volume ${MOUNT_ROOT_B}/syncthing/config:/config \
+  --port 22000:22000 \
+  --port 21027:21027/udp \
+  --port 8384:8384 \
+  linuxserver/syncthing
+
 [Install]
 WantedBy=multi-user.target

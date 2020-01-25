@@ -1,26 +1,30 @@
 [Unit]
 Description=Calibre
 After=docker.service
-Requires=docker.service postgres.service
+Requires=docker.service postgres.service media-sdb.mount
 
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill calibre
-ExecStartPre=-/usr/bin/docker rm calibre
-ExecStart=/usr/bin/docker run -d \
-  --name=calibre \
-  -e VIRTUAL_HOST=calibre.${DNS_DOMAIN} \
-  -e VIRTUAL_PORT=8083 \
-  -e "LETSENCRYPT_HOST=calibre.${DNS_DOMAIN}" \
-  -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  -e PUID=0 \
-  -e PGID=0 \
-  -e TZ=America/New_York \
-  -e DOCKER_MODS=linuxserver/calibre-web:calibre \
-  -p 8083:8083 \
-  -v ${MOUNT_ROOT_B}/calibre/config:/config \
-  -v ${MOUNT_ROOT_B}/calibre/books:/books \
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull linuxserver/calibre-web
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env VIRTUAL_HOST=calibre.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=8083 \
+  --env "LETSENCRYPT_HOST=calibre.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --env PUID=0 \
+  --env PGID=0 \
+  --env TZ=America/New_York \
+  --env DOCKER_MODS=linuxserver/calibre-web:calibre \
+  --port 8083:8083 \
+  --volume ${MOUNT_ROOT_B}/calibre/config:/config \
+  --volume ${MOUNT_ROOT_B}/calibre/books:/books \
   linuxserver/calibre-web
 
 [Install]

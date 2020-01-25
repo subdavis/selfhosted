@@ -1,14 +1,22 @@
 [Unit]
 Description=Postgres
+After=docker.service
+Requires=docker.service media-sdb.mount
 
 [Service]
+EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill postgres
-ExecStartPre=-/usr/bin/docker rm postgres
-ExecStart=/usr/bin/docker run --name=postgres \
-    -v ${MOUNT_ROOT_B}/postgres/data:/var/lib/postgresql/data/ \
-    -p 5432:5432 \
-    postgres
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull postgres
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --volume ${MOUNT_ROOT_B}/postgres/data:/var/lib/postgresql/data/ \
+  --port 5432:5432 \
+  postgres
 
 [Install]
 WantedBy=default.target

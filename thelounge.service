@@ -1,22 +1,27 @@
 [Unit]
 Description=Thelounge
 After=docker.service
-Requires=tor.service
+Requires=docker.service media-sdb.mount media-sdc.mount
 
 [Service]
 EnvironmentFile=/etc/profile.env
 TimeoutStartSec=0
-ExecStartPre=-/usr/bin/docker kill thelounge
-ExecStartPre=-/usr/bin/docker rm thelounge
-ExecStart=/usr/bin/docker run --name=thelounge \
-    -e VIRTUAL_HOST=shout.${DNS_DOMAIN} \
-    -e VIRTUAL_PORT=9090 \
-    -e "LETSENCRYPT_HOST=shout.${DNS_DOMAIN}" \
-    -e "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-    -v ${MOUNT_ROOT_B}/shout:/var/opt/thelounge \
-    -p 9090:9000 \
-    --link tor:tor \
-    thelounge/thelounge
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull theloung/thelounge
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env VIRTUAL_HOST=shout.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=9090 \
+  --env "LETSENCRYPT_HOST=shout.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --volume ${MOUNT_ROOT_B}/shout:/var/opt/thelounge \
+  --port 9090:9000 \
+  --link tor:tor \
+  thelounge/thelounge
 
 [Install]
 WantedBy=multi-user.target
