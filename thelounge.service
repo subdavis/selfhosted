@@ -20,7 +20,7 @@ ExecStart=/opt/systemd-docker \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
   --volume ${MOUNT_ROOT_B}/shout:/var/opt/thelounge \
   --publish 9090:9000 \
-  --link tor:tor \
+  --link tor.service:tor \
   thelounge/thelounge
 
 [Install]

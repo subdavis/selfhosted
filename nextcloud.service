@@ -17,7 +17,7 @@ ExecStart=/opt/systemd-docker \
   --env VIRTUAL_HOST=nc.${DNS_DOMAIN} \
   --env "LETSENCRYPT_HOST=nc.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  --link postgres:postgres \
+  --link postgres.service:postgres \
   --volume ${MOUNT_ROOT_B}/nextcloud:/var/www/html \
   nextcloud
 

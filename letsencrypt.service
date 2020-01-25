@@ -14,7 +14,7 @@ ExecStartPre=-/usr/bin/docker pull jrcs/letsencrypt-nginx-proxy-companion
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --volumes-from nginxproxy \
+  --volumes-from nginxproxy.service \
   --volume ${MOUNT_ROOT_B}/ssl/certs:/etc/nginx/certs:rw \
   --volume /var/run/docker.sock:/var/run/docker.sock:ro \
   jrcs/letsencrypt-nginx-proxy-companion
