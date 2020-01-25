@@ -18,7 +18,6 @@ ExecStart=/opt/systemd-docker \
   --env VIRTUAL_PORT=32400 \
   --env "LETSENCRYPT_HOST=plex.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  --name plex \
   --publish 32400:32400/tcp \
   --publish 3005:3005/tcp \
   --publish 8324:8324/tcp \

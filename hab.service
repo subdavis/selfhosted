@@ -1,7 +1,7 @@
 [Unit]
 Description=Samba
 After=docker.service
-Requires=docker.service media-sdb.service
+Requires=docker.service media-sdb.mount
 
 [Service]
 EnvironmentFile=/etc/profile.env
