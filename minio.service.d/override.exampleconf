@@ -1,0 +1,4 @@
+[Service]
+Environment="MINIO_ACCESS_KEY=CHANGEME"
+Environment="MINIO_SECRET_KEY=CHANGEME"
+

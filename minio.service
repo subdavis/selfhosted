@@ -1,7 +1,7 @@
 [Unit]
-Description=Nextcloud
+Description=Minio
 After=docker.service
-Requires=docker.service postgres.service media-sdb.mount
+Requires=docker.service media-sdb.mount
 
 [Service]
 EnvironmentFile=/etc/profile.env
@@ -10,16 +10,17 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull nextcloud
+ExecStartPre=-/usr/bin/docker pull minio/minio
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --env VIRTUAL_HOST=nc.${DNS_DOMAIN} \
   --env "LETSENCRYPT_HOST=nc.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  --link postgres.service:postgres \
-  --volume ${MOUNT_ROOT_B}/nextcloud:/var/www/html \
-  nextcloud
+  --env "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}" \
+  --env "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}" \
+  --volume ${MOUNT_ROOT_B}/minio:/data \
+  minio/minio server /data
 
 [Install]
 WantedBy=multi-user.target
