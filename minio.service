@@ -15,10 +15,12 @@ ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --env VIRTUAL_HOST=nc.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=9000 \
   --env "LETSENCRYPT_HOST=nc.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
   --env "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}" \
   --env "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}" \
+  --publish 9010:9000 \
   --volume ${MOUNT_ROOT_B}/minio:/data \
   minio/minio server /data
 
