@@ -1,9 +1,9 @@
 [Unit]
-Description=Runs rsync nextcloud backup every hour
+Description=Runs rsync minio backup
 
 [Timer]
 OnBootSec=15min
-OnUnitActiveSec=1h
+OnUnitActiveSec=24h
 Unit=rsync.service
 
 [Install]
