@@ -17,7 +17,6 @@ ExecStart=/opt/systemd-docker \
   run --rm --name %n \
   --publish 5601:5601 \
   --link elasticsearch.service:elasticsearch \
-  --volume ${MOUNT_ROOT_B}/kibana/kibana.yml:/usr/share/kibana/config/kibana.yml \
   docker.elastic.co/kibana/kibana:7.5.2
  
 [Install]
