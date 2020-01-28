@@ -1,0 +1,26 @@
+[Unit]
+Description=Elastic Search
+After=docker.service
+Requires=docker.service media-sdb.mount
+ 
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=/usr/bin/docker pull \
+  docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env "discovery.type=single-node" \
+  --publish 9200:9200 \
+  --publish 9300:9300 \
+  --volume ${MOUNT_ROOT_B}/elasticsearch/conf:/usr/share/elasticsearch/config \
+  --volume ${MOUNT_ROOT_B}/elasticsearch/data:/usr/share/elasticsearch/data \
+  docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+ 
+[Install]
+WantedBy=multi-user.target
