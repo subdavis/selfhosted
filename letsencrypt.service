@@ -1,7 +1,7 @@
 [Unit]
 Description=Letsencrypt
 After=docker.service
-Requires=docker.service media-sdb.mount nginxproxy.service
+Requires=docker.service media-primary.mount nginxproxy.service
 
 [Service]
 EnvironmentFile=/etc/profile.env

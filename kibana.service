@@ -1,7 +1,7 @@
 [Unit]
 Description=Kibana
 After=docker.service
-Requires=docker.service media-sdb.mount elasticsearch.service
+Requires=docker.service media-primary.mount elasticsearch.service
  
 [Service]
 EnvironmentFile=/etc/profile.env

@@ -1,7 +1,7 @@
 [Unit]
 Description=Thelounge
 After=docker.service
-Requires=docker.service media-sdb.mount media-sdc.mount
+Requires=docker.service media-primary.mount media-secondary.mount
 
 [Service]
 EnvironmentFile=/etc/profile.env
