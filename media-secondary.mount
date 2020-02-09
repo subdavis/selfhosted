@@ -2,8 +2,8 @@
 Description=General data
 
 [Mount]
-What=/dev/sdb1
-Where=/media/sdb
+What=/dev/sde1
+Where=/media/secondary
 Type=ext4
 Options=defaults,auto,noatime,exec
 

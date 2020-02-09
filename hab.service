@@ -17,9 +17,9 @@ ExecStart=/opt/systemd-docker \
   --net=host \
   --publish 8080 \
   --tty \
-  --volume ${MOUNT_ROOT_B}/openhab/openhab_addons:/openhab/addons \
-  --volume ${MOUNT_ROOT_B}/openhab/openhab_conf:/openhab/conf \
-  --volume ${MOUNT_ROOT_B}/openhab/openhab_userdata:/openhab/userdata \
+  --volume ${PRIMARY_MOUNT}/openhab/openhab_addons:/openhab/addons \
+  --volume ${PRIMARY_MOUNT}/openhab/openhab_conf:/openhab/conf \
+  --volume ${PRIMARY_MOUNT}/openhab/openhab_userdata:/openhab/userdata \
   -d --restart=always \
   openhab/openhab:2.1.0-amd64
 

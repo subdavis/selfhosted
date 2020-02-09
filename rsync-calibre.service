@@ -12,8 +12,8 @@ ExecStartPre=-/usr/bin/docker pull subdavis/rsync
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --volume ${MOUNT_ROOT_B}/calibre:/source \
-  --volume ${MOUNT_ROOT_C}/calibre_backup:/dest \
+  --volume ${PRIMARY_MOUNT}/calibre:/source \
+  --volume ${SECONDARY_MOUNT}/calibre_backup:/dest \
   subdavis/rsync
 
 [Install]

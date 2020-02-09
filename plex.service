@@ -30,9 +30,9 @@ ExecStart=/opt/systemd-docker \
   --env TZ="America/New_York" \
   --env ADVERTISE_IP="https://plex.${DNS_DOMAIN}/" \
   --env PLEX_CLAIM="CLAIM-FJQ1MV91MF4DBPNMNKB8" \
-  --volume ${MOUNT_ROOT_C}/plex/config:/config \
+  --volume ${SECONDARY_MOUNT}/plex/config:/config \
   --volume /tmp/plex/transcode:/transcode \
-  --volume ${MOUNT_ROOT_C}/plex/media:/data \
+  --volume ${SECONDARY_MOUNT}/plex/media:/data \
   plexinc/pms-docker:beta
 
 [Install]

@@ -14,7 +14,7 @@ ExecStartPre=-/usr/bin/docker pull postgres
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --volume ${MOUNT_ROOT_B}/postgres/data:/var/lib/postgresql/data/ \
+  --volume ${PRIMARY_MOUNT}/postgres/data:/var/lib/postgresql/data/ \
   --publish 5432:5432 \
   postgres
 

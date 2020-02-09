@@ -23,8 +23,8 @@ ExecStart=/opt/systemd-docker \
   --env TZ=America/New_York \
   --env DOCKER_MODS=linuxserver/calibre-web:calibre \
   --publish 8083:8083 \
-  --volume ${MOUNT_ROOT_B}/calibre/config:/config \
-  --volume ${MOUNT_ROOT_B}/calibre/books:/books \
+  --volume ${PRIMARY_MOUNT}/calibre/config:/config \
+  --volume ${PRIMARY_MOUNT}/calibre/books:/books \
   linuxserver/calibre-web
 
 [Install]

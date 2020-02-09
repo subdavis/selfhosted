@@ -18,8 +18,8 @@ ExecStart=/opt/systemd-docker \
   --env VIRTUAL_PORT=8384 \
   --env "LETSENCRYPT_HOST=syncthing.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  --volume ${MOUNT_ROOT_B}/syncthing/data:/mnt/data \
-  --volume ${MOUNT_ROOT_B}/syncthing/config:/config \
+  --volume ${PRIMARY_MOUNT}/syncthing/data:/mnt/data \
+  --volume ${PRIMARY_MOUNT}/syncthing/config:/config \
   --publish 22000:22000 \
   --publish 21027:21027/udp \
   --publish 8384:8384 \

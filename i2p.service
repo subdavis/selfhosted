@@ -14,7 +14,7 @@ ExecStartPre=-/usr/bin/docker pull geti2p/i2p
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --volume ${MOUNT_ROOT_B}/i2p:/var/lib/i2p:z \
+  --volume ${PRIMARY_MOUNT}/i2p:/var/lib/i2p:z \
   --publish 4444:4444 \
   --publish 6668:6668 \
   --publish 7657:7657 \

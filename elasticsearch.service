@@ -19,7 +19,7 @@ ExecStart=/opt/systemd-docker \
   --env "TAKE_FILE_OWNERSHIP=1" \
   --publish 9200:9200 \
   --publish 9300:9300 \
-  --volume ${MOUNT_ROOT_B}/elasticsearch/data:/usr/share/elasticsearch/data \
+  --volume ${PRIMARY_MOUNT}/elasticsearch/data:/usr/share/elasticsearch/data \
   docker.elastic.co/elasticsearch/elasticsearch:7.5.2
  
 [Install]

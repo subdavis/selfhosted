@@ -2,8 +2,8 @@
 Description=USB media
 
 [Mount]
-What=/dev/sdc1
-Where=/media/sdc
+What=/dev/sdb1
+Where=/media/tertiary
 Type=ext4
 Options=defaults,auto,noatime,exec
 

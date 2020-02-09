@@ -17,7 +17,7 @@ ExecStart=/opt/systemd-docker \
   --env CREATE_TUN_DEVICE=true \
   --cap-add=NET_ADMIN \
   --device=/dev/net/tun \
-  --volume ${MOUNT_ROOT_C}/plex/media/:/data \
+  --volume ${SECONDARY_MOUNT}/plex/media/:/data \
   --volume /etc/localtime:/etc/localtime:ro  \
   --env "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}" \
   --env "OPENVPN_USERNAME=${USERNAME}" \
