@@ -2,4 +2,4 @@ FROM alpine
 
 RUN apk add rsync
 ENTRYPOINT ["rsync"]
-CMD ["-r", "/source", "/dest"]
+CMD ["-ra", "--update", "/source", "/dest"]
