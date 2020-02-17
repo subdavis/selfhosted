@@ -1,0 +1,10 @@
+[Unit]
+Description=Runs rsync minio backup
+
+[Timer]
+OnBootSec=15min
+OnUnitActiveSec=24h
+Unit=rsync.service
+
+[Install]
+WantedBy=multi-user.target

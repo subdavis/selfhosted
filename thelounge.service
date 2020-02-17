@@ -1,0 +1,27 @@
+[Unit]
+Description=Thelounge
+After=docker.service
+Requires=docker.service media-primary.mount media-secondary.mount
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull theloung/thelounge
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env VIRTUAL_HOST=shout.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=9090 \
+  --env "LETSENCRYPT_HOST=shout.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --volume ${PRIMARY_MOUNT}/shout:/var/opt/thelounge \
+  --publish 9090:9000 \
+  --link tor.service:tor \
+  thelounge/thelounge
+
+[Install]
+WantedBy=multi-user.target

@@ -1,0 +1,31 @@
+[Unit]
+Description=Calibre
+After=docker.service
+Requires=docker.service postgres.service media-primary.mount
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull linuxserver/calibre-web
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env VIRTUAL_HOST=calibre.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=8083 \
+  --env "LETSENCRYPT_HOST=calibre.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --env PUID=0 \
+  --env PGID=0 \
+  --env TZ=America/New_York \
+  --env DOCKER_MODS=linuxserver/calibre-web:calibre \
+  --publish 8083:8083 \
+  --volume ${PRIMARY_MOUNT}/calibre/config:/config \
+  --volume ${PRIMARY_MOUNT}/calibre/books:/books \
+  linuxserver/calibre-web
+
+[Install]
+WantedBy=multi-user.target

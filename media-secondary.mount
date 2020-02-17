@@ -1,0 +1,11 @@
+[Unit]
+Description=General data
+
+[Mount]
+What=/dev/sde1
+Where=/media/secondary
+Type=ext4
+Options=defaults,auto,noatime,exec
+
+[Install]
+WantedBy=multi-user.target

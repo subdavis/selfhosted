@@ -1,0 +1,21 @@
+[Unit]
+Description=tor
+After=docker.service
+Requires=docker.service
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull niruix/tor:latest
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --publish 9050:9050 \
+  niruix/tor:latest
+
+[Install]
+WantedBy=multi-user.target

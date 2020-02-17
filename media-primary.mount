@@ -1,0 +1,11 @@
+[Unit]
+Description=RAID1
+
+[Mount]
+What=/dev/md0
+Where=/media/primary
+Type=ext4
+Options=defaults,auto,noatime,exec
+
+[Install]
+WantedBy=multi-user.target

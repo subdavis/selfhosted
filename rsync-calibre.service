@@ -1,0 +1,20 @@
+[Unit]
+Description=Rsync Backup
+After=docker.service
+Requires=docker.service media-primary.mount media-secondary.mount
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull subdavis/rsync
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --volume ${PRIMARY_MOUNT}/calibre:/source \
+  --volume ${SECONDARY_MOUNT}/calibre_backup:/dest \
+  subdavis/rsync
+
+[Install]
+WantedBy=multi-user.target

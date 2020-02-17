@@ -1,0 +1,11 @@
+[Unit]
+Description=USB media
+
+[Mount]
+What=/dev/sdb1
+Where=/media/tertiary
+Type=ext4
+Options=defaults,auto,noatime,exec
+
+[Install]
+WantedBy=multi-user.target

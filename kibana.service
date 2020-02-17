@@ -1,0 +1,23 @@
+[Unit]
+Description=Kibana
+After=docker.service
+Requires=docker.service media-primary.mount elasticsearch.service
+ 
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=/usr/bin/docker pull \
+  docker.elastic.co/kibana/kibana:7.5.2
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --publish 5601:5601 \
+  --link elasticsearch.service:elasticsearch \
+  docker.elastic.co/kibana/kibana:7.5.2
+ 
+[Install]
+WantedBy=multi-user.target

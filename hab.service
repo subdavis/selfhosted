@@ -1,0 +1,27 @@
+[Unit]
+Description=Samba
+After=docker.service
+Requires=docker.service media-primary.mount
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull openhab/openhab:2.1.0-amd64
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --net=host \
+  --publish 8080 \
+  --tty \
+  --volume ${PRIMARY_MOUNT}/openhab/openhab_addons:/openhab/addons \
+  --volume ${PRIMARY_MOUNT}/openhab/openhab_conf:/openhab/conf \
+  --volume ${PRIMARY_MOUNT}/openhab/openhab_userdata:/openhab/userdata \
+  -d --restart=always \
+  openhab/openhab:2.1.0-amd64
+
+[Install]
+WantedBy=multi-user.target

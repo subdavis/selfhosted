@@ -1,0 +1,39 @@
+[Unit]
+Description=Plex
+After=docker.service
+Requires=docker.service media-secondary.mount
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull plexinc/pms-docker:beta
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env VIRTUAL_HOST=plex.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=32400 \
+  --env "LETSENCRYPT_HOST=plex.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --publish 32400:32400/tcp \
+  --publish 3005:3005/tcp \
+  --publish 8324:8324/tcp \
+  --publish 32469:32469/tcp \
+  --publish 1900:1900/udp \
+  --publish 32410:32410/udp \
+  --publish 32412:32412/udp \
+  --publish 32413:32413/udp \
+  --publish 32414:32414/udp \
+  --env TZ="America/New_York" \
+  --env ADVERTISE_IP="https://plex.${DNS_DOMAIN}/" \
+  --env PLEX_CLAIM="CLAIM-FJQ1MV91MF4DBPNMNKB8" \
+  --volume ${SECONDARY_MOUNT}/plex/config:/config \
+  --volume /tmp/plex/transcode:/transcode \
+  --volume ${SECONDARY_MOUNT}/plex/media:/data \
+  plexinc/pms-docker:beta
+
+[Install]
+WantedBy=multi-user.target

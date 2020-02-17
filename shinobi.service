@@ -1,0 +1,29 @@
+[Unit]
+Description=Shinobi
+After=docker.service
+Requires=docker.service media-primary.mount
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull shinobisystems/shinobi:latest-ubuntu
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env APP_BRANCH=dev \
+  --env VIRTUAL_HOST=shinobi.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=8080 \
+  --publish 8000:8080/tcp \
+  --volume "/dev/shm/shinobiStreams":/dev/shm/streams:rw \
+  --volume "${PRIMARY_MOUNT}/shinobi/shinobiConfig":/config:rw \
+  --volume "${PRIMARY_MOUNT}/shinobi/shinobiCustomAutoLoad":/customAutoLoad:rw \
+  --volume "${PRIMARY_MOUNT}/shinobi/shinobiDatabase":/var/lib/mysql:rw \
+  --volume "${PRIMARY_MOUNT}/shinobi/shinobiVideos":/opt/shinobi/videos:rw \
+  shinobisystems/shinobi:latest-ubuntu
+
+[Install]
+WantedBy=multi-user.target

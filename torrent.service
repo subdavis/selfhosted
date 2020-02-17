@@ -1,0 +1,39 @@
+[Unit]
+Description=Torrent
+After=docker.service
+Requires=docker.service media-secondary.mount
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull haugene/transmission-openvpn
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env CREATE_TUN_DEVICE=true \
+  --cap-add=NET_ADMIN \
+  --device=/dev/net/tun \
+  --volume ${SECONDARY_MOUNT}/plex/media/:/data \
+  --volume /etc/localtime:/etc/localtime:ro  \
+  --env "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}" \
+  --env "OPENVPN_USERNAME=${USERNAME}" \
+  --env "OPENVPN_PASSWORD=${PASSWORD}" \
+  --env "TRANSMISSION_UMASK=0" \
+  --env "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60" \
+  --env LOCAL_NETWORK=10.0.1.1/24 \
+  --dns 1.1.1.1  \
+  haugene/transmission-openvpn
+ExecStartPost=-/usr/bin/docker pull haugene/transmission-openvpn-proxy
+ExecStartPost=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n-proxy \
+  --link %n:transmission \
+  --publish 9092:8080 \
+  haugene/transmission-openvpn-proxy
+
+[Install]
+WantedBy=multi-user.target

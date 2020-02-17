@@ -1,0 +1,28 @@
+[Unit]
+Description=Minio
+After=docker.service
+Requires=docker.service media-primary.mount
+
+[Service]
+EnvironmentFile=/etc/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull minio/minio
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env VIRTUAL_HOST=minio.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=9000 \
+  --env "LETSENCRYPT_HOST=minio.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --env "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}" \
+  --env "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}" \
+  --publish 9000:9000 \
+  --volume ${PRIMARY_MOUNT}/minio:/data \
+  minio/minio server /data
+
+[Install]
+WantedBy=multi-user.target
