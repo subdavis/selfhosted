@@ -21,7 +21,7 @@ ExecStart=/opt/systemd-docker \
   --env "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}" \
   --env "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}" \
   --publish 9000:9000 \
-  --volume ${PRIMARY_MOUNT}/minio:/data \
+  --volume ${PRIMARY_MOUNT}:/data \
   minio/minio server /data
 
 [Install]

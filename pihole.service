@@ -22,8 +22,8 @@ ExecStart=/opt/systemd-docker \
   --env WEBPASSWORD="${WEBPASSWORD}" \
   --env DNSSEC=true \
   --env WEB_PORT=9093 \
-  --volume "${PRIMARY_MOUNT}/etc-pihole/:/etc/pihole/" \
-  --volume "${PRIMARY_MOUNT}/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
+  --volume "${PRIMARY_MOUNT}/pihole/etc-pihole/:/etc/pihole/" \
+  --volume "${PRIMARY_MOUNT}/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
   --dns 127.0.0.1 \
   --dns 1.1.1.1 \
   pihole/pihole:latest
