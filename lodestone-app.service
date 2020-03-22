@@ -1,0 +1,39 @@
+[Unit]
+Description=Lodestone app
+After=docker.service
+Requires=docker.service minio.service elasticsearch.service rabbitmq.service
+
+[Service]
+EnvironmentFile=/etc/systemd/system/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=/usr/bin/docker pull analogj/lodestone:web
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --link minio.service:minio \
+  --link elasticsearch.service:elasticsearch \
+  --link rabbitmq.service:rabbitmq \
+  --env VIRTUAL_HOST=ls.${DNS_DOMAIN} \
+  --env VIRTUAL_PORT=3000 \
+  --env LS_STORAGE_HOST=minio \
+  --env LS_STORAGE_PORT=9000 \
+  --env LS_STORAGE_PATH=/lodestone/ \
+  --env LS_ELASTICSEARCH_HOST=elasticsearch \
+  --env LS_ELASTICSEARCH_PORT=9200 \
+  --env LS_RABBITMQ_HOST=rabbitmq \
+  --env LS_RABBITMQ_PORT=5672 \
+  --env LS_RABBITMQ_MG_HOST=rabbitmq \
+  --env LS_RABBITMQ_MG_PORT=15672 \
+  --env "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}" \
+  --env "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}" \
+  --env "RABBITMQ_USER=${RABBITMQ_USER}" \
+  --env "RABBITMQ_PASS=${RABBITMQ_PASS}" \
+  --publish 3000:3000 \
+  analogj/lodestone:web
+
+[Install]
+WantedBy=multi-user.target
