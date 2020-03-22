@@ -1,21 +1,22 @@
 [Unit]
-Description=Dyndns
+Description=Rabbitmq
 After=docker.service
 Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/systemd/system/profile.env
 TimeoutStartSec=0
+Restart=always
+RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull oznu/cloudflare-ddns
+ExecStartPre=/usr/bin/docker pull analogj/lodestone:rabbitmq
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --env "API_KEY=${API_KEY}" \
-  --env "ZONE=${DNS_DOMAIN}" \
-  --env "SUBDOMAIN=${SUBDOMAIN}" \
-  oznu/cloudflare-ddns
-
+  --env "RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}" \
+  --env "RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}" \
+  analogj/lodestone:rabbitmq
+ 
 [Install]
 WantedBy=multi-user.target

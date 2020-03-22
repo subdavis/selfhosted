@@ -1,7 +1,7 @@
 [Unit]
-Description=Postgres
+Description=Tika
 After=docker.service
-Requires=docker.service media-primary.mount
+Requires=docker.service
 
 [Service]
 EnvironmentFile=/etc/systemd/system/profile.env
@@ -10,13 +10,11 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull postgres
+ExecStartPre=/usr/bin/docker pull analogj/lodestone:tika
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --volume ${PRIMARY_MOUNT}/postgres/data:/var/lib/postgresql/data/ \
-  --publish 5432:5432 \
-  postgres
-
+  analogj/lodestone:tika
+ 
 [Install]
-WantedBy=default.target
+WantedBy=multi-user.target

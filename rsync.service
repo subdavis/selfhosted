@@ -4,7 +4,7 @@ After=docker.service
 Requires=docker.service media-primary.mount media-secondary.mount
 
 [Service]
-EnvironmentFile=/etc/profile.env
+EnvironmentFile=/etc/systemd/system/profile.env
 TimeoutStartSec=0
 Type=notify
 NotifyAccess=all
