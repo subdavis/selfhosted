@@ -64,6 +64,7 @@ Don't do this until you have your CNAMEs and Dynamic DNS working.
 * If you're using Lambda Dynamic DNS, go complete that section below!
 * Reload systemd: `systemctl daemon-reload`. This must be run ANY TIME any of your `.service` or `.conf` files change.
 * Enable all the services and timers: `systemctl enable <name>.<service|timer>`
+* You may need to disable ubuntu's default dns service and remove resolf.conf.  [read more](https://www.smarthomebeginner.com/run-pihole-in-docker-on-ubuntu-with-reverse-proxy/).
 
 # Troubleshooting
 
