@@ -1,0 +1,23 @@
+[Unit]
+Description=kobodl in Systemd
+After=docker.service
+Requires=docker.service media-primary.mount
+ 
+[Service]
+EnvironmentFile=/etc/systemd/system/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=/usr/bin/docker pull subdavis/kobodl
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  -v ${PRIMARY_MOUNT}/kobodl/kobodl.json:/.config/kobodl.json \
+  -v ${PRIMARY_MOUNT}/kobodl/downloads:/home/downloads
+  --publish 5000:5000 \
+  subdavis/kobodl serve -o /home/downloads
+ 
+[Install]
+WantedBy=multi-user.target
