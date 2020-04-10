@@ -2,7 +2,7 @@
 Description=USB media
 
 [Mount]
-What=/dev/sdb1
+What=/dev/sda1
 Where=/media/tertiary
 Type=ext4
 Options=defaults,auto,noatime,exec

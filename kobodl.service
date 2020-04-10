@@ -14,10 +14,13 @@ ExecStartPre=/usr/bin/docker pull subdavis/kobodl
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  -v ${PRIMARY_MOUNT}/kobodl/kobodl.json:/.config/kobodl.json \
-  -v ${PRIMARY_MOUNT}/kobodl/downloads:/home/downloads
+  -v ${PRIMARY_MOUNT}/kobodl/kobodl.json:/home/kobodl.json \
+  -v ${PRIMARY_MOUNT}/kobodl/downloads:/home/downloads \
   --publish 5000:5000 \
-  subdavis/kobodl serve -o /home/downloads
- 
+  subdavis/kobodl \
+  --config /home/kobodl.json \
+  serve \
+  -h 0.0.0.0 \
+  --output-dir /home/downloads
 [Install]
 WantedBy=multi-user.target
