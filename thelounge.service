@@ -20,6 +20,7 @@ ExecStart=/opt/systemd-docker \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
   --label traefik.http.routers.thelounge.rule="Host(`shout.${DNS_DOMAIN}`) || PathPrefix(`/shout`)" \
   --label traefik.http.services.thelounge.loadbalancer.server.port="9000" \
+  --label traefik.http.middlewares.theloung.stripprefix.prefixes="/shout" \
   --volume ${PRIMARY_MOUNT}/shout:/var/opt/thelounge \
   --publish 9090:9000 \
   --link tor.service:tor \

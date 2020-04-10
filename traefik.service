@@ -21,7 +21,7 @@ ExecStart=/opt/systemd-docker \
   traefik:v2.2 \
   --api.insecure=true \
   --providers.docker \
-  --entrypoints.web.address=:70
+  --entrypoints.web.address=:80
  
 [Install]
 WantedBy=multi-user.target
