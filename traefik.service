@@ -1,0 +1,27 @@
+[Unit]
+Description=Traefik
+After=docker.service
+Requires=docker.service
+ 
+[Service]
+EnvironmentFile=/etc/systemd/system/profile.env
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=/usr/bin/docker pull traefik:2.2
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --publish 7070:8080 \
+  --publish 70:80 \
+  --publish 743:443 \
+  traefik:v2.2 \
+  --api.insecure=true \
+  --providers.docker \
+  --entrypoints.web.address=:70
+ 
+[Install]
+WantedBy=multi-user.target
