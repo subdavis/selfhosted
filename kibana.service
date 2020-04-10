@@ -17,6 +17,9 @@ ExecStart=/opt/systemd-docker \
   run --rm --name %n \
   --publish 5601:5601 \
   --link elasticsearch.service:elasticsearch \
+  --label traefik.http.routers.thelounge.rule="Host(`kibana.${DNS_DOMAIN}`) || PathPrefix(`/kibana`)" \
+  --label traefik.http.services.thelounge.loadbalancer.server.port="5601" \
+  --label traefik.http.middlewares.theloung.stripprefix.prefixes="/kibana" \
   docker.elastic.co/kibana/kibana:7.5.2
  
 [Install]
