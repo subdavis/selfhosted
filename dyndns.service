@@ -12,7 +12,7 @@ ExecStartPre=-/usr/bin/docker pull oznu/cloudflare-ddns
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --env "API_KEY=${API_KEY}" \
+  --env "API_KEY=${CF_TOKEN}" \
   --env "ZONE=${DNS_DOMAIN}" \
   --env "SUBDOMAIN=${SUBDOMAIN}" \
   oznu/cloudflare-ddns
