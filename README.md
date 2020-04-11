@@ -77,9 +77,13 @@ docker logs <name>
 # Systemctl
 systemctl daemon-reload
 systemctl status name.service
-systemctl restart name.service
 systemctl disable name.service
+
+
+# systemctl restart name.service
+docker stop name.service # use docker stop, it's quicker
 
 # journalctl
 journalctl -u name.service --since yesterday
+docker logs -f name.service
 ```

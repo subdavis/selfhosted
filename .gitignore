@@ -1,3 +1,4 @@
 *.wants/
 *.service.d/*.conf
 profile.env
+etc/passwords.txt
