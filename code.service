@@ -4,7 +4,7 @@ After=docker.service
 Requires=docker.service media-primary.mount
  
 [Service]
-EnvironmentFile=/etc/systemd/system/profile.env
+EnvironmentFile=/usr/local/lib/systemd/system/profile.env
 TimeoutStartSec=0
 Restart=always
 RestartSec=10s

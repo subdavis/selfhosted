@@ -4,7 +4,7 @@ After=docker.service
 Requires=docker.service media-primary.mount elasticsearch.service
  
 [Service]
-EnvironmentFile=/etc/systemd/system/profile.env
+EnvironmentFile=/usr/local/lib/systemd/system/profile.env
 TimeoutStartSec=0
 Restart=always
 RestartSec=10s
@@ -14,12 +14,14 @@ ExecStartPre=/usr/bin/docker pull \
   docker.elastic.co/kibana/kibana:7.5.2
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
-  run --rm --name %n \
+  run --rm --name %N \
   --publish 5601:5601 \
   --link elasticsearch.service:elasticsearch \
-  --label traefik.http.routers.thelounge.rule="Host(`kibana.${DNS_DOMAIN}`) || PathPrefix(`/kibana`)" \
-  --label traefik.http.services.thelounge.loadbalancer.server.port="5601" \
-  --label traefik.http.middlewares.theloung.stripprefix.prefixes="/kibana" \
+  --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`) || PathPrefix(`/%N`)" \
+  --label traefik.http.services.%N.loadbalancer.server.port="5601" \
+  --label traefik.http.middlewares.%N.stripprefix.prefixes="/%N" \
+  --label traefik.http.middlewares.%N.usersfile="${PRIMARY_MOUNT}/etc/passwords.txt" \
+  --label traefik.http.routers.%N.middlewares="%N@docker" \
   docker.elastic.co/kibana/kibana:7.5.2
  
 [Install]

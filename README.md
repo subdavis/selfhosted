@@ -57,10 +57,11 @@ For each service, you'll need to create CNAME records for each `service.example.
 
 Don't do this until you have your CNAMEs and Dynamic DNS working.
 
-* Clone this repo in `/etc/systemd/system` on your newly provisioned server.
+* Clone this repo in `/usr/local/lib/systemd/system/` on your newly provisioned server.
 * For any overrides, like `torrent.service.d`, copy the template to a new `override.conf` file with the correct values.
-* create `profile.env` from template: `cp /etc/systemd/system/profile.env.example /etc/systemd/system/profile.env`
+* create `profile.env` from template: `cp /usr/local/lib/systemd/system/profile.env.example /usr/local/lib/systemd/system/profile.env`
 * edit `profile.env` for your needs
+* create `passwords.txt` with the `htpasswd` command in `./etc`
 * If you're using Lambda Dynamic DNS, go complete that section below!
 * Reload systemd: `systemctl daemon-reload`. This must be run ANY TIME any of your `.service` or `.conf` files change.
 * Enable all the services and timers: `systemctl enable <name>.<service|timer>`
