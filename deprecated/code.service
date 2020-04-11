@@ -14,9 +14,9 @@ ExecStartPre=/usr/bin/docker pull codercom/code-server
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --env VIRTUAL_HOST=code.${DNS_DOMAIN} \
+  --env VIRTUAL_HOST=%N.${DNS_DOMAIN} \
   --env VIRTUAL_PORT=8080 \
-  --env "LETSENCRYPT_HOST=code.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_HOST=%N.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
   --env "PASSWORD=${PASSWORD}" \
   --publish 8002:8080 \

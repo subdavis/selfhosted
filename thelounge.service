@@ -14,15 +14,11 @@ ExecStartPre=-/usr/bin/docker pull theloung/thelounge
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --env VIRTUAL_HOST=shout.${DNS_DOMAIN} \
-  --env VIRTUAL_PORT=9090 \
-  --env "LETSENCRYPT_HOST=shout.${DNS_DOMAIN}" \
-  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  --label traefik.http.routers.thelounge.rule="Host(`shout.${DNS_DOMAIN}`) || PathPrefix(`/shout`)" \
-  --label traefik.http.services.thelounge.loadbalancer.server.port="9000" \
-  --label traefik.http.middlewares.theloung.stripprefix.prefixes="/shout" \
+  --label traefik.http.routers.%N.rule="Host(`shout.${DNS_DOMAIN}`)" \
+  --label traefik.http.services.%N.loadbalancer.server.port="9000" \
+  --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
+  --label traefik.http.routers.%N.middlewares="%N-https@docker" \
   --volume ${PRIMARY_MOUNT}/shout:/var/opt/thelounge \
-  --publish 9090:9000 \
   --link tor.service:tor \
   thelounge/thelounge
 

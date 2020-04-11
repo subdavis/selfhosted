@@ -14,15 +14,26 @@ ExecStartPre=/usr/bin/docker pull traefik:2.2
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --env CF_API_EMAIL=${CF_EMAIL} \
+  --env CF_DNS_API_TOKEN=${CF_TOKEN} \
+  --env CF_ZONE_API_TOKEN=${CF_TOKEN} \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume "${SYSTEMD_ROOT}/etc/passwords.txt:/basicauth/passwords.txt" \
-  --publish 7070:8080 \
-  --publish 70:70 \
-  --publish 743:443 \
+  --volume "${PRIMARY_MOUNT}/%N/letsencrypt:/letsencrypt \
+  --publish 8080:8080 \
+  --publish 80:80 \
+  --publish 443:443 \
   traefik:v2.2 \
+  --log.level=DEBUG \
   --api.insecure=true \
-  --providers.docker \
-  --entrypoints.web.address=:70
+  --providers.docker=true \
+  --entrypoints.web.address=:80 \
+  --entrypoints.websecure.address=:443 \
+  --certificatesresolvers.myresolver.acme.dnschallenge=true \
+  --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare \
+  --certificatesresolvers.myresolver.acme.caserver=https://acme-staging-v02.api.letsencrypt.org/directory \
+  --certificatesresolvers.myresolver.acme.email="${LETSENCRYPT_EMAIL}" \
+  --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json \
  
 [Install]
 WantedBy=multi-user.target

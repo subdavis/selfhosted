@@ -14,10 +14,14 @@ ExecStartPre=-/usr/bin/docker pull minio/minio
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --env VIRTUAL_HOST=minio.${DNS_DOMAIN} \
+  --env VIRTUAL_HOST=%N.${DNS_DOMAIN} \
   --env VIRTUAL_PORT=9000 \
-  --env "LETSENCRYPT_HOST=minio.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_HOST=%N.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
+  --label traefik.http.services.%N.loadbalancer.server.port="9000" \
+  --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
+  --label traefik.http.routers.%N.middlewares="%N-https@docker" \
   --env "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}" \
   --env "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}" \
   --publish 9000:9000 \

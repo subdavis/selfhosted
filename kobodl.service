@@ -14,6 +14,11 @@ ExecStartPre=/usr/bin/docker pull subdavis/kobodl
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
+  --label traefik.http.services.%N.loadbalancer.server.port="5000" \
+  --label traefik.http.middlewares.%N-basic.basicauth.usersfile="/basicauth/passwords.txt" \
+  --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
+  --label traefik.http.routers.%N.middlewares="%N-https@docker, %N-basic@docker" \
   -v ${PRIMARY_MOUNT}/kobodl/kobodl.json:/home/kobodl.json \
   -v ${PRIMARY_MOUNT}/kobodl/downloads:/home/downloads \
   --publish 5000:5000 \

@@ -14,11 +14,10 @@ ExecStartPre=/usr/bin/docker pull hello-world
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --env VIRTUAL_HOST=hello.${DNS_DOMAIN} \
-  --env VIRTUAL_PORT=8080 \
-  --env "LETSENCRYPT_HOST=hellp.${DNS_DOMAIN}" \
-  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  --publish 8080:8080 \
+  --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
+  --label traefik.http.services.%N.loadbalancer.server.port="8080" \
+  --label traefik.http.middlewares.%N-basic.basicauth.usersfile="/basicauth/passwords.txt" \
+  --label traefik.http.routers.%N.middlewares="%N-basic@docker" \
   hello-world
  
 [Install]

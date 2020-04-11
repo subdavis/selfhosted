@@ -14,17 +14,21 @@ ExecStartPre=-/usr/bin/docker pull linuxserver/calibre-web
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --env VIRTUAL_HOST=calibre.${DNS_DOMAIN} \
+  --env VIRTUAL_HOST=%N.${DNS_DOMAIN} \
   --env VIRTUAL_PORT=8083 \
-  --env "LETSENCRYPT_HOST=calibre.${DNS_DOMAIN}" \
+  --env "LETSENCRYPT_HOST=%N.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
+  --label traefik.http.services.%N.loadbalancer.server.port="8083" \
+  --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
+  --label traefik.http.routers.%N.middlewares="%N-https@docker" \
   --env PUID=0 \
   --env PGID=0 \
   --env TZ=America/New_York \
   --env DOCKER_MODS=linuxserver/calibre-web:calibre \
   --publish 8083:8083 \
-  --volume ${PRIMARY_MOUNT}/calibre/config:/config \
-  --volume ${PRIMARY_MOUNT}/calibre/books:/books \
+  --volume ${PRIMARY_MOUNT}/%N/config:/config \
+  --volume ${PRIMARY_MOUNT}/%N/books:/books \
   linuxserver/calibre-web
 
 [Install]
