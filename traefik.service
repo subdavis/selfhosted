@@ -16,12 +16,12 @@ ExecStart=/opt/systemd-docker \
   run --rm --name %n \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --publish 7070:8080 \
-  --publish 70:80 \
+  --publish 70:70 \
   --publish 743:443 \
   traefik:v2.2 \
   --api.insecure=true \
   --providers.docker \
-  --entrypoints.web.address=:80
+  --entrypoints.web.address=:70
  
 [Install]
 WantedBy=multi-user.target
