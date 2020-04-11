@@ -15,6 +15,7 @@ ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --volume /var/run/docker.sock:/var/run/docker.sock \
+  --volume "${SYSTEMD_ROOT}/etc/passwords.txt:/basicauth/passwords.txt" \
   --publish 7070:8080 \
   --publish 70:70 \
   --publish 743:443 \
