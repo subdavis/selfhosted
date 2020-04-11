@@ -20,7 +20,7 @@ ExecStart=/opt/systemd-docker \
   --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`) || PathPrefix(`/%N`)" \
   --label traefik.http.services.%N.loadbalancer.server.port="5601" \
   --label traefik.http.middlewares.%N.stripprefix.prefixes="/%N" \
-  --label traefik.http.middlewares.%N.usersfile="${PRIMARY_MOUNT}/etc/passwords.txt" \
+  --label traefik.http.middlewares.%N.usersfile="${SYSTEMD_ROOT}/etc/passwords.txt" \
   --label traefik.http.routers.%N.middlewares="%N@docker" \
   docker.elastic.co/kibana/kibana:7.5.2
  
