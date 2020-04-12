@@ -15,15 +15,16 @@ ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --env APP_BRANCH=dev \
-  --env VIRTUAL_HOST=%N.${DNS_DOMAIN} \
-  --env VIRTUAL_PORT=8080 \
-  --env "LETSENCRYPT_HOST=%N.${DNS_DOMAIN}" \
-  --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
-  --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
   --label traefik.http.services.%N.loadbalancer.server.port="8080" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
+  --label traefik.http.routers.%N.entrypoints=web \
+  --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
   --label traefik.http.routers.%N.middlewares="%N-https@docker" \
-  --publish 8000:8080/tcp \
+  --label traefik.http.routers.%N-secure.entrypoints=websecure \
+  --label traefik.http.routers.%N-secure.rule="Host(`%N.${DNS_DOMAIN}`)" \
+  --label traefik.http.routers.%N-secure.tls.domains[0].main="*.${DNS_DOMAIN}" \
+  --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
+  --label traefik.http.routers.%N-secure.tls=true \
   --volume "/dev/shm/shinobiStreams":/dev/shm/streams:rw \
   --volume "${PRIMARY_MOUNT}/shinobi/shinobiConfig":/config:rw \
   --volume "${PRIMARY_MOUNT}/shinobi/shinobiCustomAutoLoad":/customAutoLoad:rw \
