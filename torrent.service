@@ -14,6 +14,7 @@ ExecStartPre=-/usr/bin/docker pull haugene/transmission-openvpn
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --label traefik.enable=false \
   --env CREATE_TUN_DEVICE=true \
   --cap-add=NET_ADMIN \
   --device=/dev/net/tun \
