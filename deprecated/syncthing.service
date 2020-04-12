@@ -18,6 +18,10 @@ ExecStart=/opt/systemd-docker \
   --env VIRTUAL_PORT=8384 \
   --env "LETSENCRYPT_HOST=syncthing.${DNS_DOMAIN}" \
   --env "LETSENCRYPT_EMAIL=${LETSENCRYPT_EMAIL}" \
+  --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
+  --label traefik.http.services.%N.loadbalancer.server.port="8348" \
+  --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
+  --label traefik.http.routers.%N.middlewares="%N-https@docker" \
   --volume ${PRIMARY_MOUNT}/syncthing/data:/mnt/data \
   --volume ${PRIMARY_MOUNT}/syncthing/config:/config \
   --publish 22000:22000 \

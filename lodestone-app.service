@@ -17,8 +17,18 @@ ExecStart=/opt/systemd-docker \
   --link minio.service:minio \
   --link elasticsearch.service:elasticsearch \
   --link rabbitmq.service:rabbitmq \
-  --env VIRTUAL_HOST=ls.${DNS_DOMAIN} \
-  --env VIRTUAL_PORT=3000 \
+  --label traefik.http.services.%N.loadbalancer.server.port="3000" \
+  --label traefik.http.middlewares.%N-basic.basicauth.usersfile="/basicauth/passwords.txt" \
+  --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
+  --label traefik.http.routers.%N.entrypoints=web \
+  --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
+  --label traefik.http.routers.%N.middlewares="%N-https@docker" \
+  --label traefik.http.routers.%N-secure.entrypoints=websecure \
+  --label traefik.http.routers.%N-secure.rule="Host(`%N.${DNS_DOMAIN}`)" \
+  --label traefik.http.routers.%N-secure.middlewares="%N-basic@docker" \
+  --label traefik.http.routers.%N-secure.tls.domains[0].main="*.${DNS_DOMAIN}" \
+  --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
+  --label traefik.http.routers.%N-secure.tls=true \
   --env LS_STORAGE_HOST=minio \
   --env LS_STORAGE_PORT=9000 \
   --env LS_STORAGE_PATH=/lodestone/ \
@@ -32,7 +42,6 @@ ExecStart=/opt/systemd-docker \
   --env "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}" \
   --env "RABBITMQ_USER=${RABBITMQ_USER}" \
   --env "RABBITMQ_PASS=${RABBITMQ_PASS}" \
-  --publish 3000:3000 \
   analogj/lodestone:web
 
 [Install]
