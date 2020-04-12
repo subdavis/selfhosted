@@ -1,8 +1,8 @@
 [Unit]
-Description=Shinobi
+Description=Forward Auth
 After=docker.service
-Requires=docker.service media-primary.mount
-
+Requires=docker.service
+ 
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
 TimeoutStartSec=0
@@ -10,13 +10,19 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull shinobisystems/shinobi:latest-ubuntu
+ExecStartPre=/usr/bin/docker pull thomseddon/traefik-forward-auth
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --env APP_BRANCH=dev \
+  --env CLIENT_ID="${GOOGLE_CLIENT_ID}" \
+  --env CLIENT_SECRET="${GOOGLE_CLIENT_SECRET}" \
+  --env OIDC_ISSUER=https://accounts.google.com \
+  --env SECRET="${AUTH_SECRET}" \
+  --env AUTH_HOST="auth.${DNS_DOMAIN}" \
+  --env COOKIE_DOMAINS="${DNS_DOMAIN}" \
+  --env WHITELIST="${AUTH_WHITELIST}" \
   --label traefik.enable=true \
-  --label traefik.http.services.%N.loadbalancer.server.port="8080" \
+  --label traefik.http.services.%N.loadbalancer.server.port="4181" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
   --label traefik.http.routers.%N.entrypoints=web \
   --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
@@ -26,12 +32,7 @@ ExecStart=/opt/systemd-docker \
   --label traefik.http.routers.%N-secure.tls.domains[0].main="*.${DNS_DOMAIN}" \
   --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
   --label traefik.http.routers.%N-secure.tls=true \
-  --volume "/dev/shm/shinobiStreams":/dev/shm/streams:rw \
-  --volume "${PRIMARY_MOUNT}/shinobi/shinobiConfig":/config:rw \
-  --volume "${PRIMARY_MOUNT}/shinobi/shinobiCustomAutoLoad":/customAutoLoad:rw \
-  --volume "${PRIMARY_MOUNT}/shinobi/shinobiDatabase":/var/lib/mysql:rw \
-  --volume "${PRIMARY_MOUNT}/shinobi/shinobiVideos":/opt/shinobi/videos:rw \
-  shinobisystems/shinobi:latest-ubuntu
-
+  thomseddon/traefik-forward-auth
+ 
 [Install]
 WantedBy=multi-user.target
