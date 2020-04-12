@@ -12,6 +12,7 @@ ExecStartPre=-/usr/bin/docker pull oznu/cloudflare-ddns
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --label traefik.enable=false \
   --env "API_KEY=${CF_TOKEN}" \
   --env "ZONE=${DNS_DOMAIN}" \
   --env "SUBDOMAIN=${SUBDOMAIN}" \

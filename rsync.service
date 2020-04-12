@@ -12,6 +12,7 @@ ExecStartPre=-/usr/bin/docker pull subdavis/rsync
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --label traefik.enable=false \
   --volume ${PRIMARY_MOUNT}:/source \
   --volume ${SECONDARY_MOUNT}/minio_backup:/dest \
   subdavis/rsync

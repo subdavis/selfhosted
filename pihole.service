@@ -14,6 +14,7 @@ ExecStartPre=-/usr/bin/docker pull pihole/pihole:latest
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --label traefik.enable=false \
   --publish "53:53/udp" \
   --publish "53:53/tcp" \
   --publish "67:67/udp" \

@@ -15,6 +15,7 @@ ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   -t \
+  --label traefik.enable=false \
   --publish 137-139:137-139 \
   --publish 445:445 \
   --volume /media:/data \

@@ -15,6 +15,7 @@ ExecStartPre=/usr/bin/docker pull \
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --label traefik.enable=false \
   --env "discovery.type=single-node" \
   --env "TAKE_FILE_OWNERSHIP=1" \
   --publish 9200:9200 \

@@ -14,6 +14,7 @@ ExecStartPre=/usr/bin/docker pull analogj/lodestone:rabbitmq
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --label traefik.enable=false \
   --env "RABBITMQ_DEFAULT_USER=${RABBITMQ_USER}" \
   --env "RABBITMQ_DEFAULT_PASS=${RABBITMQ_PASS}" \
   analogj/lodestone:rabbitmq

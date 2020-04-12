@@ -14,6 +14,7 @@ ExecStartPre=/usr/bin/docker pull analogj/lodestone:processor
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --label traefik.enable=false \
   --link elasticsearch.service:elasticsearch \
   --link tika.service:tika \
   --link rabbitmq.service:rabbitmq \
