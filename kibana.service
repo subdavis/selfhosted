@@ -15,6 +15,7 @@ ExecStartPre=/usr/bin/docker pull \
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --label traefik.enable=true \
   --link elasticsearch.service:elasticsearch \
   --label traefik.http.services.%N.loadbalancer.server.port="5601" \
   --label traefik.http.middlewares.%N-basic.basicauth.usersfile="/basicauth/passwords.txt" \

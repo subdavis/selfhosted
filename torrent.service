@@ -33,6 +33,7 @@ ExecStartPost=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n-proxy \
   --link %n:transmission \
+  --label traefik.enable=true \
   --label traefik.http.services.%N.loadbalancer.server.port="8080" \
   --label traefik.http.middlewares.%N-basic.basicauth.usersfile="/basicauth/passwords.txt" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \

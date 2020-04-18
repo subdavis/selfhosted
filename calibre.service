@@ -14,6 +14,7 @@ ExecStartPre=-/usr/bin/docker pull linuxserver/calibre-web
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --label traefik.enable=true \
   --label traefik.http.services.%N.loadbalancer.server.port="8083" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
   --label traefik.http.routers.%N.entrypoints=web \

@@ -17,6 +17,7 @@ ExecStart=/opt/systemd-docker \
   --link minio.service:minio \
   --link elasticsearch.service:elasticsearch \
   --link rabbitmq.service:rabbitmq \
+  --label traefik.enable=true \
   --label traefik.http.services.%N.loadbalancer.server.port="3000" \
   --label traefik.http.middlewares.%N-basic.basicauth.usersfile="/basicauth/passwords.txt" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
