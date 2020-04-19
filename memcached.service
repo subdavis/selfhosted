@@ -16,8 +16,8 @@ ExecStart=/opt/systemd-docker \
   run --rm --name %n \
   --label traefik.enable=false \
   --volume ${PRIMARY_MOUNT}/mariadb:/var/lib/mysql \
-  --entrypoint "memcached -m 256" \
-  memcached:1.5.6
+  memcached:1.5.6 \
+  -m 256
 
 [Install]
 WantedBy=default.target
