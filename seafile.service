@@ -26,7 +26,7 @@ ExecStart=/opt/systemd-docker \
   --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
   --label traefik.http.routers.%N-secure.tls=true \
   --env "DB_HOST=mariadb" \
-  --env "DB_ROOT_PASSWD=${MARIA_PASSWORD}" \
+  --env "DB_ROOT_PASSWD=${MYSQL_ROOT_PASSWORD}" \
   --env "SEAFILE_ADMIN_EMAIL=${SEAFILE_ADMIN_EMAIL}" \
   --env "SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}" \
   --volume ${PRIMARY_MOUNT}/seafile:/shared \

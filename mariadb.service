@@ -15,6 +15,7 @@ ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --label traefik.enable=false \
+  --env "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}" \
   --volume ${PRIMARY_MOUNT}/mariadb:/var/lib/mysql \
   mariadb:10.1
 
