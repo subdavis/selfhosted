@@ -1,7 +1,7 @@
 [Unit]
-Description=Calibre
+Description=Seafile
 After=docker.service
-Requires=docker.service media-primary.mount
+Requires=docker.service memcached.service mariadb.service media-primary.mount
 
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
@@ -10,12 +10,12 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull linuxserver/calibre-web
+ExecStartPre=-/usr/bin/docker pull seafileltd/seafile-mc:latest
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --label traefik.enable=true \
-  --label traefik.http.services.%N.loadbalancer.server.port="8083" \
+  --label traefik.http.services.%N.loadbalancer.server.port="80" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
   --label traefik.http.routers.%N.entrypoints=web \
   --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
@@ -25,13 +25,14 @@ ExecStart=/opt/systemd-docker \
   --label traefik.http.routers.%N-secure.tls.domains[0].main="*.${DNS_DOMAIN}" \
   --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
   --label traefik.http.routers.%N-secure.tls=true \
-  --env PUID=0 \
-  --env PGID=0 \
-  --env TZ=America/New_York \
-  --env DOCKER_MODS=linuxserver/calibre-web:calibre \
-  --volume ${PRIMARY_MOUNT}/%N/config:/config \
-  --volume ${PRIMARY_MOUNT}/%N/books:/books \
-  linuxserver/calibre-web
+  --env "DB_HOST=mariadb" \
+  --env "DB_ROOT_PASSWD=${MARIA_PASSWORD}" \
+  --env "SEAFILE_ADMIN_EMAIL=${SEAFILE_ADMIN_EMAIL}" \
+  --env "SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}" \
+  --volume ${PRIMARY_MOUNT}/seafile:/shared \
+  --link "memcached.service:memcached" \
+  --link "mariadb.service:mariadb" \
+  seafileltd/seafile-mc:latest
 
 [Install]
 WantedBy=multi-user.target
