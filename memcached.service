@@ -15,7 +15,6 @@ ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --label traefik.enable=false \
-  --volume ${PRIMARY_MOUNT}/mariadb:/var/lib/mysql \
   memcached:1.5.6 \
   -m 256
 

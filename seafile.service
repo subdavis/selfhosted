@@ -10,7 +10,7 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull seafileltd/seafile-mc:latest
+ExecStartPre=-/usr/bin/docker pull docker.seadrive.org/seafileltd/seafile-pro-mc:latest
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
@@ -26,13 +26,16 @@ ExecStart=/opt/systemd-docker \
   --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
   --label traefik.http.routers.%N-secure.tls=true \
   --env "DB_HOST=mariadb" \
+  --env "SEAFILE_SERVER_HOSTNAME=%N.${DNS_DOMAIN}" \
   --env "DB_ROOT_PASSWD=${MYSQL_ROOT_PASSWORD}" \
   --env "SEAFILE_ADMIN_EMAIL=${SEAFILE_ADMIN_EMAIL}" \
   --env "SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}" \
   --volume ${PRIMARY_MOUNT}/seafile:/shared \
+  --volume ${PRIMARY_MOUNT}/data:/source_data \
   --link "memcached.service:memcached" \
   --link "mariadb.service:mariadb" \
-  seafileltd/seafile-mc:latest
+  --link "elasticsearch.service:elasticsearch" \
+  docker.seadrive.org/seafileltd/seafile-pro-mc:latest
 
 [Install]
 WantedBy=multi-user.target
