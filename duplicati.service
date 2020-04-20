@@ -1,7 +1,7 @@
 [Unit]
 Description=kobodl in Systemd
 After=docker.service
-Requires=docker.service media-primary.mount media-secondary.service
+Requires=docker.service media-primary.mount media-secondary.mount
  
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
