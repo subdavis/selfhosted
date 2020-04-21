@@ -10,18 +10,21 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=/usr/bin/docker pull \
-  docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+ExecStartPre=/usr/bin/docker pull seafileltd/elasticsearch-with-ik:5.6.16
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --label traefik.enable=false \
   --env "discovery.type=single-node" \
+  --env "bootstrap.memory_lock=true" \
+  --env "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
   --env "TAKE_FILE_OWNERSHIP=1" \
+  --ulimit memlock=-1:-1 \
+  --memory 2GB \
   --publish 9200:9200 \
   --publish 9300:9300 \
-  --volume ${PRIMARY_MOUNT}/elasticsearch/data:/usr/share/elasticsearch/data \
-  docker.elastic.co/elasticsearch/elasticsearch:7.5.2
+  --volume ${TERTIARY_MOUNT}/elasticsearch/data:/usr/share/elasticsearch/data \
+  seafileltd/elasticsearch-with-ik:5.6.16
  
 [Install]
 WantedBy=multi-user.target
