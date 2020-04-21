@@ -1,7 +1,7 @@
 [Unit]
 Description=Pihole
 After=docker.service
-Requires=docker.service media-primary.mount
+Requires=docker.service media-tertiary.mount
 
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
@@ -23,8 +23,8 @@ ExecStart=/opt/systemd-docker \
   --env WEBPASSWORD="${WEBPASSWORD}" \
   --env DNSSEC=true \
   --env WEB_PORT=9093 \
-  --volume "${PRIMARY_MOUNT}/pihole/etc-pihole/:/etc/pihole/" \
-  --volume "${PRIMARY_MOUNT}/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
+  --volume "${TERTIARY_MOUNT}/pihole/etc-pihole/:/etc/pihole/" \
+  --volume "${TERTIARY_MOUNT}/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
   --dns 127.0.0.1 \
   --dns 1.1.1.1 \
   pihole/pihole:latest
