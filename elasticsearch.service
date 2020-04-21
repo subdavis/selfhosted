@@ -1,7 +1,7 @@
 [Unit]
 Description=Elastic Search
 After=docker.service
-Requires=docker.service media-primary.mount
+Requires=docker.service media-tertiary.mount
  
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
