@@ -1,7 +1,7 @@
 [Unit]
 Description=Traefik
 After=docker.service
-Requires=docker.service
+Requires=docker.service media-tertiary.mount
  
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
@@ -19,7 +19,7 @@ ExecStart=/opt/systemd-docker \
   --env CF_ZONE_API_TOKEN=${CF_TOKEN} \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume "${SYSTEMD_ROOT}/etc/passwords.txt:/basicauth/passwords.txt" \
-  --volume "${PRIMARY_MOUNT}/%N/letsencrypt:/letsencrypt" \
+  --volume "${TERTIARY_MOUNT}/%N/letsencrypt:/letsencrypt" \
   --publish 9999:8080 \
   --publish 80:80 \
   --publish 443:443 \
@@ -29,6 +29,7 @@ ExecStart=/opt/systemd-docker \
   --providers.docker.exposedByDefault=false \
   --entrypoints.web.address=:80 \
   --entrypoints.websecure.address=:443 \
+  --certificatesResolvers.myresolver.acme.caServer="https://acme-v02.api.letsencrypt.org/directory" \
   --certificatesresolvers.myresolver.acme.dnschallenge=true \
   --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare \
   --certificatesresolvers.myresolver.acme.email="${LETSENCRYPT_EMAIL}" \
