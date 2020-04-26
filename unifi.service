@@ -26,6 +26,7 @@ ExecStart=/opt/systemd-docker \
   --publish "6789:6789" \
   --volume "${PRIMARY_MOUNT}/unifi/config/:/config" \
   linuxserver/unifi-controller
+ExecStop=-/usr/bin/docker stop %n
 
 [Install]
 WantedBy=multi-user.target

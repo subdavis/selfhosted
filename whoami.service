@@ -1,7 +1,7 @@
 [Unit]
-Description=Torrent
-After=docker.service
-Requires=docker.service media-secondary.mount
+Description=Whoami is a template for creating new services
+After=traefik.service
+Requires=docker.service media-primary.mount
 
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
@@ -10,50 +10,30 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull haugene/transmission-openvpn
-ExecStartPre=-/usr/bin/docker pull haugene/transmission-openvpn-proxy
+ExecStartPre=-/usr/bin/docker pull containous/whoami
 ExecStartPre=-/usr/bin/docker network create %N-net
 ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --network %N-net \
-  --network-alias transmission \
-  --label traefik.enable=false \
-  --env CREATE_TUN_DEVICE=true \
-  --cap-add=NET_ADMIN \
-  --device=/dev/net/tun \
-  --volume ${SECONDARY_MOUNT}/plex/media/:/data \
-  --volume /etc/localtime:/etc/localtime:ro  \
-  --env "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}" \
-  --env "OPENVPN_USERNAME=${USERNAME}" \
-  --env "OPENVPN_PASSWORD=${PASSWORD}" \
-  --env "TRANSMISSION_UMASK=0" \
-  --env "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60" \
-  --env LOCAL_NETWORK=10.0.1.1/24 \
-  --dns 1.1.1.1  \
-  haugene/transmission-openvpn
-ExecStartPost=/opt/systemd-docker \
-  --cgroups name=systemd \
-  run --rm --name %n-proxy \
-  --network %N-net \
   --label traefik.enable=true \
   --label traefik.docker.network="%N-net" \
   --label traefik.http.services.%N.loadbalancer.server.port="8080" \
-  --label traefik.http.middlewares.%N-basic.basicauth.usersfile="/basicauth/passwords.txt" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
   --label traefik.http.routers.%N.entrypoints=web \
   --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
   --label traefik.http.routers.%N.middlewares="%N-https@docker" \
   --label traefik.http.routers.%N-secure.entrypoints=websecure \
   --label traefik.http.routers.%N-secure.rule="Host(`%N.${DNS_DOMAIN}`)" \
-  --label traefik.http.routers.%N-secure.middlewares="%N-basic@docker" \
   --label traefik.http.routers.%N-secure.tls.domains[0].main="*.${DNS_DOMAIN}" \
-  --label traefik.http.routers.%N-secure.tls.domains[0].sans="${DNS_DOMAIN}" \
   --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
   --label traefik.http.routers.%N-secure.tls=true \
-  haugene/transmission-openvpn-proxy
-ExecStop=-/usr/bin/docker stop %n %n-proxy
+  --label traefik.http.middlewares.%N-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}" \
+  --label traefik.http.routers.%N-secure.middlewares="%N-ipwhitelist@docker" \
+  --volume ${PRIMARY_MOUNT}/%N/data/:/data \
+  containous/whoami
+ExecStop=-/usr/bin/docker stop %n
 ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
 
 [Install]
