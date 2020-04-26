@@ -29,7 +29,11 @@ ExecStart=/opt/systemd-docker \
   --accesslog=true \
   --accesslog.filepath=/var/log/traefik/access.log \
   --accesslog.fields.headers.names.Content-Type=keep \
+  --accesslog.fields.headers.names.Referer=keep \
   --accesslog.fields.headers.names.User-Agent=keep \
+  --accesslog.filters.statuscodes=201-303,305-599 \
+  --accesslog.filters.retryattempts \
+  --accesslog.filters.minduration=50ms \
   --providers.docker=true \
   --providers.docker.exposedByDefault=false \
   --entrypoints.web.address=:80 \
