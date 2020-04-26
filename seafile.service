@@ -16,7 +16,7 @@ ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --network %N-net \
+  --network seafile-private-net \
   --label traefik.enable=true \
   --label traefik.docker.network="%N-net" \
   --label traefik.http.services.%N.loadbalancer.server.port="80" \
@@ -37,10 +37,9 @@ ExecStart=/opt/systemd-docker \
   --env "SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}" \
   --volume ${PRIMARY_MOUNT}/seafile:/shared \
   --volume ${PRIMARY_MOUNT}/data:/source_data \
-  --link "memcached.service:memcached" \
-  --link "mariadb.service:mariadb" \
-  --link "elasticsearch.service:elasticsearch" \
   docker.seadrive.org/seafileltd/seafile-pro-mc:latest
+ExecStartPost=/usr/bin/docker network connect %N-net %n
+
 ExecStop=-/usr/bin/docker stop %n
 ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
 
