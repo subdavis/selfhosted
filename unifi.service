@@ -10,7 +10,7 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull linuxsrver/unifi-controller
+ExecStartPre=-/usr/bin/docker pull linuxserver/unifi-controller
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
@@ -25,7 +25,7 @@ ExecStart=/opt/systemd-docker \
   --publish "8443:8443" \
   --publish "6789:6789" \
   --volume "${PRIMARY_MOUNT}/unifi/config/:/config" \
-  linuxsrver/unifi-controller
+  linuxserver/unifi-controller
 
 [Install]
 WantedBy=multi-user.target

@@ -1,7 +1,7 @@
 [Unit]
 Description=Goaccess
 After=docker.service
-Requires=docker.service media-tertiary.service media-primary.service
+Requires=docker.service media-tertiary.mount media-primary.mount
  
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
@@ -14,8 +14,7 @@ ExecStartPre=/usr/bin/docker pull gregyankovoy/goaccess
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --publish 80:80 \
-  --publish 443:443 \
+  --publish 7889:7889 \
   --volume "${TERTIARY_MOUNT}/traefik/logs:/opt/log" \
   --volume "${PRIMARY_MOUNT}/goaccess/config:/config" \
   gregyankovoy/goaccess
