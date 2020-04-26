@@ -11,10 +11,14 @@ RestartSec=10s
 Type=notify
 NotifyAccess=all
 ExecStartPre=/usr/bin/docker pull linuxserver/duplicati
+ExecStartPre=-/usr/bin/docker network create %N-net
+ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --network %N-net \
   --label traefik.enable=true \
+  --label traefik.docker.network="%N-net" \
   --label traefik.http.services.%N.loadbalancer.server.port="8200" \
   --label traefik.http.middlewares.%N-basic.basicauth.usersfile="/basicauth/passwords.txt" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
@@ -36,6 +40,8 @@ ExecStart=/opt/systemd-docker \
   -v ${SECONDARY_MOUNT}/duplicati/config:/config \
   -v ${SECONDARY_MOUNT}/duplicati/backups:/backups \
   linuxserver/duplicati
+ExecStop=-/usr/bin/docker stop %n
+ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
 
 [Install]
 WantedBy=multi-user.target

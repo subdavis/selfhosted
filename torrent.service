@@ -1,6 +1,6 @@
 [Unit]
 Description=Torrent
-After=docker.service
+After=traefik.service
 Requires=docker.service media-secondary.mount
 
 [Service]
