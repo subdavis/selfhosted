@@ -25,7 +25,7 @@ ExecStart=/opt/systemd-docker \
   --label traefik.http.routers.%N-secure.tls.domains[0].main="*.${DNS_DOMAIN}" \
   --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
   --label traefik.http.routers.%N-secure.tls=true \
-  --label traefik.http.middlewares.%N-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32,192.168.0.0/24" \
+  --label traefik.http.middlewares.%N-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}" \
   --volume ${PRIMARY_MOUNT}/%N/data/:/data \
   --volume /var/run/docker.sock:/var/run/docker.sock  \
   portainer/portainer
