@@ -56,6 +56,7 @@ For Traefik SSL, you can use the same token provided that you give it `DNS:Edit`
 Don't do this until you have your CNAMEs and Dynamic DNS working.
 
 * Clone this repo in `/usr/local/lib/systemd/system/` on your newly provisioned server.
+* `mkdir /media/local` to create a mount point on the OS disk.
 * For any overrides, like `torrent.service.d`, copy the template to a new `override.conf` file with the correct values.
 * create `profile.env` from template: `cp /usr/local/lib/systemd/system/profile.env.example /usr/local/lib/systemd/system/profile.env`
 * edit `profile.env` for your needs

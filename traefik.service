@@ -20,11 +20,16 @@ ExecStart=/opt/systemd-docker \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume "${SYSTEMD_ROOT}/etc/passwords.txt:/basicauth/passwords.txt" \
   --volume "${TERTIARY_MOUNT}/%N/letsencrypt:/letsencrypt" \
+  --volume "${TERTIARY_MOUNT}/%N/logs:/var/log/traefik" \
   --publish 9999:8080 \
   --publish 80:80 \
   --publish 443:443 \
   traefik:v2.2 \
   --api.insecure=true \
+  --accesslog=true \
+  --accesslog.filepath=/var/log/traefik/access.log \
+  --accesslog.fields.headers.names.Content-Type=keep \
+  --accesslog.fields.headers.names.User-Agent=keep \
   --providers.docker=true \
   --providers.docker.exposedByDefault=false \
   --entrypoints.web.address=:80 \
