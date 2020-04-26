@@ -1,6 +1,6 @@
 [Unit]
 Description=Portainer
-After=docker.service
+After=traefik.service
 Requires=docker.service media-primary.mount
 
 [Service]
@@ -11,9 +11,12 @@ RestartSec=10s
 Type=notify
 NotifyAccess=all
 ExecStartPre=-/usr/bin/docker pull portainer/portainer
+ExecStartPre=-/usr/bin/docker network create %N-net
+ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --network %N-net \
   --label traefik.enable=true \
   --label traefik.http.services.%N.loadbalancer.server.port="9000" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
@@ -30,6 +33,8 @@ ExecStart=/opt/systemd-docker \
   --volume ${PRIMARY_MOUNT}/%N/data/:/data \
   --volume /var/run/docker.sock:/var/run/docker.sock  \
   portainer/portainer
+ExecStop=-/usr/bin/docker stop %n
+ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
 
 [Install]
 WantedBy=multi-user.target
