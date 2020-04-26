@@ -18,6 +18,7 @@ ExecStart=/opt/systemd-docker \
   run --rm --name %n \
   --network %N-net \
   --label traefik.enable=true \
+  --label traefik.docker.network="%N-net" \
   --label traefik.http.services.%N.loadbalancer.server.port="9000" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
   --label traefik.http.routers.%N.entrypoints=web \
