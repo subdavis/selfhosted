@@ -26,7 +26,7 @@ To verify your domain, letsencrypt will use your DNS provider's API to create a 
 1. Create an API token by going to your profile then clicking the API token tab.  Permissions should look something like this.  I use the same token for `DNS` and `ZONE`, and I think it's probably easiest for you to do the same.
 1. If verification fails, look at the traefik logs.  **You may need to manually delete the `TXT` record in your DNS console before trying again.**
 
-![images/cfapi.png](Cloudflare API Screenshot)
+![Cloudflare API SCreenshot](images/cfapi.png)
 
 ### Running Traefik
 

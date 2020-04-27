@@ -19,7 +19,7 @@ This repo contains my production systemd services.  When you're done, you will b
 
 I've also written some intermediate to advanced usage docs for traefik, docker, pihole, and home networking.  These articles are generally applicable to the traefik docker provider, so you don't have to use systemd units like me.
 
-* [docs/wildcard-certs.md](Configuring Wildcard Certs for Traefik)
+* [Configuring Wildcard Certs for Traefik](docs/wildcard-certs.md)
 
 ## Prerequisites
 
