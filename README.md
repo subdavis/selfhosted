@@ -1,10 +1,10 @@
-# Self-Host Anything with systemd, docker, and traefik
+# Self-Host Anything 
+
+> with systemd, docker, and traefik
 
 ![Uptime Robot ratio (30 days)](https://img.shields.io/uptimerobot/ratio/m784171033-0a5b0fa97302da182e304db8)
 
-This repository consists of a list of services I run on a headless Lenovo ThinkCentre workstation.  You should be able to run this on any reasonably powerful computer (pentium 4 or greater??).  This probably won't work on a Raspberry Pi.
-
-This repo contains my examples for these services and others:
+This repo contains my production systemd services.  When you're done, you will be able to access your services from anywhere over HTTPS, using [traefik](https://traefik.io)
 
 * Plex Media
 * TheLounge IRC
@@ -13,9 +13,13 @@ This repo contains my examples for these services and others:
 * Samba Fileshare
 * Torrent server with OpenVPN over NordVPN
 * PiHole DNS
-* ElasticSearch and Kibana
+* Seafile Pro with Elasticache
 
-When you're done, you will be able to access your services from anywhere over HTTPS, using [traefik](https://traefik.io)
+## Documentation
+
+I've also written some intermediate to advanced usage docs for traefik, docker, pihole, and home networking.  These articles are generally applicable to the traefik docker provider, so you don't have to use systemd units like me.
+
+* [docs/wildcard-certs.md](Configuring Wildcard Certs for Traefik)
 
 ## Prerequisites
 
