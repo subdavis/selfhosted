@@ -21,6 +21,7 @@ I've also written some intermediate to advanced generic usage docs for traefik, 
 
 * [Configuring Wildcard Certs for Traefik](docs/wildcard-certs.md)
 * [LAN-only Traefik Routing with ACME SSL](docs/lan-only-routes.md)
+* [Configuring PiHole with dnsmasq](docs/pihole-dnsmasq.md)
 * [EdgeRouter Backups over SSH (SCP)](docs/edgerouter-backups.md)
 
 ## Prerequisites
