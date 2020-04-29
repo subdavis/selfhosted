@@ -24,8 +24,6 @@ ExecStart=/opt/systemd-docker \
   --env "TAKE_FILE_OWNERSHIP=1" \
   --ulimit memlock=-1:-1 \
   --memory 2GB \
-  --publish 9200:9200 \
-  --publish 9300:9300 \
   --volume ${TERTIARY_MOUNT}/elasticsearch/data:/usr/share/elasticsearch/data \
   seafileltd/elasticsearch-with-ik:5.6.16
  
