@@ -20,6 +20,7 @@ ExecStart=/opt/systemd-docker \
   --publish 6668:6668 \
   --publish 7657:7657 \
   geti2p/i2p
+ExecStop=-/usr/bin/docker stop %n
 
 [Install]
 WantedBy=multi-user.target

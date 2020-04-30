@@ -33,6 +33,7 @@ ExecStart=/opt/systemd-docker \
   --volume "${PRIMARY_MOUNT}/shinobi/shinobiDatabase":/var/lib/mysql:rw \
   --volume "${PRIMARY_MOUNT}/shinobi/shinobiVideos":/opt/shinobi/videos:rw \
   shinobisystems/shinobi:latest-ubuntu
+ExecStop=-/usr/bin/docker stop %n
 
 [Install]
 WantedBy=multi-user.target

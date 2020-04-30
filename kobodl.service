@@ -1,6 +1,6 @@
 [Unit]
 Description=kobodl in Systemd
-After=docker.service
+After=traefik.service
 Requires=docker.service media-primary.mount
  
 [Service]
@@ -35,5 +35,7 @@ ExecStart=/opt/systemd-docker \
   serve \
   -h 0.0.0.0 \
   --output-dir /home/downloads
+ExecStop=-/usr/bin/docker stop %n
+
 [Install]
 WantedBy=multi-user.target

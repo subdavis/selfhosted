@@ -17,6 +17,7 @@ ExecStart=/opt/systemd-docker \
   --env "ZONE=${DNS_DOMAIN}" \
   --env "SUBDOMAIN=${SUBDOMAIN}" \
   oznu/cloudflare-ddns
+ExecStop=-/usr/bin/docker stop %n
 
 [Install]
 WantedBy=multi-user.target

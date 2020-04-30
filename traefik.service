@@ -11,6 +11,19 @@ RestartSec=10s
 Type=notify
 NotifyAccess=all
 ExecStartPre=/usr/bin/docker pull traefik:2.2
+
+# Must create networks because we don't want to establish
+# a dependency between traefik and the services it exposes
+# it's a little gross, but the security gains are worth it
+ExecStartPre=-/usr/bin/docker network create pihole-net
+ExecStartPre=-/usr/bin/docker network create seafile-net
+ExecStartPre=-/usr/bin/docker network create portainer-net
+ExecStartPre=-/usr/bin/docker network create torrent-net
+ExecStartPre=-/usr/bin/docker network create duplicati-net
+ExecStartPre=-/usr/bin/docker network create minio-net
+ExecStartPre=-/usr/bin/docker network create thelounge-net
+ExecStartPre=-/usr/bin/docker network create calibre-net
+
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
@@ -43,6 +56,17 @@ ExecStart=/opt/systemd-docker \
   --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare \
   --certificatesresolvers.myresolver.acme.email="${LETSENCRYPT_EMAIL}" \
   --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
- 
+
+ExecStartPost=-/usr/bin/docker network connect %n pihole-net
+ExecStartPost=-/usr/bin/docker network connect %n seafile-net
+ExecStartPost=-/usr/bin/docker network connect %n portainer-net
+ExecStartPost=-/usr/bin/docker network connect %n torrent-net
+ExecStartPost=-/usr/bin/docker network connect %n duplicati-net
+ExecStartPost=-/usr/bin/docker network connect %n minio-net
+ExecStartPost=-/usr/bin/docker network connect %n thelounge-net
+ExecStartPost=-/usr/bin/docker network connect %n calibre-net
+
+ExecStop=-/usr/bin/docker stop %n
+
 [Install]
 WantedBy=multi-user.target

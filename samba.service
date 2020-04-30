@@ -22,6 +22,7 @@ ExecStart=/opt/systemd-docker \
   --env SHARE="data;/mount;yes;no;no;${SAMBA_USER};${SAMBA_USER};;" \
   --volume /media:/mount \
   dperson/samba
+ExecStop=-/usr/bin/docker stop %n
 
 [Install]
 WantedBy=multi-user.target

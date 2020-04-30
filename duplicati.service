@@ -1,6 +1,6 @@
 [Unit]
 Description=kobodl in Systemd
-After=docker.service
+After=traefik.service
 Requires=docker.service media-primary.mount media-secondary.mount
  
 [Service]

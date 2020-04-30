@@ -1,6 +1,6 @@
 [Unit]
 Description=Pihole
-After=docker.service
+After=traefik.service
 Requires=docker.service media-tertiary.mount
 
 [Service]

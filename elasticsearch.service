@@ -26,6 +26,7 @@ ExecStart=/opt/systemd-docker \
   --memory 2GB \
   --volume ${TERTIARY_MOUNT}/elasticsearch/data:/usr/share/elasticsearch/data \
   seafileltd/elasticsearch-with-ik:5.6.16
- 
+ExecStop=-/usr/bin/docker stop %n
+
 [Install]
 WantedBy=multi-user.target

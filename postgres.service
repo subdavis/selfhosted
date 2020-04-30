@@ -18,6 +18,7 @@ ExecStart=/opt/systemd-docker \
   --volume ${PRIMARY_MOUNT}/postgres/data:/var/lib/postgresql/data/ \
   --publish 5432:5432 \
   postgres
+ExecStop=-/usr/bin/docker stop %n
 
 [Install]
 WantedBy=default.target

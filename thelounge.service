@@ -1,6 +1,6 @@
 [Unit]
 Description=Thelounge
-After=docker.service
+After=traefik.service
 Requires=docker.service media-primary.mount media-secondary.mount
 
 [Service]
@@ -11,10 +11,14 @@ RestartSec=10s
 Type=notify
 NotifyAccess=all
 ExecStartPre=-/usr/bin/docker pull theloung/thelounge
+ExecStartPre=-/usr/bin/docker network create %N-net
+ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
+  --network %N-net \
   --label traefik.enable=true \
+  --label traefik.docker.network="%N-net" \
   --label traefik.http.services.%N.loadbalancer.server.port="9000" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
   --label traefik.http.routers.%N.entrypoints=web \
@@ -29,6 +33,8 @@ ExecStart=/opt/systemd-docker \
   --volume ${PRIMARY_MOUNT}/shout:/var/opt/thelounge \
   --link tor.service:tor \
   thelounge/thelounge
+ExecStop=-/usr/bin/docker stop %n
+ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
 
 [Install]
 WantedBy=multi-user.target

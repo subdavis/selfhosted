@@ -1,6 +1,6 @@
 [Unit]
 Description=Plex
-After=docker.service
+After=traefik.service
 Requires=docker.service media-secondary.mount
 
 [Service]
@@ -35,6 +35,7 @@ ExecStart=/opt/systemd-docker \
   --volume /tmp/%N/transcode:/transcode \
   --volume ${SECONDARY_MOUNT}/%N/media:/data \
   plexinc/pms-docker:beta
+ExecStop=-/usr/bin/docker stop %n
 
 [Install]
 WantedBy=multi-user.target
