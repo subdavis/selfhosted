@@ -11,23 +11,40 @@ RestartSec=10s
 Type=notify
 NotifyAccess=all
 ExecStartPre=-/usr/bin/docker pull pihole/pihole:latest
+ExecStartPre=-/usr/bin/docker network create %N-net
+ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
-  --label traefik.enable=false \
+  --network %N-net \
   --publish "53:53/udp" \
   --publish "53:53/tcp" \
   --publish "67:67/udp" \
-  --publish "9093:9093" \
   --env TZ='America/New_York' \
   --env WEBPASSWORD="${WEBPASSWORD}" \
   --env DNSSEC=true \
-  --env WEB_PORT=9093 \
+  --env WEB_PORT=8080 \
   --volume "${TERTIARY_MOUNT}/pihole/etc-pihole/:/etc/pihole/" \
   --volume "${TERTIARY_MOUNT}/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
-  --dns 127.0.0.1 \
-  --dns 1.1.1.1 \
+  --dns 192.168.1.1 \
+  --label traefik.enable=true \
+  --label traefik.docker.network="%N-net" \
+  --label traefik.http.services.%N.loadbalancer.server.port="8080" \
+  --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
+  --label traefik.http.routers.%N.entrypoints=web \
+  --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
+  --label traefik.http.routers.%N.middlewares="%N-https@docker" \
+  --label traefik.http.routers.%N-secure.entrypoints=websecure \
+  --label traefik.http.routers.%N-secure.rule="Host(`%N.${DNS_DOMAIN}`)" \
+  --label traefik.http.routers.%N-secure.tls.domains[0].main="*.${DNS_DOMAIN}" \
+  --label traefik.http.routers.%N-secure.tls.domains[0].sans="${DNS_DOMAIN}" \
+  --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
+  --label traefik.http.routers.%N-secure.tls=true \
+  --label traefik.http.middlewares.%N-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}" \
+  --label traefik.http.routers.%N-secure.middlewares="%N-ipwhitelist@docker" \
   pihole/pihole:latest
+ExecStop=-/usr/bin/docker stop %n
+ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
 
 [Install]
 WantedBy=multi-user.target
