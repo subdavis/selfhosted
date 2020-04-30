@@ -1,6 +1,12 @@
 # LAN-only routes with Traefik
 
-> **GOAL:** In this guide, you'll learn how to set up portainer with valid SSL and Host-based routing privately on your LAN, available at `portainer.mydomain.com`
+> **GOAL:** In this guide, you'll learn how to set up portainer with valid SSL and Host-based routing privately on your LAN.
+>
+> Turn _this_: `http://myserver.lan:8080`
+>
+> Into this: `https://portainer.mydomain.com`
+>
+> ...all while keepoing your private services off the internet.
 
 When running services in traefik, you'll likely want to expose some to the internet (like plex) and keep others accessible only from your local network (like portainer).  This document is mostly about IP whitelisting, but I want to first talk about SSL and security.
 
