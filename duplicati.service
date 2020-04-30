@@ -36,9 +36,10 @@ ExecStart=/opt/systemd-docker \
   --env "TZ=America/New_York" \
   --env "PUID=0" \
   --env "PGID=0" \
-  -v ${PRIMARY_MOUNT}:/source \
-  -v ${SECONDARY_MOUNT}/duplicati/config:/config \
-  -v ${SECONDARY_MOUNT}/duplicati/backups:/backups \
+  --volume ${PRIMARY_MOUNT}:/source \
+  --volume ${TERTIARY_MOUNT}:/sources/tertiary \
+  --volume ${SECONDARY_MOUNT}/duplicati/config:/config \
+  --volume ${SECONDARY_MOUNT}/duplicati/backups:/backups \
   linuxserver/duplicati
 ExecStop=-/usr/bin/docker stop %n
 ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
