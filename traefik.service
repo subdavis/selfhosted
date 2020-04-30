@@ -57,14 +57,14 @@ ExecStart=/opt/systemd-docker \
   --certificatesresolvers.myresolver.acme.email="${LETSENCRYPT_EMAIL}" \
   --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
 
-ExecStartPost=-/usr/bin/docker network connect %n pihole-net
-ExecStartPost=-/usr/bin/docker network connect %n seafile-net
-ExecStartPost=-/usr/bin/docker network connect %n portainer-net
-ExecStartPost=-/usr/bin/docker network connect %n torrent-net
-ExecStartPost=-/usr/bin/docker network connect %n duplicati-net
-ExecStartPost=-/usr/bin/docker network connect %n minio-net
-ExecStartPost=-/usr/bin/docker network connect %n thelounge-net
-ExecStartPost=-/usr/bin/docker network connect %n calibre-net
+ExecStartPost=-/usr/bin/docker network connect pihole-net %n
+ExecStartPost=-/usr/bin/docker network connect seafile-net %n
+ExecStartPost=-/usr/bin/docker network connect portainer-net %n
+ExecStartPost=-/usr/bin/docker network connect torrent-net %n
+ExecStartPost=-/usr/bin/docker network connect duplicati-net %n
+ExecStartPost=-/usr/bin/docker network connect minio-net %n
+ExecStartPost=-/usr/bin/docker network connect thelounge-net %n
+ExecStartPost=-/usr/bin/docker network connect calibre-net %n
 
 ExecStop=-/usr/bin/docker stop %n
 
