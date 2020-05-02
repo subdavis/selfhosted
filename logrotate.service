@@ -1,7 +1,7 @@
 [Unit]
 Description=Traefik Logrotate
-After=docker.service
-Requires=docker.service
+After=traefik.service
+Requires=traefik.service
 
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
