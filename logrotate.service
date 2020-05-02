@@ -5,8 +5,6 @@ Requires=docker.service
 
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
-Type=oneshot
-ExecStart=logrotate ${SYSTEMD_ROOT}/etc/traefik-logrotate.conf
+Type=simple
+ExecStart=/usr/sbin/logrotate ${SYSTEMD_ROOT}/etc/traefik-logrotate.conf
 
-[Install]
-WantedBy=multi-user.target

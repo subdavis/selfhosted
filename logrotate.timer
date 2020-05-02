@@ -1,11 +1,11 @@
 # minetest.timer
 [Unit] 
+Requires=logrotate.service
 Description=Runs logrotate for traefik
 
 [Timer]
 OnBootSec=5min
 OnUnitActiveSec=6h
-Unit=traefik-logrotate.service
 
 [Install] 
 WantedBy=timers.target
