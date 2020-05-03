@@ -10,7 +10,7 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull pihole/pihole:latest
+ExecStartPre=-/usr/bin/docker pull subdavis/pihole-cloudsync:latest
 ExecStartPre=-/usr/bin/docker network create %N-net
 ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service
 ExecStart=/opt/systemd-docker \
@@ -24,6 +24,12 @@ ExecStart=/opt/systemd-docker \
   --env WEBPASSWORD="${WEBPASSWORD}" \
   --env DNSSEC=true \
   --env WEB_PORT=8080 \
+  --env GIT_SERVER="github.com" \
+  --env GIT_REPO="subdavis/pihole-list" \
+  --env GIT_USER="subdavis" \
+  --env GIT_EMAIL="git@subdavis.com" \
+  --env CLOUDSYNC_TYPE="push" \
+  --volume "/home/changeme/.ssh/pihole:/root/.ssh/id_rsa" \
   --volume "${TERTIARY_MOUNT}/pihole/etc-pihole/:/etc/pihole/" \
   --volume "${TERTIARY_MOUNT}/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
   --dns 192.168.1.1 \
@@ -42,7 +48,7 @@ ExecStart=/opt/systemd-docker \
   --label traefik.http.routers.%N-secure.tls=true \
   --label traefik.http.middlewares.%N-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}" \
   --label traefik.http.routers.%N-secure.middlewares="%N-ipwhitelist@docker" \
-  pihole/pihole:latest
+  subdavis/pihole-cloudsync:latest
 ExecStop=-/usr/bin/docker stop %n
 ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
 
