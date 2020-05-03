@@ -24,10 +24,10 @@ ExecStart=/opt/systemd-docker \
   --env WEBPASSWORD="${WEBPASSWORD}" \
   --env DNSSEC=true \
   --env WEB_PORT=8080 \
-  --env GIT_SERVER="github.com" \
-  --env GIT_REPO="subdavis/pihole-list" \
-  --env GIT_USER="subdavis" \
-  --env GIT_EMAIL="git@subdavis.com" \
+  --env GIT_SERVER="${GIT_SERVER}" \
+  --env GIT_REPO="${GIT_REPO}" \
+  --env GIT_USER="${GIT_USER}" \
+  --env GIT_EMAIL="${GIT_EMAIL}" \
   --env CLOUDSYNC_TYPE="push" \
   --volume "/home/changeme/.ssh/pihole:/root/.ssh/id_rsa" \
   --volume "${TERTIARY_MOUNT}/pihole/etc-pihole/:/etc/pihole/" \

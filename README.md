@@ -12,7 +12,7 @@ This repo contains my production systemd services.  When you're done, you will b
 * Calibre Web
 * Samba Fileshare
 * Torrent server with OpenVPN over NordVPN
-* PiHole DNS
+* Multiple PiHole DNS Servers (primary and backup)
 * Seafile Pro with Elasticache
 
 # Documentation
@@ -30,13 +30,13 @@ I've also written some intermediate to advanced generic usage docs for traefik, 
 * A router or firewall capable of dnsmasq. I use a Ubiquiti EdgeRouter X.
 * A domain name.
 * A cloudflare account.
-* A build of https://github.com/subdavis/systemd-docker
+* A build of [systemd-docker](https://github.com/subdavis/systemd-docker/releases/tag/1.0.0)
 
 ## Home network prep
 
 * You need to make sure that ports 80 and/or 443 are port-forwarded through your router to whatever host this will be on.
 * I also recommend setting your server to be assigned a static private IP by your router.  `ifconfig` will list your interfaces.
-* Refer to the [docker-pi-hole](https://github.com/pi-hole/docker-pi-hole) docs for further network setup related to that service.
+* Refer to the [docker-pi-hole](https://github.com/pi-hole/docker-pi-hole) docs and [my docs](docs/pihole-dnsmasq.md) for further network setup related to that service.
 
 ### DNS Configuration
 
@@ -67,8 +67,8 @@ Some of my services, like `media-sdb.service`, may not apply to you, and you mig
 Don't do this until you have your CNAMEs and Dynamic DNS working.
 
 * Start with a fresh install of Ubuntu server
-* Install `systemd-docker`. You can [get my build of systemd-docker](https://github.com/subdavis/systemd-docker/releases/tag/1.0.0) for linux amd64.  I've tested it on ubuntu 18.04.
-* Clone this repo in `/usr/local/lib/systemd/system/` on your newly provisioned server.
+* Install `/opt/systemd-docker`. You can [get my build of systemd-docker](https://github.com/subdavis/systemd-docker/releases/tag/1.0.0) for multiple architectures.  I've tested it on ubuntu 18.04 and arm6.
+* Fork or Clone this repo. `git clone git@github.com:subdavis/selfhosted git/usr/local/lib/systemd/system`
 * `mkdir /media/local` to create a mount point on the OS disk.
 * For any overrides, like `torrent.service.d`, copy the template to a new `override.conf` file with the correct values.
 * create `profile.env` from template: `cp /usr/local/lib/systemd/system/profile.env.example /usr/local/lib/systemd/system/profile.env`
@@ -77,10 +77,12 @@ Don't do this until you have your CNAMEs and Dynamic DNS working.
 * Sign into any private docker registries
   * [Seafile Pro](https://www.seafile.com/en/product/private_server/) is free for 3 users
   * [Seafile Pro Docker Docs](https://download.seafile.com/published/seafile-manual/docker/pro-edition/Deploy%20Seafile-pro%20with%20Docker.md) are hard to find.
+* I run [pihole-cloudsync-docker](https://github.com/subdavis/pihole-cloudsync-docker) which keeps my secondary pihole in sync with my primary.  Some extra setup is required for this, 
 * Reload systemd: `systemctl daemon-reload`. This must be run **ANY TIME** any of your `.service` or `.conf` files change.
 * Enable all the services: `systemctl enable <name>.service`
 * You may need to disable ubuntu's default dns service and remove resolf.conf  [read more](https://www.smarthomebeginner.com/run-pihole-in-docker-on-ubuntu-with-reverse-proxy/).
 * Start all the services: `systemctl start <name>.service`
+* [Enable Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
 
 # Troubleshooting
 
