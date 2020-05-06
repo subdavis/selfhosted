@@ -1,0 +1,9 @@
+ChallengeResponseAuthentication no
+UsePAM no
+X11Forwarding no
+PasswordAuthentication no
+PrintMotd yes
+AcceptEnv LANG LC_*
+Subsystem sftp  /usr/lib/openssh/sftp-server
+Match User edgerouter-backup
+    PasswordAuthentication yes

@@ -37,6 +37,8 @@ Now, you'd be ready to set up a publicly accessible service, except we're going 
 
 With the IPWhitelist middleware, we're going to restrict access to your LAN subnet.  You can run traefik exactly the same as in [the wildcard SSL tutorial](wildcard-certs.md).
 
+> **Note:** the only difference is that you don't actually have to open any ports on your router.
+
 ### The Portainer Part
 
 This part will also be almost the same as the wildcard tutorial, with the addition of 1 middleware.  Refer to [CIDR notation](https://en.wikipedia.org/wiki/Classless_Inter-Domain_Routing) if you don't know how to represent your subnet as a CIDR block.
