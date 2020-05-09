@@ -10,9 +10,9 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull subdavis/pihole-cloudsync:latest
+ExecStartPre=-/usr/bin/docker pull adguard/adguardhome
 ExecStartPre=-/usr/bin/docker network create %N-net
-ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service
+ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service:latest
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
@@ -20,18 +20,10 @@ ExecStart=/opt/systemd-docker \
   --publish "53:53/udp" \
   --publish "53:53/tcp" \
   --publish "67:67/udp" \
-  --env TZ='America/New_York' \
-  --env WEBPASSWORD="${WEBPASSWORD}" \
-  --env DNSSEC=true \
-  --env WEB_PORT=8080 \
-  --env GIT_SERVER="${GIT_SERVER}" \
-  --env GIT_REPO="${GIT_REPO}" \
-  --env GIT_USER="${GIT_USER}" \
-  --env GIT_EMAIL="${GIT_EMAIL}" \
-  --env CLOUDSYNC_TYPE="push" \
-  --volume "/home/changeme/.ssh/pihole:/root/.ssh/id_rsa" \
-  --volume "${TERTIARY_MOUNT}/pihole/etc-pihole/:/etc/pihole/" \
-  --volume "${TERTIARY_MOUNT}/pihole/etc-dnsmasq.d/:/etc/dnsmasq.d/" \
+  --publish "68:68/tcp" \
+  --publish "68:68/udp" \
+  --volume "${TERTIARY_MOUNT}/%N/data:/opt/adguardhome/work" \
+  --volume "${TERTIARY_MOUNT}/%N/conf:/opt/adguardhome/conf" \
   --dns 192.168.1.1 \
   --label traefik.enable=true \
   --label traefik.docker.network="%N-net" \
@@ -48,7 +40,7 @@ ExecStart=/opt/systemd-docker \
   --label traefik.http.routers.%N-secure.tls=true \
   --label traefik.http.middlewares.%N-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}" \
   --label traefik.http.routers.%N-secure.middlewares="%N-ipwhitelist@docker" \
-  subdavis/pihole-cloudsync:latest
+  adguard/adguardhome:latest
 ExecStop=-/usr/bin/docker stop %n
 ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
 

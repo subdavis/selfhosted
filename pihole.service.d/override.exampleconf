@@ -1,6 +1,0 @@
-[Service]
-Environment="WEBPASSWORD=CHANGEME"
-Environment="GIT_SERVER="github.com"
-Environment="GIT_REPO="changeme/changeme"
-Environment="GIT_USER="changeme"
-Environment="GIT_EMAIL="changeme@domain.com"
