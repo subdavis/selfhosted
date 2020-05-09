@@ -10,24 +10,23 @@ Restart=always
 RestartSec=10s
 Type=notify
 NotifyAccess=all
-ExecStartPre=-/usr/bin/docker pull adguard/adguardhome
+ExecStartPre=-/usr/bin/docker pull adguard/adguardhome:latest
 ExecStartPre=-/usr/bin/docker network create %N-net
-ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service:latest
+ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service
 ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --network %N-net \
+  --publish 3000:3000 \
   --publish "53:53/udp" \
   --publish "53:53/tcp" \
   --publish "67:67/udp" \
-  --publish "68:68/tcp" \
-  --publish "68:68/udp" \
   --volume "${TERTIARY_MOUNT}/%N/data:/opt/adguardhome/work" \
   --volume "${TERTIARY_MOUNT}/%N/conf:/opt/adguardhome/conf" \
   --dns 192.168.1.1 \
   --label traefik.enable=true \
   --label traefik.docker.network="%N-net" \
-  --label traefik.http.services.%N.loadbalancer.server.port="8080" \
+  --label traefik.http.services.%N.loadbalancer.server.port="80" \
   --label traefik.http.middlewares.%N-https.redirectscheme.scheme="https" \
   --label traefik.http.routers.%N.entrypoints=web \
   --label traefik.http.routers.%N.rule="Host(`%N.${DNS_DOMAIN}`)" \
