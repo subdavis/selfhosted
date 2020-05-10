@@ -30,8 +30,9 @@ ExecStart=/opt/systemd-docker \
   --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
   --label traefik.http.routers.%N-secure.tls=true \
   --env REGISTRY_AUTH_HTPASSWD_REALM="basic-realm" \
-  --env REGISTRY_AUTH_HTPASSWD_PATH="${SYSTEMD_ROOT}/etc/passwords.txt" \
-  --volume ${PRIMARY_MOUNT}/%N/registry:/var/lib/registry \
+  --env REGISTRY_AUTH_HTPASSWD_PATH="/etc/passwords.txt" \
+  --volume "${PRIMARY_MOUNT}/%N/registry:/var/lib/registry" \
+  --volume "${SYSTEMD_ROOT}/etc/passwords.txt:/etc/passwords.txt" \
   registry:2
 ExecStop=-/usr/bin/docker stop %n
 ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
