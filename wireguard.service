@@ -11,7 +11,7 @@ RestartSec=10s
 Type=notify
 NotifyAccess=all
 ExecStartPre=-/usr/bin/docker pull linuxserver/wireguard
-ExecStartPre=/opt/systemd-docker \
+ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --cap-add=NET_ADMIN \
@@ -22,11 +22,12 @@ ExecStartPre=/opt/systemd-docker \
   --env SERVERURL="%N.${DNS_DOMAIN}" \
   --env SERVERPORT=51820 \
   --env PEERS=2 \
-  --env PEERDNS=auto \
+  --env PEERDNS=172.17.0.1 \
   --env INTERNAL_SUBNET=10.13.13.0 \
   --publish 51820:51820/udp \
   --volume ${PRIMARY_MOUNT}/%N/config:/config \
   --volume /lib/modules:/lib/modules \
+  --sysctl="net.ipv4.ip_forward=1" \
   --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
   linuxserver/wireguard
 ExecStop=-/usr/bin/docker stop %n
