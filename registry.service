@@ -29,7 +29,8 @@ ExecStart=/opt/systemd-docker \
   --label traefik.http.routers.%N-secure.tls.domains[0].main="*.${DNS_DOMAIN}" \
   --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
   --label traefik.http.routers.%N-secure.tls=true \
-  --env REGISTRY_AUTH_HTPASSWD_REALM="basic-realm" \
+  --env REGISTRY_AUTH="htpasswd" \
+  --env REGISTRY_AUTH_HTPASSWD_REALM="Registry Realm" \
   --env REGISTRY_AUTH_HTPASSWD_PATH="/etc/passwords.txt" \
   --volume "${PRIMARY_MOUNT}/%N/registry:/var/lib/registry" \
   --volume "${SYSTEMD_ROOT}/etc/passwords.txt:/etc/passwords.txt" \
