@@ -11,11 +11,9 @@ RestartSec=10s
 Type=notify
 NotifyAccess=all
 ExecStartPre=-/usr/bin/docker pull linuxserver/wireguard
-ExecStartPre=-/usr/bin/docker stop %n
-ExecStartPre=/usr/bin/docker \
-  create --rm --name %n \
-  --network %N-net \
-  --name=wireguard \
+ExecStartPre=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
   --cap-add=NET_ADMIN \
   --cap-add=SYS_MODULE \
   --env PUID=1000 \
@@ -31,7 +29,6 @@ ExecStartPre=/usr/bin/docker \
   --volume /lib/modules:/lib/modules \
   --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
   linuxserver/wireguard
-ExecStart=/opt/systemd-docker --cgroups name=systemd start %n
 ExecStop=-/usr/bin/docker stop %n
 
 [Install]
