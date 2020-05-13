@@ -51,6 +51,8 @@ ExecStartPost=/opt/systemd-docker \
   --label traefik.http.routers.%N-secure.tls.domains[0].main="*.${DNS_DOMAIN}" \
   --label traefik.http.routers.%N-secure.tls.domains[0].sans="${DNS_DOMAIN}" \
   --label traefik.http.routers.%N-secure.tls.certresolver="myresolver" \
+  --label traefik.http.middlewares.%N-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}" \
+  --label traefik.http.routers.%N-secure.middlewares="%N-ipwhitelist@docker" \
   --label traefik.http.routers.%N-secure.tls=true \
   haugene/transmission-openvpn-proxy
 ExecStop=-/usr/bin/docker stop %n %n-proxy
