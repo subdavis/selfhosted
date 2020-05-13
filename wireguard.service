@@ -22,9 +22,9 @@ ExecStart=/opt/systemd-docker \
   --env SERVERURL="%N.${DNS_DOMAIN}" \
   --env SERVERPORT=51820 \
   --env PEERS=2 \
-  --env PEERDNS=172.17.0.1 \
+  --env PEERDNS=192.168.1.175 \
   --env INTERNAL_SUBNET=10.13.13.0 \
-  --publish 51820:51820/udp \
+  --publish 54155:51820/udp \
   --volume ${PRIMARY_MOUNT}/%N/config:/config \
   --volume /lib/modules:/lib/modules \
   --sysctl="net.ipv4.ip_forward=1" \
