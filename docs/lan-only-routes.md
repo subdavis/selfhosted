@@ -26,7 +26,7 @@ This has drawbacks:
 
 Instead, I like to use my real domain even for local routes.
 
-1. Create a CNAME or A record for `portainer.mydomain.com` to point to either your server's private IP or even your network's public IP.
+1. Create a CNAME or A record for `portainer.mydomain.com` to point to either your server's private IP or even your network's public IP. **NOTE:** if you're using unbound DNS or a DNS resolver that blocks resolution for private addreesses, you'll have to use your public IP and set up port forwarding even if you block all public addresses.  Might be possible to do some NAT magic to avoid this.
 1. Set up [Wildcard SSL for your domain](wildcard-certs.md)
 
 Now, you'd be ready to set up a publicly accessible service, except we're going to restrict access.
