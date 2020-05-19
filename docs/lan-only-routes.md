@@ -37,7 +37,8 @@ Now, you'd be ready to set up a publicly accessible service, except we're going 
 
 With the IPWhitelist middleware, we're going to restrict access to your LAN subnet.  You can run traefik exactly the same as in [the wildcard SSL tutorial](wildcard-certs.md).
 
-> **Note:** the only difference is that you don't actually have to open any ports on your router.
+* If you choose to use your **Public** IP, you still need to set up port forwarding on your router for this to work correctly.  This is because requests to `portainer.mydomain.com` will resolve to your public IP, get routed to your public interface, then directed back into your LAN, so the actual external filtering will happen on your traefik host.
+* If you choose to use your **Private** IP in your DNS records, you don't need port forwarding becasue the request will never hit your router.  Beware that certain configurations of Unbound DNS will block DNS resolution to private IPs (if you don't know what this is, you're probably not affected).
 
 ### The Portainer Part
 
