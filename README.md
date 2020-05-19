@@ -60,7 +60,7 @@ Some of my services, like `media-sdb.service`, may not apply to you, and you mig
 
 * Most of my mounts are on a Raid 1 mirror at `/media/primary`.
 * Backups and lower-redundancy data (like plex movies) go on `/media/secondary`.
-* High-iops, low-redundancy data like access logs go on `/media/tertiary` where data loss will be tolerated.
+* High-iops, low-redundancy data like access logs go on `/media/local` where data loss will be tolerated.
 
 ## Installation
 

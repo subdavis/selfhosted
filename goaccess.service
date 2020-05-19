@@ -1,7 +1,7 @@
 [Unit]
 Description=Goaccess
 After=docker.service
-Requires=docker.service media-tertiary.mount media-primary.mount
+Requires=docker.service media-primary.mount
  
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
@@ -15,7 +15,7 @@ ExecStart=/opt/systemd-docker \
   --cgroups name=systemd \
   run --rm --name %n \
   --publish 7889:7889 \
-  --volume "${TERTIARY_MOUNT}/traefik/logs:/opt/log" \
+  --volume "${LOCAL_MOUNT}/traefik/logs:/opt/log" \
   --volume "${PRIMARY_MOUNT}/goaccess/config:/config" \
   gregyankovoy/goaccess
 ExecStop=-/usr/bin/docker stop %n

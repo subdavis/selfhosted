@@ -1,7 +1,7 @@
 [Unit]
 Description=Pihole
 After=traefik.service
-Requires=docker.service media-tertiary.mount
+Requires=docker.service
 
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
@@ -21,8 +21,8 @@ ExecStart=/opt/systemd-docker \
   --publish "53:53/udp" \
   --publish "53:53/tcp" \
   --publish "67:67/udp" \
-  --volume "${TERTIARY_MOUNT}/%N/data:/opt/adguardhome/work" \
-  --volume "${TERTIARY_MOUNT}/%N/conf:/opt/adguardhome/conf" \
+  --volume "${LOCAL_MOUNT}/%N/data:/opt/adguardhome/work" \
+  --volume "${LOCAL_MOUNT}/%N/conf:/opt/adguardhome/conf" \
   --dns 192.168.1.1 \
   --label traefik.enable=true \
   --label traefik.docker.network="%N-net" \

@@ -1,7 +1,7 @@
 [Unit]
 Description=Traefik
 After=docker.service
-Requires=docker.service media-tertiary.mount
+Requires=docker.service
  
 [Service]
 EnvironmentFile=/usr/local/lib/systemd/system/profile.env
@@ -32,8 +32,8 @@ ExecStart=/opt/systemd-docker \
   --env CF_ZONE_API_TOKEN=${CF_TOKEN} \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume "${SYSTEMD_ROOT}/etc/passwords.txt:/basicauth/passwords.txt" \
-  --volume "${TERTIARY_MOUNT}/%N/letsencrypt:/letsencrypt" \
-  --volume "${TERTIARY_MOUNT}/%N/logs:/var/log/traefik" \
+  --volume "${LOCAL_MOUNT}/%N/letsencrypt:/letsencrypt" \
+  --volume "${LOCAL_MOUNT}/%N/logs:/var/log/traefik" \
   --publish 9999:8080 \
   --publish 80:80 \
   --publish 443:443 \

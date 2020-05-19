@@ -35,8 +35,8 @@ ExecStart=/opt/systemd-docker \
   --env "TZ=America/New_York" \
   --env "PUID=0" \
   --env "PGID=0" \
-  --volume ${PRIMARY_MOUNT}:/source \
-  --volume ${TERTIARY_MOUNT}:/sources/tertiary \
+  --volume ${PRIMARY_MOUNT}:/sources/primary \
+  --volume ${LOCAL_MOUNT}:/sources/local \
   --volume ${SECONDARY_MOUNT}/duplicati/config:/config \
   --volume ${SECONDARY_MOUNT}/duplicati/backups:/backups \
   linuxserver/duplicati
