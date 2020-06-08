@@ -67,12 +67,7 @@ Some of my services, like `media-sdb.service`, may not apply to you, and you mig
 Don't do this until you have your CNAMEs and Dynamic DNS working.
 
 * Start with a fresh install of Ubuntu server
-* Install `/opt/systemd-docker`. You can [get my build of systemd-docker](https://github.com/subdavis/systemd-docker/releases/tag/1.0.0) for multiple architectures.  I've tested it on ubuntu 18.04 and arm6.
-* Fork or Clone this repo. `git clone git@github.com:subdavis/selfhosted git/usr/local/lib/systemd/system`
-* `mkdir /media/local` to create a mount point on the OS disk.
-* For any overrides, like `torrent.service.d`, copy the template to a new `override.conf` file with the correct values.
-* create `profile.env` from template: `cp /usr/local/lib/systemd/system/profile.env.example /usr/local/lib/systemd/system/profile.env`
-* edit `profile.env` for your needs (see sections above)
+  * Install `python`, `python-passlib`, `python-docker`
 * create `passwords.txt` with the `htpasswd` command in `./etc`
 * Sign into any private docker registries
   * [Seafile Pro](https://www.seafile.com/en/product/private_server/) is free for 3 users

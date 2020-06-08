@@ -1,3 +1,0 @@
-#!/bin/bash
-
-pushd /usr/local/lib/systemd/system

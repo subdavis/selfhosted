@@ -1,0 +1,32 @@
+[Unit]
+Description=Elastic Search
+After=docker.service
+Requires=docker.service
+ 
+[Service]
+
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=/usr/bin/docker pull seafileltd/elasticsearch-with-ik:5.6.16
+ExecStartPre=-/usr/bin/docker network create seafile-private-net
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --label traefik.enable=false \
+  --network seafile-private-net \
+  --network-alias elasticsearch \
+  --env "discovery.type=single-node" \
+  --env "bootstrap.memory_lock=true" \
+  --env "ES_JAVA_OPTS=-Xms1g -Xmx1g" \
+  --env "TAKE_FILE_OWNERSHIP=1" \
+  --ulimit memlock=-1:-1 \
+  --memory 2GB \
+  --volume {{LOCAL_MOUNT}}/elasticsearch/data:/usr/share/elasticsearch/data \
+  seafileltd/elasticsearch-with-ik:5.6.16
+ExecStop=-/usr/bin/docker stop %n
+
+[Install]
+WantedBy=multi-user.target

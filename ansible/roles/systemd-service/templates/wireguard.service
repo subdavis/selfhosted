@@ -1,0 +1,35 @@
+[Unit]
+Description=Wireguard
+After=docker.service
+Requires=docker.service media-primary.mount
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull linuxserver/wireguard
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --cap-add=NET_ADMIN \
+  --cap-add=SYS_MODULE \
+  --env PUID=1000 \
+  --env PGID=1000 \
+  --env TZ=America/New_York \
+  --env SERVERURL="%N.{{DNS_DOMAIN}}" \
+  --env SERVERPORT=51820 \
+  --env PEERS=2 \
+  --env PEERDNS=192.168.1.175 \
+  --env INTERNAL_SUBNET=10.13.13.0 \
+  --publish 54155:51820/udp \
+  --volume {{PRIMARY_MOUNT}}/%N/config:/config \
+  --volume /lib/modules:/lib/modules \
+  --sysctl="net.ipv4.ip_forward=1" \
+  --sysctl="net.ipv4.conf.all.src_valid_mark=1" \
+  linuxserver/wireguard
+ExecStop=-/usr/bin/docker stop %n
+
+[Install]
+WantedBy=multi-user.target

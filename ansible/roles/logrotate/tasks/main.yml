@@ -1,0 +1,25 @@
+- name: install logrotate config
+  template:
+    src: "traefik-logrotate.conf"
+    dest: "{{SYSTEMD_ROOT}}/etc/traefik-logrotate.conf"
+  register: conf
+
+- name: "install logrotate.service"
+  template:
+    src: "logrotate.service"
+    dest: "{{SYSTEMD_ROOT}}/logrotate.service"
+  register: serviceconf
+
+- name: "install logrotate.timer"
+  template:
+    src: "logrotate.timer"
+    dest: "{{SYSTEMD_ROOT}}/logrotate.timer"
+  register: timerconf
+
+- name: "enable logrotate.timer"
+  service:
+    name: "logrotate.timer"
+    enabled: yes
+    state: restarted
+    daemon_reload: yes
+  when: conf.changed or timerconf.changed or serviceconf.changed

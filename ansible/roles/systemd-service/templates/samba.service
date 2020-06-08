@@ -1,0 +1,28 @@
+[Unit]
+Description=Samba
+After=docker.service
+Requires=docker.service
+
+[Service]
+
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull dperson/samba
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --label traefik.enable=false \
+  --publish 139:139 \
+  --publish 445:445 \
+  --env TZ=EST5EDT \
+  --env USER="{{SAMBA_USER}};{{SAMBA_PASSWORD}};" \
+  --env SHARE="data;/mount;yes;no;no;{{SAMBA_USER}};{{SAMBA_USER}};;" \
+  --volume /media:/mount \
+  dperson/samba
+ExecStop=-/usr/bin/docker stop %n
+
+[Install]
+WantedBy=multi-user.target

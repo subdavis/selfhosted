@@ -1,0 +1,26 @@
+[Unit]
+Description=Memcached
+After=docker.service
+Requires=docker.service media-primary.mount
+
+[Service]
+
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull memcached:1.5.6
+ExecStartPre=-/usr/bin/docker network create seafile-private-net
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --network seafile-private-net \
+  --network-alias memcached \
+  --label traefik.enable=false \
+  memcached:1.5.6 \
+  -m 256
+ExecStop=-/usr/bin/docker stop %n
+
+[Install]
+WantedBy=default.target

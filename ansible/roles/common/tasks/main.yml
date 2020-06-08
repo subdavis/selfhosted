@@ -1,0 +1,20 @@
+- name: Make mount root directories
+  file:
+    path: '/media/{{item.name}}'
+    state: directory
+    mode: '0755'
+  loop:
+    - { name: 'local' }
+    - { name: 'primary' }
+    - { name: 'secondary' }
+    - { name: 'tertiary' }
+
+- include_tasks: install-sshd-config.yml
+
+- name: install systemd-docker
+  get_url:
+    url: https://github.com/subdavis/systemd-docker/releases/download/1.0.0/systemd-docker
+    dest: /opt/systemd-docker
+    mode: u=rwx,g=rx,o=rx
+
+- include_tasks: disable-dns.yml

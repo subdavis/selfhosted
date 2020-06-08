@@ -1,0 +1,21 @@
+- hosts: all
+  become: yes
+  roles:
+    - common
+    # MEDIA
+    - { role: systemd-service, vars: { name: media-primary, enabled: yes } }
+    - { role: systemd-service, vars: { name: media-secondary, enabled: yes } }
+    # SERVICES
+    - { role: systemd-service, vars: { name: adguard, enabled: yes } }
+    - { role: systemd-service, vars: { name: calibre, enabled: yes } }
+    - { role: systemd-service, vars: { name: duplicati, enabled: yes } }
+    - { role: systemd-service, vars: { name: dyndns, enabled: yes } }
+    - { role: systemd-service, vars: { name: elasticsearch, enabled: yes } }
+    - { role: systemd-service, vars: { name: goaccess, enabled: yes } }
+    - { role: systemd-service, vars: { name: i2p, enabled: no } }
+    - { role: systemd-service, vars: { name: kobodl, enabled: yes } }
+    - { role: systemd-service, vars: { name: mariadb, enabled: yes } }
+    - { role: systemd-service, vars: { name: whoami, enabled: yes } }
+    - { role: systemd-service, vars: { name: goaccess, enabled: yes } }
+    - { role: systemd-service, vars: { name: tor, enabled: no } }
+    - logrotate

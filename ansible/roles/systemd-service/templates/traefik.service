@@ -1,0 +1,68 @@
+[Unit]
+Description=Traefik
+After=docker.service
+Requires=docker.service
+ 
+[Service]
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=/usr/bin/docker pull traefik:2.2
+
+# Must create networks because we don't want to establish
+# a dependency between traefik and the services it exposes
+# it's a little gross, but the security gains are worth it
+ExecStartPre=-/usr/bin/docker network create pihole-net
+ExecStartPre=-/usr/bin/docker network create seafile-net
+ExecStartPre=-/usr/bin/docker network create portainer-net
+ExecStartPre=-/usr/bin/docker network create torrent-net
+ExecStartPre=-/usr/bin/docker network create duplicati-net
+ExecStartPre=-/usr/bin/docker network create minio-net
+ExecStartPre=-/usr/bin/docker network create thelounge-net
+ExecStartPre=-/usr/bin/docker network create calibre-net
+
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --env CF_API_EMAIL={{CF_EMAIL}} \
+  --env CF_DNS_API_TOKEN={{CF_TOKEN}} \
+  --env CF_ZONE_API_TOKEN={{CF_TOKEN}} \
+  --volume /var/run/docker.sock:/var/run/docker.sock \
+  --volume "{{SYSTEMD_ROOT}}/etc/passwords.txt:/basicauth/passwords.txt" \
+  --volume "{{LOCAL_MOUNT}}/%N/letsencrypt:/letsencrypt" \
+  --volume "{{LOCAL_MOUNT}}/%N/logs:/var/log/traefik" \
+  --publish 9999:8080 \
+  --publish 80:80 \
+  --publish 443:443 \
+  traefik:v2.2 \
+  --api.insecure=true \
+  --accesslog=true \
+  --accesslog.filepath=/var/log/traefik/access.log \
+  --accesslog.fields.headers.names.Content-Type=keep \
+  --accesslog.fields.headers.names.Referer=keep \
+  --accesslog.fields.headers.names.User-Agent=keep \
+  --providers.docker=true \
+  --providers.docker.exposedByDefault=false \
+  --entrypoints.web.address=:80 \
+  --entrypoints.websecure.address=:443 \
+  --certificatesResolvers.myresolver.acme.caServer="https://acme-v02.api.letsencrypt.org/directory" \
+  --certificatesresolvers.myresolver.acme.dnschallenge=true \
+  --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare \
+  --certificatesresolvers.myresolver.acme.email="{{LETSENCRYPT_EMAIL}}" \
+  --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+
+ExecStartPost=-/usr/bin/docker network connect pihole-net %n
+ExecStartPost=-/usr/bin/docker network connect seafile-net %n
+ExecStartPost=-/usr/bin/docker network connect portainer-net %n
+ExecStartPost=-/usr/bin/docker network connect torrent-net %n
+ExecStartPost=-/usr/bin/docker network connect duplicati-net %n
+ExecStartPost=-/usr/bin/docker network connect minio-net %n
+ExecStartPost=-/usr/bin/docker network connect thelounge-net %n
+ExecStartPost=-/usr/bin/docker network connect calibre-net %n
+
+ExecStop=-/usr/bin/docker stop %n
+
+[Install]
+WantedBy=multi-user.target

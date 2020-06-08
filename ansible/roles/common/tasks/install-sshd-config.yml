@@ -1,0 +1,11 @@
+- name: install sshd config
+  template:
+    src: "sshd_config"
+    dest: "/etc/ssh/sshd_config"
+  register: sshd_conf
+
+- name: restart sshd
+  when: sshd_conf.changed
+  service:
+    name: sshd
+    state: restarted

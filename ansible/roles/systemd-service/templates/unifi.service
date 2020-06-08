@@ -1,0 +1,35 @@
+[Unit]
+Description=Unifi Controller
+After=docker.service
+Requires=docker.service media-primary.mount
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull linuxserver/unifi-controller
+ExecStartPre=-/usr/bin/docker network create %N-net
+ExecStartPre=-/usr/bin/docker network connect %N-net traefik.service
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --label traefik.enable=false \
+  --network %N-net \
+  --env PUID=1000 \
+  --env PGID=1000 \
+  --env MEM_LIMIT=1024M \
+  --publish "3478:3478/udp" \
+  --publish "10001:10001/udp" \
+  --publish "8080:8080" \
+  --publish "8081:8081" \
+  --publish "8443:8443" \
+  --publish "6789:6789" \
+  --volume "{{PRIMARY_MOUNT}}/unifi/config/:/config" \
+  linuxserver/unifi-controller
+ExecStop=-/usr/bin/docker stop %n
+ExecStopPost=-/usr/bin/docker network disconnect %N-net traefik.service
+
+[Install]
+WantedBy=multi-user.target

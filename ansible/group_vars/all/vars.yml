@@ -1,0 +1,33 @@
+# Letsencrypt email isn't associated with any account.
+# You can put anything here
+LETSENCRYPT_EMAIL: letsencrypt@subdavis.com
+# Your naked domain.
+DNS_DOMAIN: subdavis.com
+# The particular DNS record to update with an A record for dyndns
+SUBDOMAIN: core
+# The location where this repo is cloned
+SYSTEMD_ROOT: /usr/local/lib/systemd/system/
+# Your local subnet, for optional IP Whitelisting in Traefik
+# https://tools.ietf.org/html/rfc1918
+SUBNET: "192.168.0.0/16,10.0.0.0/8,172.16.0.0/12"
+# Mount locations for external media
+PRIMARY_MOUNT: /media/primary
+SECONDARY_MOUNT: /media/secondary
+LOCAL_MOUNT: /media/local
+
+# Include vars from vault
+
+CF_EMAIL: "{{ vault_CF_EMAIL }}"
+CF_TOKEN: "{{ vault_CF_TOKEN }}"
+
+MYSQL_ROOT_PASSWORD: "{{ vault_MYSQL_ROOT_PASSWORD }}"
+
+SEAFILE_ADMIN_EMAIL: "{{ vault_SEAFILE_ADMIN_EMAIL }}"
+SEAFILE_ADMIN_PASSWORD: "{{ vault_SEAFILE_ADMIN_PASSWORD }}"
+
+SAMBA_USER: "{{ vault_SAMBA_USER }}"
+SAMBA_PASSWORD: "{{ vault_SAMBA_PASSWORD }}"
+
+OPENVPN_PROVIDER: "{{ vault_OPENVPN_PROVIDER }}"
+OPENVPN_USERNAME: "{{ vault_OPENVPN_USERNAME }}"
+OPENVPN_PASSWORD: "{{ vault_OPENVPN_PASSWORD }}"

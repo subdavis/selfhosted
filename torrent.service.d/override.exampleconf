@@ -1,4 +1,0 @@
-[Service]
-Environment="OPENVPN_PROVIDER=NORDVPN"
-Environment="USERNAME=CHANGEME"
-Environment="PASSWORD=CHANGEME"

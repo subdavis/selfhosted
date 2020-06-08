@@ -1,0 +1,29 @@
+- name: "install {{name}}"
+  template:
+    src: "{{name}}.service"
+    dest: "{{SYSTEMD_ROOT}}/{{ name }}.service"
+  register: conf
+
+- name: "enable {{name}}"
+  service:
+    name: "{{name}}"
+    enabled: "{{enabled}}"
+
+- name: "start {{name}}"
+  service:
+    name: "{{name}}"
+    state: started
+    daemon_reload: yes
+  when: enabled|bool
+
+- name: "stop {{name}}"
+  service:
+    name: "{{name}}"
+    state: stopped
+  when: not enabled|bool
+
+- name: "restart {{name}}"
+  service:
+    name: "{{name}}"
+    state: restarted
+  when: conf.changed and enabled|bool

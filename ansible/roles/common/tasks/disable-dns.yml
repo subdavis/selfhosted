@@ -1,0 +1,22 @@
+- name: disable ubuntu local DNS service
+  service:
+    name: systemd-resolved
+    state: stopped
+    enabled: no
+
+- name: use default dns in networkmanager
+  template:
+    src: NetworkManager.conf
+    dest: /etc/NetworkManager/NetworkManager.conf
+  register: nmconf
+
+- name: Remove Resolv.conf
+  file:
+    state: absent
+    path: /etc/resolv.conf
+
+- name: restart networkmanager
+  service:
+    name: network-manager
+    state: restarted
+  when: nmconf.changed

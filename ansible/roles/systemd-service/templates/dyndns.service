@@ -1,0 +1,24 @@
+[Unit]
+Description=Dyndns
+After=docker.service
+Requires=docker.service
+
+[Service]
+TimeoutStartSec=0
+Restart=always
+RestartSec=10s
+Type=notify
+NotifyAccess=all
+ExecStartPre=-/usr/bin/docker pull oznu/cloudflare-ddns
+ExecStart=/opt/systemd-docker \
+  --cgroups name=systemd \
+  run --rm --name %n \
+  --label traefik.enable=false \
+  --env "API_KEY={{CF_TOKEN}}" \
+  --env "ZONE={{DNS_DOMAIN}}" \
+  --env "SUBDOMAIN={{SUBDOMAIN}}" \
+  oznu/cloudflare-ddns
+ExecStop=-/usr/bin/docker stop %n
+
+[Install]
+WantedBy=multi-user.target
