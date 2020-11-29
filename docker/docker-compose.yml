@@ -327,10 +327,10 @@ services:
       - traefik.http.middlewares.transmission-basic.basicauth.usersfile=/basicauth/passwords.txt
       - traefik.http.middlewares.transmission-https.redirectscheme.scheme=https
       - traefik.http.routers.transmission.entrypoints=web
-      - traefik.http.routers.transmission.rule=Host(`transmission.${DNS_DOMAIN}`)
+      - traefik.http.routers.transmission.rule=Host(`torrent.${DNS_DOMAIN}`)
       - traefik.http.routers.transmission.middlewares=transmission-https@docker
       - traefik.http.routers.transmission-secure.entrypoints=websecure
-      - traefik.http.routers.transmission-secure.rule=Host(`transmission.${DNS_DOMAIN}`)
+      - traefik.http.routers.transmission-secure.rule=Host(`torrent.${DNS_DOMAIN}`)
       - traefik.http.routers.transmission-secure.middlewares=transmission-basic@docker
       - traefik.http.routers.transmission-secure.tls.domains[0].main=*.${DNS_DOMAIN}
       - traefik.http.routers.transmission-secure.tls.domains[0].sans=${DNS_DOMAIN}
