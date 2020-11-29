@@ -1,0 +1,432 @@
+version: '3.8'
+services:
+
+  #############################
+  ## ADGUARD
+  #############################
+
+  adguard:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network="adguard-net"
+      - traefik.http.services.adguard.loadbalancer.server.port="80"
+      - traefik.http.middlewares.adguard-https.redirectscheme.scheme="https"
+      - traefik.http.routers.adguard.entrypoints=web
+      - traefik.http.routers.adguard.rule="Host(`adguard.${DNS_DOMAIN}`)"
+      - traefik.http.routers.adguard.middlewares="adguard-https@docker"
+      - traefik.http.routers.adguard-secure.entrypoints=websecure
+      - traefik.http.routers.adguard-secure.rule="Host(`adguard.${DNS_DOMAIN}`)"
+      - traefik.http.routers.adguard-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
+      - traefik.http.routers.adguard-secure.tls.domains[0].sans="${DNS_DOMAIN}"
+      - traefik.http.routers.adguard-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.adguard-secure.tls=true
+      - traefik.http.middlewares.adguard-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}"
+      - traefik.http.routers.adguard-secure.middlewares="adguard-ipwhitelist@docker"
+    networks:
+      - adguard-net
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+      - "67:67/udp"
+    volumes:
+      - "${LOCAL_MOUNT}/adguard/data:/opt/adguardhome/work"
+      - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
+    dns: "192.168.1.1"
+
+  #############################
+  ## CALIBRE
+  #############################
+
+  calibre_web:
+    image: linuxserver/calibre-web
+    container_name: calibre_web
+    restart: always
+    label:
+      - traefik.enable=true
+      - traefik.docker.network="calibre-net"
+      - traefik.http.services.calibre.loadbalancer.server.port="8083"
+      - traefik.http.middlewares.calibre-https.redirectscheme.scheme="https"
+      - traefik.http.routers.calibre.entrypoints=web
+      - traefik.http.routers.calibre.rule="Host(`calibre.${DNS_DOMAIN}`)"
+      - traefik.http.routers.calibre.middlewares="calibre-https@docker"
+      - traefik.http.routers.calibre-secure.entrypoints=websecure
+      - traefik.http.routers.calibre-secure.rule="Host(`calibre.${DNS_DOMAIN}`)"
+      - traefik.http.routers.calibre-secure.tls.domains[0].sans="${DNS_DOMAIN}"
+      - traefik.http.routers.calibre-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
+      - traefik.http.routers.calibre-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.calibre-secure.tls=true
+    env:
+    - PUID=0
+    - PGID=0
+    - "TZ=${TIME_ZONE}"
+    - "DOCKER_MODS=linuxserver/calibre-web:calibre"
+    volume:
+      - ${PRIMARY_MOUNT}/calibre/config:/config
+      - ${PRIMARY_MOUNT}/calibre/books:/books
+    networks:
+      - calibre-net
+
+  #############################
+  ## DUPLICATI
+  #############################
+
+  duplicati:
+    image: linuxserver/duplicati
+    container_name: duplicati
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network="duplicati-net"
+      - traefik.http.services.duplicati.loadbalancer.server.port="8200"
+      - traefik.http.middlewares.duplicati-basic.basicauth.usersfile="/basicauth/passwords.txt"
+      - traefik.http.middlewares.duplicati-https.redirectscheme.scheme="https"
+      - traefik.http.routers.duplicati.entrypoints=web
+      - traefik.http.routers.duplicati.rule="Host(`backups.${DNS_DOMAIN}`)"
+      - traefik.http.routers.duplicati.middlewares="duplicati-https@docker"
+      - traefik.http.routers.duplicati-secure.entrypoints=websecure
+      - traefik.http.routers.duplicati-secure.rule="Host(`backups.${DNS_DOMAIN}`)"
+      - traefik.http.routers.duplicati-secure.tls.domains[0].sans="${DNS_DOMAIN}"
+      - traefik.http.routers.duplicati-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.duplicati-secure.tls=true
+      - traefik.http.middlewares.duplicati-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}"
+      - traefik.http.routers.duplicati-secure.middlewares="duplicati-basic@docker,duplicati-ipwhitelist@docker"
+    env:
+      - "TZ=${TIME_ZONE}"
+      - "PUID=0"
+      - "PGID=0"
+    volumes:
+      - ${PRIMARY_MOUNT}:/sources/primary
+      - ${LOCAL_MOUNT}:/sources/local
+      - ${SECONDARY_MOUNT}/duplicati/config:/config
+      - ${SECONDARY_MOUNT}/duplicati/backups:/backups
+    networks:
+      - duplicati-net
+
+  #############################
+  ## KOBODL
+  #############################
+
+  kobodl:
+    image: subdavis/kobodl
+    container_name: kobodl
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=seafile-net
+      - traefik.http.services.kobodl.loadbalancer.server.port="5000"
+      - traefik.http.middlewares.kobodl-basic.basicauth.usersfile="/basicauth/passwords.txt"
+      - traefik.http.middlewares.kobodl-https.redirectscheme.scheme="https"
+      - traefik.http.routers.kobodl.entrypoints=web
+      - traefik.http.routers.kobodl.rule="Host(`kobodl.${DNS_DOMAIN}`)"
+      - traefik.http.routers.kobodl.middlewares="kobodl-https@docker"
+      - traefik.http.routers.kobodl-secure.entrypoints=websecure
+      - traefik.http.routers.kobodl-secure.rule="Host(`kobodl.${DNS_DOMAIN}`)"
+      - traefik.http.routers.kobodl-secure.middlewares="kobodl-basic@docker"
+      - traefik.http.routers.kobodl-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
+      - traefik.http.routers.kobodl-secure.tls.domains[0].sans="${DNS_DOMAIN}"
+      - traefik.http.routers.kobodl-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.kobodl-secure.tls=true
+    volumes:
+      - ${PRIMARY_MOUNT}/kobodl/kobodl.json:/home/kobodl.json
+      - ${PRIMARY_MOUNT}/kobodl/downloads:/home/downloads
+    command: --config /home/kobodl.json serve -h 0.0.0.0 --output-dir /home/downloads
+    networks:
+      - seafile-net
+
+  #############################
+  ## PLEX
+  #############################
+
+  plex:
+    image: plexinc/pms-docker:beta
+    container_name: plex
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network="plex-net"
+      - traefik.http.services.plex.loadbalancer.server.port="32400"
+      - traefik.http.middlewares.plex-https.redirectscheme.scheme="https"
+      - traefik.http.routers.plex.entrypoints=web
+      - traefik.http.routers.plex.rule="Host(`plex.${DNS_DOMAIN}`)"
+      - traefik.http.routers.plex.middlewares="plex-https@docker"
+      - traefik.http.routers.plex-secure.entrypoints=websecure
+      - traefik.http.routers.plex-secure.rule="Host(`plex.${DNS_DOMAIN}`)"
+      - traefik.http.routers.plex-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
+      - traefik.http.routers.plex-secure.tls.domains[0].sans="${DNS_DOMAIN}"
+      - traefik.http.routers.plex-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.plex-secure.tls=true
+    ports:
+      - "32400:32400/tcp"
+      - "8324:8324/tcp"
+    env:
+      - TZ="${TIME_ZONE}"
+      - ADVERTISE_IP="https://plex.${DNS_DOMAIN}/"
+      - PLEX_CLAIM="${PLEX_CLAIM}"
+    volumes:
+      - ${SECONDARY_MOUNT}/plex/config:/config
+      - /tmp/plex/transcode:/transcode
+      - ${SECONDARY_MOUNT}/plex/media:/data
+    networks:
+      - plex-net
+
+  #############################
+  ## SAMBA
+  #############################
+
+  samba:
+    image: dperson/samba
+    container_name: samba
+    restart: always
+    labels:
+      - traefik.enable=false
+    ports:
+      - "139:139"
+      - "445:445"
+    env:
+      - TZ=EST5EDT
+      - USER="${SAMBA_USER};${SAMBA_PASSWORD};"
+      - SHARE="data;/mount;yes;no;no;${SAMBA_USER};${SAMBA_USER};;"
+    volumes:
+      - /media:/mount
+    networks:
+      - samba-net
+
+  #############################
+  ## SEAFILE 
+  #############################
+
+  # from https://download.seafile.com/d/320e8adf90fa43ad8fee/files/?p=/docker/pro-edition/docker-compose.yml
+  # https://download.seafile.com/published/seafile-manual/docker/pro-edition/Deploy%20Seafile-pro%20with%20Docker.md
+
+  seafile_db:
+    image: mariadb:10.1
+    container_name: seafile-mariadb
+    restart: always
+    labels:
+      - traefik.enable=false
+    environment:
+      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"  # Requested, set the root's password of MySQL service.
+      - MYSQL_LOG_CONSOLE=true
+    volumes:
+      - ${PRIMARY_MOUNT}/mariadb:/var/lib/mysql  # Requested, specifies the path to MySQL data persistent store.
+    networks:
+      - seafile-net
+
+  seafile_memcached:
+    image: memcached:1.5.6
+    container_name: seafile-memcached
+    restart: always
+    labels:
+      - traefik.enable=false
+    entrypoint: memcached -m 256
+    networks:
+      - seafile-net
+
+  seafile_elasticsearch:
+    image: seafileltd/elasticsearch-with-ik:5.6.16
+    container_name: seafile-elasticsearch
+    restart: always
+    aliases:
+      # Apparently seafile doesn't let you configure this, so it has to be the default hostname
+      - elasticsearch
+    labels:
+      - traefik.enable=false
+    environment:
+      - discovery.type=single-node
+      - bootstrap.memory_lock=true
+      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
+      - "TAKE_FILE_OWNERSHIP=1"
+    ulimits:
+      memlock:
+        soft: -1
+        hard: -1
+    mem_limit: 2g
+    volumes:
+      # Requested, specifies the path to Elasticsearch data persistent store.
+      - ${LOCAL_MOUNT}/elasticsearch/data:/usr/share/elasticsearch/data
+    networks:
+      - seafile-net
+
+  seafile:
+    image: docker.seadrive.org/seafileltd/seafile-pro-mc:latest
+    container_name: seafile
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=seafile-net
+      - traefik.http.services.seafile.loadbalancer.server.port="80"
+      - traefik.http.middlewares.seafile-https.redirectscheme.scheme="https"
+      - traefik.http.routers.seafile.entrypoints=web
+      - traefik.http.routers.seafile.rule="Host(`seafile.${DNS_DOMAIN}`)"
+      - traefik.http.routers.seafile.middlewares="seafile-https@docker"
+      - traefik.http.routers.seafile-secure.entrypoints=websecure
+      - traefik.http.routers.seafile-secure.rule="Host(`seafile.${DNS_DOMAIN}`)"
+      - traefik.http.routers.seafile-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
+      - traefik.http.routers.seafile-secure.tls.domains[0].sans="${DNS_DOMAIN}"
+      - traefik.http.routers.seafile-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.seafile-secure.tls=true
+    volumes:
+      - ${PRIMARY_MOUNT}/seafile:/shared # Requested, specifies the path to Seafile data persistent store.
+      - ${PRIMARY_MOUNT}/data:/source_data
+    environment:
+      - "TIME_ZONE=${TIME_ZONE}"
+      - "DB_HOST=seafile_db"
+      - "DB_ROOT_PASSWD=${MYSQL_ROOT_PASSWORD}" # Requested, the value shuold be root's password of MySQL service.
+      - "SEAFILE_ADMIN_EMAIL=${SEAFILE_ADMIN_EMAIL}" # Specifies Seafile admin user, default is 'me@example.com'
+      - "SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}"  # Specifies Seafile admin password, default is 'asecret'
+      - "SEAFILE_SERVER_LETSENCRYPT=false"  # Whether to use https or not
+      - "SEAFILE_SERVER_HOSTNAME=seafile.${DNS_DOMAIN}" # Specifies your host name if https is enabled
+    depends_on:
+      - seafile_db
+      - seafile_memcached
+      - seafile_elasticsearch
+    networks:
+      - seafile-net
+
+  #############################
+  ## TRANSMISSION_TORRENT
+  #############################
+
+  transmission:
+    image: haugene/transmission-openvpn
+    container_name: transmission
+    restart: always
+    labels: 
+      - traefik.enable=false
+    networks:
+      - transmission-net
+    dns: 1.1.1.1
+    cap_add: NET_ADMIN
+    devices:
+      - /dev/net/tun
+    volumes:
+      - ${SECONDARY_MOUNT}/plex/media/:/data
+      - /etc/localtime:/etc/localtime:ro
+    env:
+      - CREATE_TUN_DEVICE=true
+      - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
+      - "OPENVPN_USERNAME=${TORRENT_USERNAME}"
+      - "OPENVPN_PASSWORD=${TORRENT_PASSWORD}"
+      - "TRANSMISSION_UMASK=0"
+      - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
+      - LOCAL_NETWORK=192.168.1.1/24
+
+  transmission_proxy:
+    image: hhaugene/transmission-openvpn-proxy
+    container_name: transmission_proxy
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network="transmission-net"
+      - traefik.http.services.transmission.loadbalancer.server.port="8080"
+      - traefik.http.middlewares.transmission-basic.basicauth.usersfile="/basicauth/passwords.txt"
+      - traefik.http.middlewares.transmission-https.redirectscheme.scheme="https"
+      - traefik.http.routers.transmission.entrypoints=web
+      - traefik.http.routers.transmission.rule="Host(`transmission.${DNS_DOMAIN}`)"
+      - traefik.http.routers.transmission.middlewares="transmission-https@docker"
+      - traefik.http.routers.transmission-secure.entrypoints=websecure
+      - traefik.http.routers.transmission-secure.rule="Host(`transmission.${DNS_DOMAIN}`)"
+      - traefik.http.routers.transmission-secure.middlewares="transmission-basic@docker"
+      - traefik.http.routers.transmission-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
+      - traefik.http.routers.transmission-secure.tls.domains[0].sans="${DNS_DOMAIN}"
+      - traefik.http.routers.transmission-secure.tls.certresolver="myresolver"
+      - traefik.http.middlewares.transmission-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}"
+      - traefik.http.routers.transmission-secure.middlewares="transmission-ipwhitelist@docker"
+      - traefik.http.routers.transmission-secure.tls=true
+    depends_on:
+      - transmission
+    networks:
+      - transmission-net
+
+  #############################
+  ## TRAEFIK
+  #############################
+
+  traefik:
+    image: traefik:v2.3
+    restart: always
+    command: >
+      --api.insecure=true
+      --accesslog=true
+      --accesslog.filepath=/var/log/traefik/access.log
+      --accesslog.fields.headers.names.Content-Type=keep
+      --accesslog.fields.headers.names.Referer=keep
+      --accesslog.fields.headers.names.User-Agent=keep
+      --providers.docker=true
+      --providers.docker.exposedByDefault=false
+      --entrypoints.web.address=:80
+      --entrypoints.websecure.address=:443
+      --certificatesResolvers.myresolver.acme.caServer="https://acme-v02.api.letsencrypt.org/directory"
+      --certificatesresolvers.myresolver.acme.dnschallenge=true
+      --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare
+      --certificatesresolvers.myresolver.acme.email="${LETSENCRYPT_EMAIL}"
+      --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+    env:
+      - CF_API_EMAIL=${CF_EMAIL}
+      - CF_DNS_API_TOKEN=${CF_TOKEN}
+      - CF_ZONE_API_TOKEN=${CF_TOKEN}
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+      - "${SYSTEMD_ROOT}/etc/passwords.txt:/basicauth/passwords.txt"
+      - "${LOCAL_MOUNT}/traefik/letsencrypt:/letsencrypt"
+      - "${LOCAL_MOUNT}/traefik/logs:/var/log/traefik"
+    ports:
+      - "9999:8080"
+      - "80:80"
+      - "443:443"
+    networks:
+      - traefik-net
+      - adguard-net
+      - calibre-net
+      - duplicati-net
+      - kobodl-net
+      - plex-net
+      - seafile-net
+      - transmission-net
+
+  unifi_controller:
+    image: linuxserver/unifi-controller
+    container_name: unifi_controller
+    restart: always
+    labels:
+      - traefik.enable=false
+    env:
+      - PUID=1000
+      - PGID=1000
+      - MEM_LIMIT=1024M
+    ports:
+      - "3478:3478/udp"
+      - "10001:10001/udp"
+      - "8080:8080"
+      - "8081:8081"
+      - "8443:8443"
+      - "6789:6789"
+    volumes:
+      - "${PRIMARY_MOUNT}/unifi/config/:/config"
+    networks:
+      - unifi-net
+ 
+networks:
+  adguard-net:
+    name: adguard-net
+  calibre-net:
+    name: calibre-net
+  duplicati-net:
+    name: duplicati-net
+  kobodl-net:
+    name: kobodl-net
+  plex-net:
+    name: plex-net
+  samba-net:
+    name: samba-net
+  seafile-net:
+    name: seafile-net
+  transmission-net:
+    name: transmission-net
+  traefik-net:
+    name: traefik-net
+  unifi-net:
+    name: unifi-net
