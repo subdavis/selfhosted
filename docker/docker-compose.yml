@@ -1,4 +1,4 @@
-version: '3.8'
+version: '3.3'
 services:
 
   #############################
@@ -11,20 +11,20 @@ services:
     restart: always
     labels:
       - traefik.enable=true
-      - traefik.docker.network="adguard-net"
-      - traefik.http.services.adguard.loadbalancer.server.port="80"
-      - traefik.http.middlewares.adguard-https.redirectscheme.scheme="https"
+      - traefik.docker.network=adguard-net
+      - traefik.http.services.adguard.loadbalancer.server.port=80
+      - traefik.http.middlewares.adguard-https.redirectscheme.scheme=https
       - traefik.http.routers.adguard.entrypoints=web
-      - traefik.http.routers.adguard.rule="Host(`adguard.${DNS_DOMAIN}`)"
-      - traefik.http.routers.adguard.middlewares="adguard-https@docker"
+      - traefik.http.routers.adguard.rule=Host(`adguard.${DNS_DOMAIN}`)
+      - traefik.http.routers.adguard.middlewares=adguard-https@docker
       - traefik.http.routers.adguard-secure.entrypoints=websecure
-      - traefik.http.routers.adguard-secure.rule="Host(`adguard.${DNS_DOMAIN}`)"
+      - traefik.http.routers.adguard-secure.rule=Host(`adguard.${DNS_DOMAIN}`)
       - traefik.http.routers.adguard-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
       - traefik.http.routers.adguard-secure.tls.domains[0].sans="${DNS_DOMAIN}"
-      - traefik.http.routers.adguard-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.adguard-secure.tls.certresolver=myresolver
       - traefik.http.routers.adguard-secure.tls=true
       - traefik.http.middlewares.adguard-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}"
-      - traefik.http.routers.adguard-secure.middlewares="adguard-ipwhitelist@docker"
+      - traefik.http.routers.adguard-secure.middlewares=adguard-ipwhitelist@docker
     networks:
       - adguard-net
     ports:
@@ -44,10 +44,10 @@ services:
     image: linuxserver/calibre-web
     container_name: calibre_web
     restart: always
-    label:
+    labels:
       - traefik.enable=true
       - traefik.docker.network="calibre-net"
-      - traefik.http.services.calibre.loadbalancer.server.port="8083"
+      - traefik.http.services.calibre.loadbalancer.server.port=8083
       - traefik.http.middlewares.calibre-https.redirectscheme.scheme="https"
       - traefik.http.routers.calibre.entrypoints=web
       - traefik.http.routers.calibre.rule="Host(`calibre.${DNS_DOMAIN}`)"
@@ -58,12 +58,12 @@ services:
       - traefik.http.routers.calibre-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
       - traefik.http.routers.calibre-secure.tls.certresolver="myresolver"
       - traefik.http.routers.calibre-secure.tls=true
-    env:
-    - PUID=0
-    - PGID=0
-    - "TZ=${TIME_ZONE}"
-    - "DOCKER_MODS=linuxserver/calibre-web:calibre"
-    volume:
+    environment:
+      - PUID=0
+      - PGID=0
+      - "TZ=${TIME_ZONE}"
+      - "DOCKER_MODS=linuxserver/calibre-web:calibre"
+    volumes:
       - ${PRIMARY_MOUNT}/calibre/config:/config
       - ${PRIMARY_MOUNT}/calibre/books:/books
     networks:
@@ -80,7 +80,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network="duplicati-net"
-      - traefik.http.services.duplicati.loadbalancer.server.port="8200"
+      - traefik.http.services.duplicati.loadbalancer.server.port=8200
       - traefik.http.middlewares.duplicati-basic.basicauth.usersfile="/basicauth/passwords.txt"
       - traefik.http.middlewares.duplicati-https.redirectscheme.scheme="https"
       - traefik.http.routers.duplicati.entrypoints=web
@@ -93,7 +93,7 @@ services:
       - traefik.http.routers.duplicati-secure.tls=true
       - traefik.http.middlewares.duplicati-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}"
       - traefik.http.routers.duplicati-secure.middlewares="duplicati-basic@docker,duplicati-ipwhitelist@docker"
-    env:
+    environment:
       - "TZ=${TIME_ZONE}"
       - "PUID=0"
       - "PGID=0"
@@ -116,7 +116,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=seafile-net
-      - traefik.http.services.kobodl.loadbalancer.server.port="5000"
+      - traefik.http.services.kobodl.loadbalancer.server.port=5000
       - traefik.http.middlewares.kobodl-basic.basicauth.usersfile="/basicauth/passwords.txt"
       - traefik.http.middlewares.kobodl-https.redirectscheme.scheme="https"
       - traefik.http.routers.kobodl.entrypoints=web
@@ -147,7 +147,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network="plex-net"
-      - traefik.http.services.plex.loadbalancer.server.port="32400"
+      - traefik.http.services.plex.loadbalancer.server.port=32400
       - traefik.http.middlewares.plex-https.redirectscheme.scheme="https"
       - traefik.http.routers.plex.entrypoints=web
       - traefik.http.routers.plex.rule="Host(`plex.${DNS_DOMAIN}`)"
@@ -161,7 +161,7 @@ services:
     ports:
       - "32400:32400/tcp"
       - "8324:8324/tcp"
-    env:
+    environment:
       - TZ="${TIME_ZONE}"
       - ADVERTISE_IP="https://plex.${DNS_DOMAIN}/"
       - PLEX_CLAIM="${PLEX_CLAIM}"
@@ -185,10 +185,10 @@ services:
     ports:
       - "139:139"
       - "445:445"
-    env:
+    environment:
       - TZ=EST5EDT
-      - USER="${SAMBA_USER};${SAMBA_PASSWORD};"
-      - SHARE="data;/mount;yes;no;no;${SAMBA_USER};${SAMBA_USER};;"
+      - "USER=${SAMBA_USER};${SAMBA_PASSWORD}"
+      - "SHARE=data;/mount;yes;no;no;${SAMBA_USER};${SAMBA_USER};;"
     volumes:
       - /media:/mount
     networks:
@@ -229,9 +229,6 @@ services:
     image: seafileltd/elasticsearch-with-ik:5.6.16
     container_name: seafile-elasticsearch
     restart: always
-    aliases:
-      # Apparently seafile doesn't let you configure this, so it has to be the default hostname
-      - elasticsearch
     labels:
       - traefik.enable=false
     environment:
@@ -254,10 +251,13 @@ services:
     image: docker.seadrive.org/seafileltd/seafile-pro-mc:latest
     container_name: seafile
     restart: always
+    links:
+      - seafile_elasticsearch:elasticsearch
+      - seafile_db:mariadb
     labels:
       - traefik.enable=true
       - traefik.docker.network=seafile-net
-      - traefik.http.services.seafile.loadbalancer.server.port="80"
+      - traefik.http.services.seafile.loadbalancer.server.port=80
       - traefik.http.middlewares.seafile-https.redirectscheme.scheme="https"
       - traefik.http.routers.seafile.entrypoints=web
       - traefik.http.routers.seafile.rule="Host(`seafile.${DNS_DOMAIN}`)"
@@ -273,7 +273,7 @@ services:
       - ${PRIMARY_MOUNT}/data:/source_data
     environment:
       - "TIME_ZONE=${TIME_ZONE}"
-      - "DB_HOST=seafile_db"
+      - "DB_HOST=mariadb"
       - "DB_ROOT_PASSWD=${MYSQL_ROOT_PASSWORD}" # Requested, the value shuold be root's password of MySQL service.
       - "SEAFILE_ADMIN_EMAIL=${SEAFILE_ADMIN_EMAIL}" # Specifies Seafile admin user, default is 'me@example.com'
       - "SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}"  # Specifies Seafile admin password, default is 'asecret'
@@ -299,13 +299,14 @@ services:
     networks:
       - transmission-net
     dns: 1.1.1.1
-    cap_add: NET_ADMIN
+    cap_add:
+      - NET_ADMIN
     devices:
       - /dev/net/tun
     volumes:
       - ${SECONDARY_MOUNT}/plex/media/:/data
       - /etc/localtime:/etc/localtime:ro
-    env:
+    environment:
       - CREATE_TUN_DEVICE=true
       - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
       - "OPENVPN_USERNAME=${TORRENT_USERNAME}"
@@ -315,13 +316,13 @@ services:
       - LOCAL_NETWORK=192.168.1.1/24
 
   transmission_proxy:
-    image: hhaugene/transmission-openvpn-proxy
+    image: haugene/transmission-openvpn-proxy
     container_name: transmission_proxy
     restart: always
     labels:
       - traefik.enable=true
       - traefik.docker.network="transmission-net"
-      - traefik.http.services.transmission.loadbalancer.server.port="8080"
+      - traefik.http.services.transmission.loadbalancer.server.port=8080
       - traefik.http.middlewares.transmission-basic.basicauth.usersfile="/basicauth/passwords.txt"
       - traefik.http.middlewares.transmission-https.redirectscheme.scheme="https"
       - traefik.http.routers.transmission.entrypoints=web
@@ -364,7 +365,7 @@ services:
       --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare
       --certificatesresolvers.myresolver.acme.email="${LETSENCRYPT_EMAIL}"
       --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
-    env:
+    environment:
       - CF_API_EMAIL=${CF_EMAIL}
       - CF_DNS_API_TOKEN=${CF_TOKEN}
       - CF_ZONE_API_TOKEN=${CF_TOKEN}
@@ -393,7 +394,7 @@ services:
     restart: always
     labels:
       - traefik.enable=false
-    env:
+    environment:
       - PUID=1000
       - PGID=1000
       - MEM_LIMIT=1024M
