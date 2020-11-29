@@ -19,11 +19,11 @@ services:
       - traefik.http.routers.adguard.middlewares=adguard-https@docker
       - traefik.http.routers.adguard-secure.entrypoints=websecure
       - traefik.http.routers.adguard-secure.rule=Host(`adguard.${DNS_DOMAIN}`)
-      - traefik.http.routers.adguard-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
-      - traefik.http.routers.adguard-secure.tls.domains[0].sans="${DNS_DOMAIN}"
+      - traefik.http.routers.adguard-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.adguard-secure.tls.domains[0].sans=${DNS_DOMAIN}
       - traefik.http.routers.adguard-secure.tls.certresolver=myresolver
       - traefik.http.routers.adguard-secure.tls=true
-      - traefik.http.middlewares.adguard-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}"
+      - traefik.http.middlewares.adguard-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}
       - traefik.http.routers.adguard-secure.middlewares=adguard-ipwhitelist@docker
     networks:
       - adguard-net
@@ -46,17 +46,17 @@ services:
     restart: always
     labels:
       - traefik.enable=true
-      - traefik.docker.network="calibre-net"
+      - traefik.docker.network=calibre-net
       - traefik.http.services.calibre.loadbalancer.server.port=8083
-      - traefik.http.middlewares.calibre-https.redirectscheme.scheme="https"
+      - traefik.http.middlewares.calibre-https.redirectscheme.scheme=https
       - traefik.http.routers.calibre.entrypoints=web
-      - traefik.http.routers.calibre.rule="Host(`calibre.${DNS_DOMAIN}`)"
-      - traefik.http.routers.calibre.middlewares="calibre-https@docker"
+      - traefik.http.routers.calibre.rule=Host(`calibre.${DNS_DOMAIN}`)
+      - traefik.http.routers.calibre.middlewares=calibre-https@docker
       - traefik.http.routers.calibre-secure.entrypoints=websecure
-      - traefik.http.routers.calibre-secure.rule="Host(`calibre.${DNS_DOMAIN}`)"
-      - traefik.http.routers.calibre-secure.tls.domains[0].sans="${DNS_DOMAIN}"
-      - traefik.http.routers.calibre-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
-      - traefik.http.routers.calibre-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.calibre-secure.rule=Host(`calibre.${DNS_DOMAIN}`)
+      - traefik.http.routers.calibre-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.calibre-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.calibre-secure.tls.certresolver=myresolver
       - traefik.http.routers.calibre-secure.tls=true
     environment:
       - PUID=0
@@ -79,20 +79,20 @@ services:
     restart: always
     labels:
       - traefik.enable=true
-      - traefik.docker.network="duplicati-net"
+      - traefik.docker.network=duplicati-net
       - traefik.http.services.duplicati.loadbalancer.server.port=8200
-      - traefik.http.middlewares.duplicati-basic.basicauth.usersfile="/basicauth/passwords.txt"
-      - traefik.http.middlewares.duplicati-https.redirectscheme.scheme="https"
+      - traefik.http.middlewares.duplicati-basic.basicauth.usersfile=/basicauth/passwords.txt
+      - traefik.http.middlewares.duplicati-https.redirectscheme.scheme=https
       - traefik.http.routers.duplicati.entrypoints=web
-      - traefik.http.routers.duplicati.rule="Host(`backups.${DNS_DOMAIN}`)"
-      - traefik.http.routers.duplicati.middlewares="duplicati-https@docker"
+      - traefik.http.routers.duplicati.rule=Host(`backups.${DNS_DOMAIN}`)
+      - traefik.http.routers.duplicati.middlewares=duplicati-https@docker
       - traefik.http.routers.duplicati-secure.entrypoints=websecure
-      - traefik.http.routers.duplicati-secure.rule="Host(`backups.${DNS_DOMAIN}`)"
-      - traefik.http.routers.duplicati-secure.tls.domains[0].sans="${DNS_DOMAIN}"
-      - traefik.http.routers.duplicati-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.duplicati-secure.rule=Host(`backups.${DNS_DOMAIN}`)
+      - traefik.http.routers.duplicati-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.duplicati-secure.tls.certresolver=myresolver
       - traefik.http.routers.duplicati-secure.tls=true
-      - traefik.http.middlewares.duplicati-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}"
-      - traefik.http.routers.duplicati-secure.middlewares="duplicati-basic@docker,duplicati-ipwhitelist@docker"
+      - traefik.http.middlewares.duplicati-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}
+      - traefik.http.routers.duplicati-secure.middlewares=duplicati-basic@docker,duplicati-ipwhitelist@docker
     environment:
       - "TZ=${TIME_ZONE}"
       - "PUID=0"
@@ -117,17 +117,17 @@ services:
       - traefik.enable=true
       - traefik.docker.network=seafile-net
       - traefik.http.services.kobodl.loadbalancer.server.port=5000
-      - traefik.http.middlewares.kobodl-basic.basicauth.usersfile="/basicauth/passwords.txt"
-      - traefik.http.middlewares.kobodl-https.redirectscheme.scheme="https"
+      - traefik.http.middlewares.kobodl-basic.basicauth.usersfile=/basicauth/passwords.txt
+      - traefik.http.middlewares.kobodl-https.redirectscheme.scheme=https
       - traefik.http.routers.kobodl.entrypoints=web
-      - traefik.http.routers.kobodl.rule="Host(`kobodl.${DNS_DOMAIN}`)"
-      - traefik.http.routers.kobodl.middlewares="kobodl-https@docker"
+      - traefik.http.routers.kobodl.rule=Host(`kobodl.${DNS_DOMAIN}`)
+      - traefik.http.routers.kobodl.middlewares=kobodl-https@docker
       - traefik.http.routers.kobodl-secure.entrypoints=websecure
-      - traefik.http.routers.kobodl-secure.rule="Host(`kobodl.${DNS_DOMAIN}`)"
-      - traefik.http.routers.kobodl-secure.middlewares="kobodl-basic@docker"
-      - traefik.http.routers.kobodl-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
-      - traefik.http.routers.kobodl-secure.tls.domains[0].sans="${DNS_DOMAIN}"
-      - traefik.http.routers.kobodl-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.kobodl-secure.rule=Host(`kobodl.${DNS_DOMAIN}`)
+      - traefik.http.routers.kobodl-secure.middlewares=kobodl-basic@docker
+      - traefik.http.routers.kobodl-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.kobodl-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.kobodl-secure.tls.certresolver=myresolver
       - traefik.http.routers.kobodl-secure.tls=true
     volumes:
       - ${PRIMARY_MOUNT}/kobodl/kobodl.json:/home/kobodl.json
@@ -144,19 +144,20 @@ services:
     image: plexinc/pms-docker:beta
     container_name: plex
     restart: always
+    init: true
     labels:
       - traefik.enable=true
-      - traefik.docker.network="plex-net"
+      - traefik.docker.network=plex-net
       - traefik.http.services.plex.loadbalancer.server.port=32400
-      - traefik.http.middlewares.plex-https.redirectscheme.scheme="https"
+      - traefik.http.middlewares.plex-https.redirectscheme.scheme=https
       - traefik.http.routers.plex.entrypoints=web
-      - traefik.http.routers.plex.rule="Host(`plex.${DNS_DOMAIN}`)"
-      - traefik.http.routers.plex.middlewares="plex-https@docker"
+      - traefik.http.routers.plex.rule=Host(`plex.${DNS_DOMAIN}`)
+      - traefik.http.routers.plex.middlewares=plex-https@docker
       - traefik.http.routers.plex-secure.entrypoints=websecure
-      - traefik.http.routers.plex-secure.rule="Host(`plex.${DNS_DOMAIN}`)"
-      - traefik.http.routers.plex-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
-      - traefik.http.routers.plex-secure.tls.domains[0].sans="${DNS_DOMAIN}"
-      - traefik.http.routers.plex-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.plex-secure.rule=Host(`plex.${DNS_DOMAIN}`)
+      - traefik.http.routers.plex-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.plex-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.plex-secure.tls.certresolver=myresolver
       - traefik.http.routers.plex-secure.tls=true
     ports:
       - "32400:32400/tcp"
@@ -258,15 +259,15 @@ services:
       - traefik.enable=true
       - traefik.docker.network=seafile-net
       - traefik.http.services.seafile.loadbalancer.server.port=80
-      - traefik.http.middlewares.seafile-https.redirectscheme.scheme="https"
+      - traefik.http.middlewares.seafile-https.redirectscheme.scheme=https
       - traefik.http.routers.seafile.entrypoints=web
-      - traefik.http.routers.seafile.rule="Host(`seafile.${DNS_DOMAIN}`)"
-      - traefik.http.routers.seafile.middlewares="seafile-https@docker"
+      - traefik.http.routers.seafile.rule=Host(`seafile.${DNS_DOMAIN}`)
+      - traefik.http.routers.seafile.middlewares=seafile-https@docker
       - traefik.http.routers.seafile-secure.entrypoints=websecure
-      - traefik.http.routers.seafile-secure.rule="Host(`seafile.${DNS_DOMAIN}`)"
-      - traefik.http.routers.seafile-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
-      - traefik.http.routers.seafile-secure.tls.domains[0].sans="${DNS_DOMAIN}"
-      - traefik.http.routers.seafile-secure.tls.certresolver="myresolver"
+      - traefik.http.routers.seafile-secure.rule=Host(`seafile.${DNS_DOMAIN}`)
+      - traefik.http.routers.seafile-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.seafile-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.seafile-secure.tls.certresolver=myresolver
       - traefik.http.routers.seafile-secure.tls=true
     volumes:
       - ${PRIMARY_MOUNT}/seafile:/shared # Requested, specifies the path to Seafile data persistent store.
@@ -321,21 +322,21 @@ services:
     restart: always
     labels:
       - traefik.enable=true
-      - traefik.docker.network="transmission-net"
+      - traefik.docker.network=transmission-net
       - traefik.http.services.transmission.loadbalancer.server.port=8080
-      - traefik.http.middlewares.transmission-basic.basicauth.usersfile="/basicauth/passwords.txt"
-      - traefik.http.middlewares.transmission-https.redirectscheme.scheme="https"
+      - traefik.http.middlewares.transmission-basic.basicauth.usersfile=/basicauth/passwords.txt
+      - traefik.http.middlewares.transmission-https.redirectscheme.scheme=https
       - traefik.http.routers.transmission.entrypoints=web
-      - traefik.http.routers.transmission.rule="Host(`transmission.${DNS_DOMAIN}`)"
-      - traefik.http.routers.transmission.middlewares="transmission-https@docker"
+      - traefik.http.routers.transmission.rule=Host(`transmission.${DNS_DOMAIN}`)
+      - traefik.http.routers.transmission.middlewares=transmission-https@docker
       - traefik.http.routers.transmission-secure.entrypoints=websecure
-      - traefik.http.routers.transmission-secure.rule="Host(`transmission.${DNS_DOMAIN}`)"
-      - traefik.http.routers.transmission-secure.middlewares="transmission-basic@docker"
-      - traefik.http.routers.transmission-secure.tls.domains[0].main="*.${DNS_DOMAIN}"
-      - traefik.http.routers.transmission-secure.tls.domains[0].sans="${DNS_DOMAIN}"
-      - traefik.http.routers.transmission-secure.tls.certresolver="myresolver"
-      - traefik.http.middlewares.transmission-ipwhitelist.ipwhitelist.sourcerange="127.0.0.1/32,${SUBNET}"
-      - traefik.http.routers.transmission-secure.middlewares="transmission-ipwhitelist@docker"
+      - traefik.http.routers.transmission-secure.rule=Host(`transmission.${DNS_DOMAIN}`)
+      - traefik.http.routers.transmission-secure.middlewares=transmission-basic@docker
+      - traefik.http.routers.transmission-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.transmission-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.transmission-secure.tls.certresolver=myresolver
+      - traefik.http.middlewares.transmission-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}
+      - traefik.http.routers.transmission-secure.middlewares=transmission-ipwhitelist@docker
       - traefik.http.routers.transmission-secure.tls=true
     depends_on:
       - transmission
