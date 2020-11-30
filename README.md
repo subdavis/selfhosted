@@ -1,6 +1,6 @@
 # Self-Host Anything 
 
-> with systemd, docker, and traefik
+> with docker-compose and traefik
 
 ![Uptime Robot ratio (30 days)](https://img.shields.io/uptimerobot/ratio/m784171033-0a5b0fa97302da182e304db8)
 
@@ -26,11 +26,10 @@ I've also written some intermediate to advanced generic usage docs for traefik, 
 
 ## Prerequisites
 
-* A linux server on your local network (CoreOS, Ubuntu >= 15.04, whatever...) with `Docker CE` and `systemd` installed.
+* A linux server on your local network (CoreOS, Ubuntu >= 15.04, whatever...) with `Docker CE` and `docker-compose` installed.
 * A router or firewall capable of dnsmasq. I use a Ubiquiti EdgeRouter X.
 * A domain name.
 * A cloudflare account.
-* A build of [systemd-docker](https://github.com/subdavis/systemd-docker/releases/tag/1.0.0)
 
 ## Home network prep
 
@@ -42,7 +41,7 @@ I've also written some intermediate to advanced generic usage docs for traefik, 
 
 In this setup, each container's service will serve from a different subdomain of your Cloudflare hosted zone dyndns subdomain.
 
-* Modify `provile.env` and set `DNS_DOMAIN=mydomain.com`
+* Modify `docker/.env.prod` and set `DNS_DOMAIN=mydomain.com`
 * Create an `A` record for `core.mydomain.com` to point to your public IP.
 * For each service, you'll need to create CNAME records for each `service.mydomain.com` to point to `core.mydomain.com` because all of your services are running on the same host but the host needs to be able to do virtual host routing based on domain name.
 * Your services will be publically available on `https://servicename.mydomain.com`.
@@ -52,11 +51,11 @@ In this setup, each container's service will serve from a different subdomain of
 Resolving the IP address of your home network is annoying because most DNS providers change your IP every now and again.  Services like No-IP combat this, but they aren't the most reliable.  However, setting DNS programatically is pretty easy with Cloudflare API.
 
 * Follow the instructions in [Configuring Wildcard Certs for Traefik](docs/wildcard-certs.md) to get this part set up.
-* You'll need to modify `profile.env` with your domain info, ACME email, and cloudflare API tokens.
+* You'll need to modify `docker/.env.prod` with your domain info, ACME email, and cloudflare API tokens.
 
 ### Volume Mounts
 
-Some of my services, like `media-sdb.service`, may not apply to you, and you might have to disable them.  My server has 3 separate storage volumes that I spread my volume mounts across.  Some containers share mounts, like plex and samba.  You can change the container mount points in `profile.env` without having to modify service files.
+Some of my services, like `media-primary.service`, may not apply to you, and you might have to disable them.  My server has several separate storage volumes that I spread my volume mounts across.  Some containers share mounts, like plex and samba.  You can change the container mount points in `docker/.env.prod` without having to modify service files.
 
 * Most of my mounts are on a Raid 1 mirror at `/media/primary`.
 * Backups and lower-redundancy data (like plex movies) go on `/media/secondary`.
@@ -67,21 +66,18 @@ Some of my services, like `media-sdb.service`, may not apply to you, and you mig
 Don't do this until you have your CNAMEs and Dynamic DNS working.
 
 * Start with a fresh install of Ubuntu server
-* Install `/opt/systemd-docker`. You can [get my build of systemd-docker](https://github.com/subdavis/systemd-docker/releases/tag/1.0.0) for multiple architectures.  I've tested it on ubuntu 18.04 and arm6.
 * Fork or Clone this repo. `git clone git@github.com:subdavis/selfhosted git/usr/local/lib/systemd/system`
 * `mkdir /media/local` to create a mount point on the OS disk.
-* For any overrides, like `torrent.service.d`, copy the template to a new `override.conf` file with the correct values.
-* create `profile.env` from template: `cp /usr/local/lib/systemd/system/profile.env.example /usr/local/lib/systemd/system/profile.env`
-* edit `profile.env` for your needs (see sections above)
+* create `docker/.env.prod` from the `docker/.env` template
 * create `passwords.txt` with the `htpasswd` command in `./etc`
 * Sign into any private docker registries
   * [Seafile Pro](https://www.seafile.com/en/product/private_server/) is free for 3 users
   * [Seafile Pro Docker Docs](https://download.seafile.com/published/seafile-manual/docker/pro-edition/Deploy%20Seafile-pro%20with%20Docker.md) are hard to find.
-* I run [pihole-cloudsync-docker](https://github.com/subdavis/pihole-cloudsync-docker) which keeps my secondary pihole in sync with my primary.  Some extra setup is required for this, 
 * Reload systemd: `systemctl daemon-reload`. This must be run **ANY TIME** any of your `.service` or `.conf` files change.
 * Enable all the services: `systemctl enable <name>.service`
 * You may need to disable ubuntu's default dns service and remove resolf.conf  [read more](https://www.smarthomebeginner.com/run-pihole-in-docker-on-ubuntu-with-reverse-proxy/).
 * Start all the services: `systemctl start <name>.service`
+* Start all the containers: `cd docker && docker-compose --env-file .env.prod up -d`
 * [Enable Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
 
 # Troubleshooting
