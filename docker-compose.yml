@@ -74,7 +74,7 @@ services:
   #############################
 
   cloudflare:
-    image: ozny/cloudflare-ddns
+    image: oznu/cloudflare-ddns
     restart: always
     container_name: cloudflare
     labels:
