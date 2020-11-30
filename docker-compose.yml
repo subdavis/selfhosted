@@ -466,6 +466,7 @@ services:
       - adguard-net
       - calibre-net
       - duplicati-net
+      - jackett-net
       - kobodl-net
       - plex-net
       - portainer-net
