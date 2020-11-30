@@ -123,6 +123,41 @@ services:
       - duplicati-net
 
   #############################
+  ## JACKETT
+  #############################
+
+  jackett:
+    image: linuxserver/jackett
+    container_name: jackett
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+      - AUTO_UPDATE=true
+    volumes:
+      - ${PRIMARY_MOUNT}/jackett/config:/config
+      - ${SECONDARY_MOUNT}/plex/media/watch:/downloads
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=jackett-net
+      - traefik.http.services.jackett.loadbalancer.server.port=9117
+      - traefik.http.middlewares.jackett-basic.basicauth.usersfile=/basicauth/passwords.txt
+      - traefik.http.middlewares.jackett-https.redirectscheme.scheme=https
+      - traefik.http.routers.jackett.entrypoints=web
+      - traefik.http.routers.jackett.rule=Host(`jackett.${DNS_DOMAIN}`)
+      - traefik.http.routers.jackett.middlewares=jackett-https@docker
+      - traefik.http.routers.jackett-secure.entrypoints=websecure
+      - traefik.http.routers.jackett-secure.rule=Host(`jackett.${DNS_DOMAIN}`)
+      - traefik.http.routers.jackett-secure.middlewares=jackett-basic@docker
+      - traefik.http.routers.jackett-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.jackett-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.jackett-secure.tls.certresolver=myresolver
+      - traefik.http.routers.jackett-secure.tls=true
+    restart: always
+    networks:
+      - jackett-net
+
+  #############################
   ## KOBODL
   #############################
 
@@ -501,6 +536,8 @@ networks:
     name: cloudflare-net
   duplicati-net:
     name: duplicati-net
+  jackett-net:
+    name: jackett-net
   kobodl-net:
     name: kobodl-net
   plex-net:
