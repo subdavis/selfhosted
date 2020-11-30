@@ -410,7 +410,34 @@ services:
       - "${PRIMARY_MOUNT}/unifi/config/:/config"
     networks:
       - unifi-net
- 
+
+  #############################
+  ## WIREGUARD
+  #############################
+
+  wireguard:
+    image: linuxserver/wireguard
+    cap_add:
+      - NET_ADMIN
+      - SYS_MODULE
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+      - SERVERURL="wireguard.${DNS_DOMAIN}"
+      - SERVERPORT=51820
+      - PEERS=2
+      - PEERDNS=192.168.1.175
+      - INTERNAL_SUBNET=10.13.13.0
+    ports:
+      - "54155:51820/udp"
+    volumes:
+      - ${PRIMARY_MOUNT}/%N/config:/config
+      - /lib/modules:/lib/modules
+    sysctls:
+      - "net.ipv4.ip_forward=1"
+      - "net.ipv4.conf.all.src_valid_mark=1"
+
 networks:
   adguard-net:
     name: adguard-net
