@@ -68,6 +68,23 @@ services:
       - ${PRIMARY_MOUNT}/calibre/books:/books
     networks:
       - calibre-net
+  
+  #############################
+  ## CLOUDFLARE
+  #############################
+
+  cloudflare:
+    image: ozny/cloudflare-ddns
+    restart: always
+    container_name: cloudflare
+    labels:
+      - traefik.enable=false
+    environment:
+      - "API_KEY=${CF_TOKEN}"
+      - "ZONE=${DNS_DOMAIN}"
+      - "SUBDOMAIN=${SUBDOMAIN}"
+    networks:
+      - cloudflare-net
 
   #############################
   ## DUPLICATI
@@ -172,6 +189,35 @@ services:
       - ${SECONDARY_MOUNT}/plex/media:/data
     networks:
       - plex-net
+
+  #############################
+  ## PORTAINER
+  #############################
+
+  portainer:
+    image: portainer/portainer
+    restart: always
+    container_name: portainer
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=portainer-net
+      - traefik.http.services.portainer.loadbalancer.server.port=9000
+      - traefik.http.middlewares.portainer-https.redirectscheme.scheme=https
+      - traefik.http.routers.portainer.entrypoints=web
+      - traefik.http.routers.portainer.rule=Host(`portainer.${DNS_DOMAIN}`)
+      - traefik.http.routers.portainer.middlewares=portainer-https@docker
+      - traefik.http.routers.portainer-secure.entrypoints=websecure
+      - traefik.http.routers.portainer-secure.rule=Host(`portainer.${DNS_DOMAIN}`)
+      - traefik.http.routers.portainer-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.portainer-secure.tls.certresolver=myresolver
+      - traefik.http.routers.portainer-secure.tls=true
+      - traefik.http.middlewares.portainer-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}
+      - traefik.http.routers.portainer-secure.middlewares=portainer-ipwhitelist@docker
+    volumes:
+      - ${PRIMARY_MOUNT}/portainer/data/:/data
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - portainer-net
 
   #############################
   ## SAMBA
@@ -350,6 +396,7 @@ services:
   traefik:
     image: traefik:v2.3
     restart: always
+    container_name: traefik
     command: >
       --api.insecure=true
       --accesslog=true
@@ -386,6 +433,7 @@ services:
       - duplicati-net
       - kobodl-net
       - plex-net
+      - portainer-net
       - seafile-net
       - transmission-net
 
@@ -417,6 +465,10 @@ services:
 
   wireguard:
     image: linuxserver/wireguard
+    restart: always
+    container_name: wireguard
+    labels:
+      - traefik.enable=false
     cap_add:
       - NET_ADMIN
       - SYS_MODULE
@@ -432,23 +484,29 @@ services:
     ports:
       - "54155:51820/udp"
     volumes:
-      - ${PRIMARY_MOUNT}/%N/config:/config
+      - ${PRIMARY_MOUNT}/wireguard/config:/config
       - /lib/modules:/lib/modules
     sysctls:
       - "net.ipv4.ip_forward=1"
       - "net.ipv4.conf.all.src_valid_mark=1"
+    networks:
+      - wireguard-net
 
 networks:
   adguard-net:
     name: adguard-net
   calibre-net:
     name: calibre-net
+  cloudflare-net:
+    name: cloudflare-net
   duplicati-net:
     name: duplicati-net
   kobodl-net:
     name: kobodl-net
   plex-net:
     name: plex-net
+  portainer-net:
+    name: portainer-net
   samba-net:
     name: samba-net
   seafile-net:
@@ -459,3 +517,5 @@ networks:
     name: traefik-net
   unifi-net:
     name: unifi-net
+  wireguard-net:
+    name: wireguard-net
