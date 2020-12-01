@@ -189,6 +189,36 @@ services:
       - seafile-net
 
   #############################
+  ## MINIO
+  #############################
+
+  minio:
+    image: minio/minio
+    container_name: minio
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=minio-net
+      - traefik.http.services.minio.loadbalancer.server.port=32400
+      - traefik.http.middlewares.minio-https.redirectscheme.scheme=https
+      - traefik.http.routers.minio.entrypoints=web
+      - traefik.http.routers.minio.rule=Host(`minio.${DNS_DOMAIN}`)
+      - traefik.http.routers.minio.middlewares=minio-https@docker
+      - traefik.http.routers.minio-secure.entrypoints=websecure
+      - traefik.http.routers.minio-secure.rule=Host(`minio.${DNS_DOMAIN}`)
+      - traefik.http.routers.minio-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.minio-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.minio-secure.tls.certresolver=myresolver
+      - traefik.http.routers.minio-secure.tls=true
+    volumes:
+      - ${PRIMARY_MOUNT}:/data
+    environment:
+      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}"
+      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
+    networks:
+      - minio-net
+
+  #############################
   ## PLEX
   #############################
 
@@ -468,10 +498,15 @@ services:
       - duplicati-net
       - jackett-net
       - kobodl-net
+      - minio-net
       - plex-net
       - portainer-net
       - seafile-net
       - transmission-net
+
+  #############################
+  ## UNIFI CONTROLLER
+  #############################
 
   unifi_controller:
     image: linuxserver/unifi-controller
@@ -541,6 +576,8 @@ networks:
     name: jackett-net
   kobodl-net:
     name: kobodl-net
+  minio-net:
+    name: minio-net
   plex-net:
     name: plex-net
   portainer-net:
