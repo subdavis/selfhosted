@@ -229,10 +229,11 @@ services:
     image: minio/minio
     container_name: minio
     restart: always
+    command: server /data
     labels:
       - traefik.enable=true
       - traefik.docker.network=minio-net
-      - traefik.http.services.minio.loadbalancer.server.port=32400
+      - traefik.http.services.minio.loadbalancer.server.port=9000
       - traefik.http.middlewares.minio-https.redirectscheme.scheme=https
       - traefik.http.routers.minio.entrypoints=web
       - traefik.http.routers.minio.rule=Host(`minio.${DNS_DOMAIN}`)
