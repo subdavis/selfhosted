@@ -17,5 +17,4 @@ steps:
         - cd selfhosted
         - git pull
         - docker-compose config
-        - docker-compose pull
         - docker-compose --env-file .env.prod up -d
