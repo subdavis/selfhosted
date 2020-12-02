@@ -14,5 +14,8 @@ steps:
         from_secret: ssh_key
       script_stop: true
       script:
-        - echo hello
-        - echo world
+        - cd selfhosted
+        - git pull
+        - docker-compose config
+        - docker-compose pull
+        - docker-compose --env-file .env.prod up -d

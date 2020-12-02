@@ -80,6 +80,17 @@ Don't do this until you have your CNAMEs and Dynamic DNS working.
 * Start all the containers: `cd docker && docker-compose --env-file .env.prod up -d`
 * [Enable Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
 
+# Automatic deployments and drone
+
+
+* Create a github app. Follow drone setup instructions
+* Make sure the user filtering config is set correctly so other users can't log in
+* Create a `deploy` user with SSH authentication
+* Add the user to the `docker` group
+* Add your public key key to `/home/deploy/.ssh/authorized_keys`
+* Add the private key to `ssh_key` secret in drone.
+* In drone, add your repository.
+
 # Troubleshooting
 
 ```bash
