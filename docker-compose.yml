@@ -114,6 +114,8 @@ services:
       - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
       - DRONE_SERVER_HOST=drone.${DNS_DOMAIN}
       - DRONE_SERVER_PROTO=https
+      - DRONE_USER_CREATE=${DRONE_USER_CREATE}
+      - DRONE_USER_FILTER=${DRONE_USER_FILTER}
     volumes:
       - ${PRIMARY_MOUNT}/drone/server/data:/data
     networks:
