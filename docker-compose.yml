@@ -97,7 +97,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=drone-net
-      - traefik.http.services.drone.loadbalancer.server.port=32400
+      - traefik.http.services.drone.loadbalancer.server.port=80
       - traefik.http.middlewares.drone-https.redirectscheme.scheme=https
       - traefik.http.routers.drone.entrypoints=web
       - traefik.http.routers.drone.rule=Host(`drone.${DNS_DOMAIN}`)
