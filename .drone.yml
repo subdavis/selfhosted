@@ -1,0 +1,18 @@
+---
+kind: pipeline
+type: docker
+name: deploy
+
+steps:
+  - name: ssh commands
+    image: appleboy/drone-ssh
+    settings:
+      host: lumbridge.lan
+      username: deploy
+      port: 22
+      key:
+        from_secret: ssh_key
+      script_stop: true
+      script:
+        - echo hello
+        - echo world
