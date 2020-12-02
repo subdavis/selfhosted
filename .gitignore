@@ -1,4 +1,5 @@
 *.wants/
 *.service.d/*.conf
 profile.env
+.env.prod
 etc/passwords.txt
