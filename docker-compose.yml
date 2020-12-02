@@ -87,6 +87,39 @@ services:
       - cloudflare-net
 
   #############################
+  ## DRONE CI
+  #############################
+
+  drone:
+    image: drone/drone
+    restart: always
+    container_name: drone
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=drone-net
+      - traefik.http.services.drone.loadbalancer.server.port=32400
+      - traefik.http.middlewares.drone-https.redirectscheme.scheme=https
+      - traefik.http.routers.drone.entrypoints=web
+      - traefik.http.routers.drone.rule=Host(`drone.${DNS_DOMAIN}`)
+      - traefik.http.routers.drone.middlewares=drone-https@docker
+      - traefik.http.routers.drone-secure.entrypoints=websecure
+      - traefik.http.routers.drone-secure.rule=Host(`drone.${DNS_DOMAIN}`)
+      - traefik.http.routers.drone-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.drone-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.drone-secure.tls.certresolver=myresolver
+      - traefik.http.routers.drone-secure.tls=true
+    environment:
+      - DRONE_GITHUB_CLIENT_ID=${DRONE_GITHUB_CLIENT_ID}
+      - DRONE_GITHUB_CLIENT_SECRET=${DRONE_GITHUB_CLIENT_SECRET}
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_SERVER_HOST=drone.${DNS_DOMAIN}
+      - DRONE_SERVER_PROTO=https
+    volumes:
+      - ${PRIMARY_MOUNT}/drone/server/data:/data
+    networks:
+      - drone-net
+
+  #############################
   ## DUPLICATI
   #############################
 
@@ -495,6 +528,7 @@ services:
       - traefik-net
       - adguard-net
       - calibre-net
+      - drone-net
       - duplicati-net
       - jackett-net
       - kobodl-net
@@ -570,6 +604,8 @@ networks:
     name: calibre-net
   cloudflare-net:
     name: cloudflare-net
+  drone-net:
+    name: drone-net
   duplicati-net:
     name: duplicati-net
   jackett-net:
