@@ -30,7 +30,6 @@ services:
     ports:
       - "53:53/udp"
       - "53:53/tcp"
-      - "67:67/udp"
     volumes:
       - "${LOCAL_MOUNT}/adguard/data:/opt/adguardhome/work"
       - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
@@ -358,7 +357,6 @@ services:
     labels:
       - traefik.enable=false
     ports:
-      - "139:139"
       - "445:445"
     environment:
       - TZ=EST5EDT
