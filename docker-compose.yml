@@ -121,6 +121,33 @@ services:
     networks:
       - drone-net
 
+  drone-runner:
+    image: drone/drone-runner-docker:1
+    restart: always
+    container_name: drone_runner_1
+    environment:
+      - DRONE_RPC_PROTO=https
+      - DRONE_RPC_HOST=drone.${DNS_DOMAIN}
+      - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
+      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_RUNNER_NAME=drone-runner-1
+    labels: 
+      - traefik.enable=true
+      - traefik.docker.network=drone-net
+      - traefik.http.services.drone-runner-1.loadbalancer.server.port=3000
+      - traefik.http.middlewares.drone-runner-1-https.redirectscheme.scheme=https
+      - traefik.http.routers.drone-runner-1.entrypoints=web
+      - traefik.http.routers.drone-runner-1.rule=Host(`drone-runner-1.${DNS_DOMAIN}`)
+      - traefik.http.routers.drone-runner-1.middlewares=drone-runner-1-https@docker
+      - traefik.http.routers.drone-runner-1-secure.entrypoints=websecure
+      - traefik.http.routers.drone-runner-1-secure.rule=Host(`drone-runner-1.${DNS_DOMAIN}`)
+      - traefik.http.routers.drone-runner-1-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.drone-runner-1-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.drone-runner-1-secure.tls.certresolver=myresolver
+      - traefik.http.routers.drone-runner-1-secure.tls=true
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+
   #############################
   ## DUPLICATI
   #############################
