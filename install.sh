@@ -6,9 +6,9 @@ systemctl daemon-reload
 
 for file in "${files[@]}"
 do
-	ln --symbolic --force --no-dereference $(pwd)/${file} ${SYSTEMD_DIR}/${file}
-	systemctl enable $file
-    systemctl restart $file
+    ln --symbolic --force --no-dereference $(pwd)/${file} ${SYSTEMD_DIR}/${file}
+    systemctl enable $file
+    systemctl start $file
 done
 
 ln --symbolic --force --no-dereference $(pwd)/etc/traefik-logrotate.conf /etc/logrotate.d/traefik

@@ -545,7 +545,7 @@ services:
       - CF_ZONE_API_TOKEN=${CF_TOKEN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - "${SYSTEMD_ROOT}/etc/passwords.txt:/basicauth/passwords.txt"
+      - "./etc/passwords.txt:/basicauth/passwords.txt"
       - "${LOCAL_MOUNT}/traefik/letsencrypt:/letsencrypt"
       - "${LOCAL_MOUNT}/traefik/logs:/var/log/traefik"
     ports:
