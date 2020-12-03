@@ -1,4 +1,4 @@
-version: '3.3'
+version: '3.8'
 services:
 
   #############################
@@ -565,6 +565,7 @@ services:
       - portainer-net
       - seafile-net
       - transmission-net
+      - zoneminder-net
 
   #############################
   ## UNIFI CONTROLLER
@@ -641,6 +642,47 @@ services:
     networks:
       - wireguard-net
 
+  #############################
+  ## ZONEMINDER
+  #############################
+
+  zoneminder:
+    container_name: zoneminder
+    image: dlandon/zoneminder:latest
+    restart: always
+    shm_size: '2gb'
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=zoneminder-net
+      - traefik.http.services.zoneminder.loadbalancer.server.port=80
+      - traefik.http.middlewares.zoneminder-https.redirectscheme.scheme=https
+      - traefik.http.routers.zoneminder.entrypoints=web
+      - traefik.http.routers.zoneminder.rule=Host(`cameras.${DNS_DOMAIN}`)
+      - traefik.http.routers.zoneminder.middlewares=zoneminder-https@docker
+      - traefik.http.routers.zoneminder-secure.entrypoints=websecure
+      - traefik.http.routers.zoneminder-secure.rule=Host(`cameras.${DNS_DOMAIN}`)
+      - traefik.http.routers.zoneminder-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.zoneminder-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.zoneminder-secure.tls.certresolver=myresolver
+      - traefik.http.routers.zoneminder-secure.tls=true
+    environment:
+      - TZ=${TIME_ZONE}
+      - PUID=99
+      - PGID=100
+      - INSTALL_HOOK=0
+      - INSTALL_FACE=0
+      - INSTALL_TINY_YOLOV3=0
+      - INSTALL_YOLOV3=0
+      - INSTALL_TINY_YOLOV4=0
+      - INSTALL_YOLOV4=0
+      - MULTI_PORT_START=0
+      - MULTI_PORT_END=0
+    volumes:
+      - ${PRIMARY_MOUNT}/zoneminder/config:/config:rw
+      - ${SECONDARY_MOUNT}/zoneminder:/var/cache/zoneminder:rw
+    networks:
+      - zoneminder-net
+
 networks:
   adguard-net:
     name: adguard-net
@@ -674,3 +716,5 @@ networks:
     name: unifi-net
   wireguard-net:
     name: wireguard-net
+  zoneminder-net:
+    name: zoneminder-net
