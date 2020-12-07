@@ -197,7 +197,7 @@ services:
       - AUTO_UPDATE=true
     volumes:
       - ${PRIMARY_MOUNT}/jackett/config:/config
-      - ${SECONDARY_MOUNT}/plex/media/watch:/downloads
+      - ${PRIMARY_MOUNT}/plex/media/watch:/downloads
     labels:
       - traefik.enable=true
       - traefik.docker.network=jackett-net
@@ -311,9 +311,9 @@ services:
       - ADVERTISE_IP="https://plex.${DNS_DOMAIN}/"
       - PLEX_CLAIM="${PLEX_CLAIM}"
     volumes:
-      - ${SECONDARY_MOUNT}/plex/config:/config
+      - ${PRIMARY_MOUNT}/plex/config:/config
       - /tmp/plex/transcode:/transcode
-      - ${SECONDARY_MOUNT}/plex/media:/data
+      - ${PRIMARY_MOUNT}/plex/media:/data
     networks:
       - plex-net
 
@@ -477,7 +477,7 @@ services:
     devices:
       - /dev/net/tun
     volumes:
-      - ${SECONDARY_MOUNT}/plex/media/:/data
+      - ${PRIMARY_MOUNT}/plex/media/:/data
       - /etc/localtime:/etc/localtime:ro
     environment:
       - CREATE_TUN_DEVICE=true
@@ -605,7 +605,6 @@ services:
     labels:
       - traefik.enable=false
     volumes:
-
       - /var/run/docker.sock:/var/run/docker.sock
       - "${PRIMARY_MOUNT}/watchtower/config/:/config"
 
@@ -639,8 +638,11 @@ services:
     sysctls:
       - "net.ipv4.ip_forward=1"
       - "net.ipv4.conf.all.src_valid_mark=1"
+      - "net.ipv4.conf.all.rp_filter=2"
     networks:
-      - wireguard-net
+      wireguard-net:
+      wireguard-peer1-net:
+        ipv4_address: 10.0.13.2 
 
   #############################
   ## ZONEMINDER
@@ -651,6 +653,8 @@ services:
     image: dlandon/zoneminder:latest
     restart: always
     shm_size: '2gb'
+    depends_on:
+      - wireguard
     labels:
       - traefik.enable=true
       - traefik.docker.network=zoneminder-net
@@ -682,6 +686,7 @@ services:
       - ${SECONDARY_MOUNT}/zoneminder:/var/cache/zoneminder:rw
     networks:
       - zoneminder-net
+      - wireguard-peer1-net
 
 networks:
   adguard-net:
@@ -716,5 +721,11 @@ networks:
     name: unifi-net
   wireguard-net:
     name: wireguard-net
+  wireguard-peer1-net:
+    name: wireguard-peer1-net
+    internal: true
+    ipam:
+      config:
+        - subnet: "10.0.13.0/24"
   zoneminder-net:
     name: zoneminder-net
