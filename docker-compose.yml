@@ -322,7 +322,7 @@ services:
   #############################
 
   portainer:
-    image: portainer/portainer
+    image: portainer/portainer-ce
     restart: always
     container_name: portainer
     labels:
