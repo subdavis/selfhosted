@@ -121,7 +121,7 @@ services:
       - drone-net
 
   drone-runner:
-    image: drone/drone-runner-docker:1
+    image: drone/drone-runner-docker:latest
     restart: always
     container_name: drone_runner_1
     environment:
