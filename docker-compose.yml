@@ -460,6 +460,39 @@ services:
       - seafile-net
 
   #############################
+  ## SHINOBI
+  #############################
+
+  shinobi:
+    image: shinobisystems/shinobi:latest-ubuntu
+    environment:
+      - APP_BRANCH=dev
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=shinobi-net
+      - traefik.http.services.shinobi.loadbalancer.server.port=80
+      - traefik.http.middlewares.shinobi-https.redirectscheme.scheme=https
+      - traefik.http.routers.shinobi.entrypoints=web
+      - traefik.http.routers.shinobi.rule=Host(`cameras.${DNS_DOMAIN}`)
+      - traefik.http.routers.shinobi.middlewares=shinobi-https@docker
+      - traefik.http.routers.shinobi-secure.entrypoints=websecure
+      - traefik.http.routers.shinobi-secure.rule=Host(`cameras.${DNS_DOMAIN}`)
+      - traefik.http.routers.shinobi-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.shinobi-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.shinobi-secure.tls.certresolver=myresolver
+      - traefik.http.routers.shinobi-secure.tls=true
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+      - ${PRIMARY_MOUNT}/shinobi/config:/config:rw
+      - ${PRIMARY_MOUNT}/shinobi/customAutoLoad":/customAutoLoad:rw
+      - ${PRIMARY_MOUNT}/shinobi/mysql":/var/lib/mysql:rw
+      - ${SECONDARY_MOUNT}/shinobi/videos:/opt/shinobi/videos:rw
+      - /dev/shm/shinobiDockerTemp:/dev/shm/streams
+    networks:
+      - shinobi-net
+
+  #############################
   ## TRANSMISSION_TORRENT
   #############################
 
@@ -564,8 +597,8 @@ services:
       - plex-net
       - portainer-net
       - seafile-net
+      - shinobi-net
       - transmission-net
-      - zoneminder-net
 
   #############################
   ## UNIFI CONTROLLER
@@ -644,50 +677,6 @@ services:
       wireguard-peer1-net:
         ipv4_address: 10.0.13.2 
 
-  #############################
-  ## ZONEMINDER
-  #############################
-
-  zoneminder:
-    container_name: zoneminder
-    image: dlandon/zoneminder:latest
-    restart: always
-    shm_size: '2gb'
-    depends_on:
-      - wireguard
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=zoneminder-net
-      - traefik.http.services.zoneminder.loadbalancer.server.port=80
-      - traefik.http.middlewares.zoneminder-https.redirectscheme.scheme=https
-      - traefik.http.routers.zoneminder.entrypoints=web
-      - traefik.http.routers.zoneminder.rule=Host(`cameras.${DNS_DOMAIN}`)
-      - traefik.http.routers.zoneminder.middlewares=zoneminder-https@docker
-      - traefik.http.routers.zoneminder-secure.entrypoints=websecure
-      - traefik.http.routers.zoneminder-secure.rule=Host(`cameras.${DNS_DOMAIN}`)
-      - traefik.http.routers.zoneminder-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.zoneminder-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.zoneminder-secure.tls.certresolver=myresolver
-      - traefik.http.routers.zoneminder-secure.tls=true
-    environment:
-      - TZ=${TIME_ZONE}
-      - PUID=99
-      - PGID=100
-      - INSTALL_HOOK=0
-      - INSTALL_FACE=0
-      - INSTALL_TINY_YOLOV3=0
-      - INSTALL_YOLOV3=0
-      - INSTALL_TINY_YOLOV4=0
-      - INSTALL_YOLOV4=0
-      - MULTI_PORT_START=0
-      - MULTI_PORT_END=0
-    volumes:
-      - ${PRIMARY_MOUNT}/zoneminder/config:/config:rw
-      - ${SECONDARY_MOUNT}/zoneminder:/var/cache/zoneminder:rw
-    networks:
-      - zoneminder-net
-      - wireguard-peer1-net
-
 networks:
   adguard-net:
     name: adguard-net
@@ -713,6 +702,8 @@ networks:
     name: samba-net
   seafile-net:
     name: seafile-net
+  shinobi-net:
+    name: shinobi-net
   transmission-net:
     name: transmission-net
   traefik-net:
@@ -727,5 +718,3 @@ networks:
     ipam:
       config:
         - subnet: "10.0.13.0/24"
-  zoneminder-net:
-    name: zoneminder-net
