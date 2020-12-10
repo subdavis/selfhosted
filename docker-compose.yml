@@ -464,13 +464,15 @@ services:
   #############################
 
   shinobi:
-    image: shinobisystems/shinobi:latest-ubuntu
+    image: shinobisystems/shinobi:latest
+    container_name: shinobi
+    restart: always
     environment:
       - APP_BRANCH=dev
     labels:
       - traefik.enable=true
       - traefik.docker.network=shinobi-net
-      - traefik.http.services.shinobi.loadbalancer.server.port=80
+      - traefik.http.services.shinobi.loadbalancer.server.port=8080
       - traefik.http.middlewares.shinobi-https.redirectscheme.scheme=https
       - traefik.http.routers.shinobi.entrypoints=web
       - traefik.http.routers.shinobi.rule=Host(`cameras.${DNS_DOMAIN}`)
@@ -485,8 +487,8 @@ services:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
       - ${PRIMARY_MOUNT}/shinobi/config:/config:rw
-      - ${PRIMARY_MOUNT}/shinobi/customAutoLoad":/customAutoLoad:rw
-      - ${PRIMARY_MOUNT}/shinobi/mysql":/var/lib/mysql:rw
+      - ${PRIMARY_MOUNT}/shinobi/customAutoLoad:/customAutoLoad:rw
+      - ${PRIMARY_MOUNT}/shinobi/mysql:/var/lib/mysql:rw
       - ${SECONDARY_MOUNT}/shinobi/videos:/opt/shinobi/videos:rw
       - /dev/shm/shinobiDockerTemp:/dev/shm/streams
     networks:
