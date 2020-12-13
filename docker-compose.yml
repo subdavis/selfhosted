@@ -218,6 +218,38 @@ services:
     networks:
       - jackett-net
 
+  radarr:
+    image: linuxserver/radarr
+    container_name: radarr
+    restart: always
+    environment:
+      - PUID=1000
+      - PGID=1000
+      - TZ=${TIME_ZONE}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=jackett-net
+      - traefik.http.services.radarr.loadbalancer.server.port=9117
+      - traefik.http.middlewares.radarr-basic.basicauth.usersfile=/basicauth/passwords.txt
+      - traefik.http.middlewares.radarr-https.redirectscheme.scheme=https
+      - traefik.http.routers.radarr.entrypoints=web
+      - traefik.http.routers.radarr.rule=Host(`radarr.${DNS_DOMAIN}`)
+      - traefik.http.routers.radarr.middlewares=radarr-https@docker
+      - traefik.http.routers.radarr-secure.entrypoints=websecure
+      - traefik.http.routers.radarr-secure.rule=Host(`radarr.${DNS_DOMAIN}`)
+      - traefik.http.routers.radarr-secure.middlewares=radarr-basic@docker
+      - traefik.http.routers.radarr-secure.tls.domains[0].main=*.${DNS_DOMAIN}
+      - traefik.http.routers.radarr-secure.tls.domains[0].sans=${DNS_DOMAIN}
+      - traefik.http.routers.radarr-secure.tls.certresolver=myresolver
+      - traefik.http.routers.radarr-secure.tls=true
+    volumes:
+      - ${PRIMARY_MOUNT}/radarr/data:/config
+      - ${PRIMARY_MOUNT}/plex/media/:/data
+      - /path/to/downloadclient-downloads:/downloads
+    networks:
+      - jackett-net
+
+
   #############################
   ## KOBODL
   #############################
