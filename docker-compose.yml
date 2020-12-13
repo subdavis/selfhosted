@@ -342,6 +342,8 @@ services:
       - TZ="${TIME_ZONE}"
       - ADVERTISE_IP="https://plex.${DNS_DOMAIN}/"
       - PLEX_CLAIM="${PLEX_CLAIM}"
+      - PLEX_UID=1000
+      - PLEX_GID=1000
     volumes:
       - ${PRIMARY_MOUNT}/plex/config:/config
       - /tmp/plex/transcode:/transcode
@@ -537,6 +539,7 @@ services:
     labels: 
       - traefik.enable=false
     networks:
+      - jackett-net
       - transmission-net
     dns: 1.1.1.1
     cap_add:
