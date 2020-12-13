@@ -229,7 +229,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=jackett-net
-      - traefik.http.services.radarr.loadbalancer.server.port=9117
+      - traefik.http.services.radarr.loadbalancer.server.port=7878
       - traefik.http.middlewares.radarr-basic.basicauth.usersfile=/basicauth/passwords.txt
       - traefik.http.middlewares.radarr-https.redirectscheme.scheme=https
       - traefik.http.routers.radarr.entrypoints=web
