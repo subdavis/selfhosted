@@ -348,6 +348,8 @@ services:
       - ${PRIMARY_MOUNT}/plex/config:/config
       - /tmp/plex/transcode:/transcode
       - ${PRIMARY_MOUNT}/plex/media:/data
+    devices:
+      - /dev/dri:/dev/dri
     networks:
       - plex-net
 
