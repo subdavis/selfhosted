@@ -507,7 +507,7 @@ services:
       --certificatesresolvers.myresolver.acme.dnschallenge.resolvers==1.1.1.1:53,1.0.0.1:53
     labels:
       - "traefik.enable=true"
-      - "traefik.http.routers.http-catchall.entrypoints=http"
+      - "traefik.http.routers.http-catchall.entrypoints=web"
       - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https-mddl@docker"
       - "traefik.http.middlewares.redirect-to-https-mddl.redirectscheme.scheme=https"
