@@ -465,7 +465,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=transmission-net
-      - traefik.http.services.transmission-svc.loadbalancer.server.port=9091
+      - traefik.http.services.transmission-svc.loadbalancer.server.port=80
       - traefik.http.routers.transmission-rtr.rule=Host(`torrent.${DNS_DOMAIN}`)
       - traefik.http.routers.transmission-rtr.entrypoints=websecure
       - traefik.http.routers.transmission-rtr.tls=true
