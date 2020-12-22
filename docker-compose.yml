@@ -12,19 +12,11 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=adguard-net
-      - traefik.http.services.adguard.loadbalancer.server.port=80
-      - traefik.http.middlewares.adguard-https.redirectscheme.scheme=https
-      - traefik.http.routers.adguard.entrypoints=web
-      - traefik.http.routers.adguard.rule=Host(`adguard.${DNS_DOMAIN}`)
-      - traefik.http.routers.adguard.middlewares=adguard-https@docker
-      - traefik.http.routers.adguard-secure.entrypoints=websecure
-      - traefik.http.routers.adguard-secure.rule=Host(`adguard.${DNS_DOMAIN}`)
-      - traefik.http.routers.adguard-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.adguard-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.adguard-secure.tls.certresolver=myresolver
-      - traefik.http.routers.adguard-secure.tls=true
-      - traefik.http.middlewares.adguard-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}
-      - traefik.http.routers.adguard-secure.middlewares=adguard-ipwhitelist@docker
+      - traefik.http.services.adguard-svc.loadbalancer.server.port=80
+      - traefik.http.routers.adguard-rtr.rule=Host(`adguard.${DNS_DOMAIN}`)
+      - traefik.http.routers.adguard-rtr.entrypoints=websecure
+      - traefik.http.routers.adguard-rtr.tls=true
+      - traefik.http.routers.adguard-rtr.middlewares=ipwhitelist-mddl@docker
     networks:
       - adguard-net
     ports:
@@ -46,17 +38,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=calibre-net
-      - traefik.http.services.calibre.loadbalancer.server.port=8083
-      - traefik.http.middlewares.calibre-https.redirectscheme.scheme=https
-      - traefik.http.routers.calibre.entrypoints=web
-      - traefik.http.routers.calibre.rule=Host(`calibre.${DNS_DOMAIN}`)
-      - traefik.http.routers.calibre.middlewares=calibre-https@docker
-      - traefik.http.routers.calibre-secure.entrypoints=websecure
-      - traefik.http.routers.calibre-secure.rule=Host(`calibre.${DNS_DOMAIN}`)
-      - traefik.http.routers.calibre-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.calibre-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.calibre-secure.tls.certresolver=myresolver
-      - traefik.http.routers.calibre-secure.tls=true
+      - traefik.http.services.calibre-svc.loadbalancer.server.port=8083
+      - traefik.http.routers.calibre-rtr.rule=Host(`calibre.${DNS_DOMAIN}`)
+      - traefik.http.routers.calibre-rtr.entrypoints=websecure
+      - traefik.http.routers.calibre-rtr.tls=true
     environment:
       - PUID=0
       - PGID=0
@@ -96,17 +81,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=drone-net
-      - traefik.http.services.drone.loadbalancer.server.port=80
-      - traefik.http.middlewares.drone-https.redirectscheme.scheme=https
-      - traefik.http.routers.drone.entrypoints=web
-      - traefik.http.routers.drone.rule=Host(`drone.${DNS_DOMAIN}`)
-      - traefik.http.routers.drone.middlewares=drone-https@docker
-      - traefik.http.routers.drone-secure.entrypoints=websecure
-      - traefik.http.routers.drone-secure.rule=Host(`drone.${DNS_DOMAIN}`)
-      - traefik.http.routers.drone-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.drone-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.drone-secure.tls.certresolver=myresolver
-      - traefik.http.routers.drone-secure.tls=true
+      - traefik.http.services.drone-svc.loadbalancer.server.port=80
+      - traefik.http.routers.drone-rtr.rule=Host(`drone.${DNS_DOMAIN}`)
+      - traefik.http.routers.drone-rtr.entrypoints=websecure
+      - traefik.http.routers.drone-rtr.tls=true
     environment:
       - DRONE_GITHUB_CLIENT_ID=${DRONE_GITHUB_CLIENT_ID}
       - DRONE_GITHUB_CLIENT_SECRET=${DRONE_GITHUB_CLIENT_SECRET}
@@ -131,19 +109,7 @@ services:
       - DRONE_RUNNER_CAPACITY=2
       - DRONE_RUNNER_NAME=drone-runner-1
     labels: 
-      - traefik.enable=true
-      - traefik.docker.network=drone-net
-      - traefik.http.services.drone-runner-1.loadbalancer.server.port=3000
-      - traefik.http.middlewares.drone-runner-1-https.redirectscheme.scheme=https
-      - traefik.http.routers.drone-runner-1.entrypoints=web
-      - traefik.http.routers.drone-runner-1.rule=Host(`drone-runner-1.${DNS_DOMAIN}`)
-      - traefik.http.routers.drone-runner-1.middlewares=drone-runner-1-https@docker
-      - traefik.http.routers.drone-runner-1-secure.entrypoints=websecure
-      - traefik.http.routers.drone-runner-1-secure.rule=Host(`drone-runner-1.${DNS_DOMAIN}`)
-      - traefik.http.routers.drone-runner-1-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.drone-runner-1-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.drone-runner-1-secure.tls.certresolver=myresolver
-      - traefik.http.routers.drone-runner-1-secure.tls=true
+      - traefik.enable=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
 
@@ -158,19 +124,11 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=duplicati-net
-      - traefik.http.services.duplicati.loadbalancer.server.port=8200
-      - traefik.http.middlewares.duplicati-basic.basicauth.usersfile=/basicauth/passwords.txt
-      - traefik.http.middlewares.duplicati-https.redirectscheme.scheme=https
-      - traefik.http.routers.duplicati.entrypoints=web
-      - traefik.http.routers.duplicati.rule=Host(`backups.${DNS_DOMAIN}`)
-      - traefik.http.routers.duplicati.middlewares=duplicati-https@docker
-      - traefik.http.routers.duplicati-secure.entrypoints=websecure
-      - traefik.http.routers.duplicati-secure.rule=Host(`backups.${DNS_DOMAIN}`)
-      - traefik.http.routers.duplicati-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.duplicati-secure.tls.certresolver=myresolver
-      - traefik.http.routers.duplicati-secure.tls=true
-      - traefik.http.middlewares.duplicati-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}
-      - traefik.http.routers.duplicati-secure.middlewares=duplicati-basic@docker,duplicati-ipwhitelist@docker
+      - traefik.http.services.duplicati-svc.loadbalancer.server.port=8200
+      - traefik.http.routers.duplicati-rtr.rule=Host(`backups.${DNS_DOMAIN}`)
+      - traefik.http.routers.duplicati-rtr.entrypoints=websecure
+      - traefik.http.routers.duplicati-rtr.tls=true
+      - traefik.http.routers.duplicati-rtr.middlewares=basic-mddl@docker,ipwhitelist-mddl@docker
     environment:
       - "TZ=${TIME_ZONE}"
       - "PUID=0"
@@ -201,19 +159,11 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=jackett-net
-      - traefik.http.services.jackett.loadbalancer.server.port=9117
-      - traefik.http.middlewares.jackett-basic.basicauth.usersfile=/basicauth/passwords.txt
-      - traefik.http.middlewares.jackett-https.redirectscheme.scheme=https
-      - traefik.http.routers.jackett.entrypoints=web
-      - traefik.http.routers.jackett.rule=Host(`jackett.${DNS_DOMAIN}`)
-      - traefik.http.routers.jackett.middlewares=jackett-https@docker
-      - traefik.http.routers.jackett-secure.entrypoints=websecure
-      - traefik.http.routers.jackett-secure.rule=Host(`jackett.${DNS_DOMAIN}`)
-      - traefik.http.routers.jackett-secure.middlewares=jackett-basic@docker
-      - traefik.http.routers.jackett-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.jackett-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.jackett-secure.tls.certresolver=myresolver
-      - traefik.http.routers.jackett-secure.tls=true
+      - traefik.http.services.jackett-svc.loadbalancer.server.port=9117
+      - traefik.http.routers.jackett-rtr.rule=Host(`jackett.${DNS_DOMAIN}`)
+      - traefik.http.routers.jackett-rtr.entrypoints=websecure
+      - traefik.http.routers.jackett-rtr.tls=true
+      - traefik.http.routers.jackett-rtr.middlewares=basic-mddl@docker
     restart: always
     networks:
       - jackett-net
@@ -228,20 +178,11 @@ services:
       - TZ=${TIME_ZONE}
     labels:
       - traefik.enable=true
-      - traefik.docker.network=jackett-net
-      - traefik.http.services.radarr.loadbalancer.server.port=7878
-      - traefik.http.middlewares.radarr-basic.basicauth.usersfile=/basicauth/passwords.txt
-      - traefik.http.middlewares.radarr-https.redirectscheme.scheme=https
-      - traefik.http.routers.radarr.entrypoints=web
-      - traefik.http.routers.radarr.rule=Host(`radarr.${DNS_DOMAIN}`)
-      - traefik.http.routers.radarr.middlewares=radarr-https@docker
-      - traefik.http.routers.radarr-secure.entrypoints=websecure
-      - traefik.http.routers.radarr-secure.rule=Host(`radarr.${DNS_DOMAIN}`)
-      - traefik.http.routers.radarr-secure.middlewares=radarr-basic@docker
-      - traefik.http.routers.radarr-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.radarr-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.radarr-secure.tls.certresolver=myresolver
-      - traefik.http.routers.radarr-secure.tls=true
+      - traefik.docker.network=radarr-net
+      - traefik.http.services.radarr-svc.loadbalancer.server.port=7878
+      - traefik.http.routers.radarr-rtr.rule=Host(`radarr.${DNS_DOMAIN}`)
+      - traefik.http.routers.radarr-rtr.entrypoints=websecure
+      - traefik.http.routers.radarr-rtr.tls=true
     volumes:
       - ${PRIMARY_MOUNT}/radarr/data:/config
       - ${PRIMARY_MOUNT}/plex/media/:/data
@@ -260,20 +201,12 @@ services:
     restart: always
     labels:
       - traefik.enable=true
-      - traefik.docker.network=seafile-net
-      - traefik.http.services.kobodl.loadbalancer.server.port=5000
-      - traefik.http.middlewares.kobodl-basic.basicauth.usersfile=/basicauth/passwords.txt
-      - traefik.http.middlewares.kobodl-https.redirectscheme.scheme=https
-      - traefik.http.routers.kobodl.entrypoints=web
-      - traefik.http.routers.kobodl.rule=Host(`kobodl.${DNS_DOMAIN}`)
-      - traefik.http.routers.kobodl.middlewares=kobodl-https@docker
-      - traefik.http.routers.kobodl-secure.entrypoints=websecure
-      - traefik.http.routers.kobodl-secure.rule=Host(`kobodl.${DNS_DOMAIN}`)
-      - traefik.http.routers.kobodl-secure.middlewares=kobodl-basic@docker
-      - traefik.http.routers.kobodl-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.kobodl-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.kobodl-secure.tls.certresolver=myresolver
-      - traefik.http.routers.kobodl-secure.tls=true
+      - traefik.docker.network=kobodl-net
+      - traefik.http.services.kobodl-svc.loadbalancer.server.port=5000
+      - traefik.http.routers.kobodl-rtr.rule=Host(`kobodl.${DNS_DOMAIN}`)
+      - traefik.http.routers.kobodl-rtr.entrypoints=websecure
+      - traefik.http.routers.kobodl-rtr.tls=true
+      - traefik.http.routers.kobodl-rtr.middlewares=basic-mddl@docker,ipwhitelist-mddl@docker
     volumes:
       - ${PRIMARY_MOUNT}/kobodl/kobodl.json:/home/kobodl.json
       - ${PRIMARY_MOUNT}/kobodl/downloads:/home/downloads
@@ -293,17 +226,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=minio-net
-      - traefik.http.services.minio.loadbalancer.server.port=9000
-      - traefik.http.middlewares.minio-https.redirectscheme.scheme=https
-      - traefik.http.routers.minio.entrypoints=web
-      - traefik.http.routers.minio.rule=Host(`minio.${DNS_DOMAIN}`)
-      - traefik.http.routers.minio.middlewares=minio-https@docker
-      - traefik.http.routers.minio-secure.entrypoints=websecure
-      - traefik.http.routers.minio-secure.rule=Host(`minio.${DNS_DOMAIN}`)
-      - traefik.http.routers.minio-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.minio-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.minio-secure.tls.certresolver=myresolver
-      - traefik.http.routers.minio-secure.tls=true
+      - traefik.http.services.minio-svc.loadbalancer.server.port=9000
+      - traefik.http.routers.minio-rtr.rule=Host(`minio.${DNS_DOMAIN}`)
+      - traefik.http.routers.minio-rtr.entrypoints=websecure
+      - traefik.http.routers.minio-rtr.tls=true
     volumes:
       - ${PRIMARY_MOUNT}:/data
     environment:
@@ -324,17 +250,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=plex-net
-      - traefik.http.services.plex.loadbalancer.server.port=32400
-      - traefik.http.middlewares.plex-https.redirectscheme.scheme=https
-      - traefik.http.routers.plex.entrypoints=web
-      - traefik.http.routers.plex.rule=Host(`plex.${DNS_DOMAIN}`)
-      - traefik.http.routers.plex.middlewares=plex-https@docker
-      - traefik.http.routers.plex-secure.entrypoints=websecure
-      - traefik.http.routers.plex-secure.rule=Host(`plex.${DNS_DOMAIN}`)
-      - traefik.http.routers.plex-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.plex-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.plex-secure.tls.certresolver=myresolver
-      - traefik.http.routers.plex-secure.tls=true
+      - traefik.http.services.plex-svc.loadbalancer.server.port=32400
+      - traefik.http.routers.plex-rtr.rule=Host(`plex.${DNS_DOMAIN}`)
+      - traefik.http.routers.plex-rtr.entrypoints=websecure
+      - traefik.http.routers.plex-rtr.tls=true
     ports:
       - "32400:32400/tcp"
       - "8324:8324/tcp"
@@ -364,18 +283,11 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=portainer-net
-      - traefik.http.services.portainer.loadbalancer.server.port=9000
-      - traefik.http.middlewares.portainer-https.redirectscheme.scheme=https
-      - traefik.http.routers.portainer.entrypoints=web
-      - traefik.http.routers.portainer.rule=Host(`portainer.${DNS_DOMAIN}`)
-      - traefik.http.routers.portainer.middlewares=portainer-https@docker
-      - traefik.http.routers.portainer-secure.entrypoints=websecure
-      - traefik.http.routers.portainer-secure.rule=Host(`portainer.${DNS_DOMAIN}`)
-      - traefik.http.routers.portainer-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.portainer-secure.tls.certresolver=myresolver
-      - traefik.http.routers.portainer-secure.tls=true
-      - traefik.http.middlewares.portainer-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}
-      - traefik.http.routers.portainer-secure.middlewares=portainer-ipwhitelist@docker
+      - traefik.http.services.portainer-svc.loadbalancer.server.port=9000
+      - traefik.http.routers.portainer-rtr.rule=Host(`portainer.${DNS_DOMAIN}`)
+      - traefik.http.routers.portainer-rtr.entrypoints=websecure
+      - traefik.http.routers.portainer-rtr.tls=true
+      - traefik.http.routers.portainer-rtr.middlewares=ipwhitelist-mddl@docker
     volumes:
       - ${PRIMARY_MOUNT}/portainer/data/:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -466,17 +378,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=seafile-net
-      - traefik.http.services.seafile.loadbalancer.server.port=80
-      - traefik.http.middlewares.seafile-https.redirectscheme.scheme=https
-      - traefik.http.routers.seafile.entrypoints=web
-      - traefik.http.routers.seafile.rule=Host(`seafile.${DNS_DOMAIN}`)
-      - traefik.http.routers.seafile.middlewares=seafile-https@docker
-      - traefik.http.routers.seafile-secure.entrypoints=websecure
-      - traefik.http.routers.seafile-secure.rule=Host(`seafile.${DNS_DOMAIN}`)
-      - traefik.http.routers.seafile-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.seafile-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.seafile-secure.tls.certresolver=myresolver
-      - traefik.http.routers.seafile-secure.tls=true
+      - traefik.http.services.seafile-svc.loadbalancer.server.port=80
+      - traefik.http.routers.seafile-rtr.rule=Host(`seafile.${DNS_DOMAIN}`)
+      - traefik.http.routers.seafile-rtr.entrypoints=websecure
+      - traefik.http.routers.seafile-rtr.tls=true
     volumes:
       - ${PRIMARY_MOUNT}/seafile:/shared # Requested, specifies the path to Seafile data persistent store.
       - ${PRIMARY_MOUNT}/data:/source_data
@@ -509,17 +414,10 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=shinobi-net
-      - traefik.http.services.shinobi.loadbalancer.server.port=8080
-      - traefik.http.middlewares.shinobi-https.redirectscheme.scheme=https
-      - traefik.http.routers.shinobi.entrypoints=web
-      - traefik.http.routers.shinobi.rule=Host(`cameras.${DNS_DOMAIN}`)
-      - traefik.http.routers.shinobi.middlewares=shinobi-https@docker
-      - traefik.http.routers.shinobi-secure.entrypoints=websecure
-      - traefik.http.routers.shinobi-secure.rule=Host(`cameras.${DNS_DOMAIN}`)
-      - traefik.http.routers.shinobi-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.shinobi-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.shinobi-secure.tls.certresolver=myresolver
-      - traefik.http.routers.shinobi-secure.tls=true
+      - traefik.http.services.shinobi-svc.loadbalancer.server.port=32400
+      - traefik.http.routers.shinobi-rtr.rule=Host(`cameras.${DNS_DOMAIN}`)
+      - traefik.http.routers.shinobi-rtr.entrypoints=websecure
+      - traefik.http.routers.shinobi-rtr.tls=true
     volumes:
       - /etc/localtime:/etc/localtime:ro
       - /etc/timezone:/etc/timezone:ro
@@ -567,21 +465,11 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=transmission-net
-      - traefik.http.services.transmission.loadbalancer.server.port=8080
-      - traefik.http.middlewares.transmission-basic.basicauth.usersfile=/basicauth/passwords.txt
-      - traefik.http.middlewares.transmission-https.redirectscheme.scheme=https
-      - traefik.http.routers.transmission.entrypoints=web
-      - traefik.http.routers.transmission.rule=Host(`torrent.${DNS_DOMAIN}`)
-      - traefik.http.routers.transmission.middlewares=transmission-https@docker
-      - traefik.http.routers.transmission-secure.entrypoints=websecure
-      - traefik.http.routers.transmission-secure.rule=Host(`torrent.${DNS_DOMAIN}`)
-      - traefik.http.routers.transmission-secure.middlewares=transmission-basic@docker
-      - traefik.http.routers.transmission-secure.tls.domains[0].main=*.${DNS_DOMAIN}
-      - traefik.http.routers.transmission-secure.tls.domains[0].sans=${DNS_DOMAIN}
-      - traefik.http.routers.transmission-secure.tls.certresolver=myresolver
-      - traefik.http.middlewares.transmission-ipwhitelist.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}
-      - traefik.http.routers.transmission-secure.middlewares=transmission-ipwhitelist@docker
-      - traefik.http.routers.transmission-secure.tls=true
+      - traefik.http.services.transmission-svc.loadbalancer.server.port=32400
+      - traefik.http.routers.transmission-rtr.rule=Host(`torrent.${DNS_DOMAIN}`)
+      - traefik.http.routers.transmission-rtr.entrypoints=websecure
+      - traefik.http.routers.transmission-rtr.tls=true
+      - traefik.http.routers.transmission-rtr.middlewares=basic-mddl@docker,ipwhitelist-mddl@docker
     depends_on:
       - transmission
     networks:
@@ -606,11 +494,25 @@ services:
       --providers.docker.exposedByDefault=false
       --entrypoints.web.address=:80
       --entrypoints.websecure.address=:443
+# entrypoints.websecure.forwardedHeaders.trustedIPs: Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
+      --entrypoints.websecure.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22
+      --entrypoints.websecure.http.tls.certresolver=myresolver
+      --entrypoints.websecure.http.tls.domains[0].main=*.${DNS_DOMAIN}
+      --entrypoints.websecure.http.tls.domains[0].sans=${DNS_DOMAIN}
       --certificatesResolvers.myresolver.acme.caServer="https://acme-v02.api.letsencrypt.org/directory"
       --certificatesresolvers.myresolver.acme.dnschallenge=true
       --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare
       --certificatesresolvers.myresolver.acme.email="${LETSENCRYPT_EMAIL}"
       --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      --certificatesresolvers.myresolver.acme.dnschallenge.resolvers==1.1.1.1:53,1.0.0.1:53
+    labels:
+      - "traefik.enable=true"
+      - "traefik.http.routers.http-catchall.entrypoints=http"
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https-mddl@docker"
+      - "traefik.http.middlewares.redirect-to-https-mddl.redirectscheme.scheme=https"
+      - "traefik.http.middlewares.ipwhitelist-mddl.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}"
+      - "traefik.http.middlewares.basic-mddl.basicauth.usersfile=/basicauth/passwords.txt"
     environment:
       - CF_API_EMAIL=${CF_EMAIL}
       - CF_DNS_API_TOKEN=${CF_TOKEN}
