@@ -543,6 +543,7 @@ services:
       - seafile-net
       - shinobi-net
       - transmission-net
+      - ttrss-net
 
   #############################
   ## UNIFI CONTROLLER
