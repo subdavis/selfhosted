@@ -596,6 +596,7 @@ services:
     environment:
       - "SELF_URL_PATH=https://rss.subdavis.com/"
       - "DB_PASS=${TTRSS_DB_PASSWORD}"
+      - DB_HOST=ttrss_postgres
       - PUID=1000
       - PGID=1000
     labels:
