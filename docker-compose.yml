@@ -589,7 +589,7 @@ services:
   ## TTRSS
   #############################
 
-  service.rss:
+  ttrss:
     image: wangqiru/ttrss:latest
     restart: always
     container_name: ttrss
