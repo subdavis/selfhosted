@@ -104,7 +104,7 @@ services:
     restart: always
     container_name: drone_runner_1
     environment:
-      - DRONE_RPC_PROTO=https
+      - DRONE_RPC_PROTO=http
       - DRONE_RPC_HOST=drone
       - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
       - DRONE_RUNNER_CAPACITY=2
