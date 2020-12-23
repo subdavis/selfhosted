@@ -97,6 +97,7 @@ services:
       - ${PRIMARY_MOUNT}/drone/server/data:/data
     networks:
       - drone-net
+      - drone-private-net
 
   drone-runner:
     image: drone/drone-runner-docker:latest
@@ -104,7 +105,7 @@ services:
     container_name: drone_runner_1
     environment:
       - DRONE_RPC_PROTO=https
-      - DRONE_RPC_HOST=drone.${DNS_DOMAIN}
+      - DRONE_RPC_HOST=drone
       - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
       - DRONE_RUNNER_CAPACITY=2
       - DRONE_RUNNER_NAME=drone-runner-1
@@ -112,6 +113,8 @@ services:
       - traefik.enable=false
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - drone-private-net
 
   #############################
   ## DUPLICATI
@@ -189,7 +192,6 @@ services:
       - /path/to/downloadclient-downloads:/downloads
     networks:
       - jackett-net
-
 
   #############################
   ## KOBODL
@@ -334,7 +336,7 @@ services:
     volumes:
       - ${PRIMARY_MOUNT}/mariadb:/var/lib/mysql  # Requested, specifies the path to MySQL data persistent store.
     networks:
-      - seafile-net
+      - seafile-private-net
 
   seafile_memcached:
     image: memcached:1.5.6
@@ -344,7 +346,7 @@ services:
       - traefik.enable=false
     entrypoint: memcached -m 256
     networks:
-      - seafile-net
+      - seafile-private-net
 
   seafile_elasticsearch:
     image: seafileltd/elasticsearch-with-ik:5.6.16
@@ -366,7 +368,7 @@ services:
       # Requested, specifies the path to Elasticsearch data persistent store.
       - ${LOCAL_MOUNT}/elasticsearch/data:/usr/share/elasticsearch/data
     networks:
-      - seafile-net
+      - seafile-private-net
 
   seafile:
     image: docker.seadrive.org/seafileltd/seafile-pro-mc:latest
@@ -399,6 +401,7 @@ services:
       - seafile_elasticsearch
     networks:
       - seafile-net
+      - seafile-private-net
 
   #############################
   ## SHINOBI
@@ -583,6 +586,43 @@ services:
       - "${PRIMARY_MOUNT}/watchtower/config/:/config"
 
   #############################
+  ## TTRSS
+  #############################
+
+  service.rss:
+    image: wangqiru/ttrss:latest
+    restart: always
+    container_name: ttrss
+    environment:
+      - "SELF_URL_PATH=https://rss.subdavis.com/"
+      - "DB_PASS=${TTRSS_DB_PASSWORD}"
+      - PUID=1000
+      - PGID=1000
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=ttrss-net
+      - traefik.http.services.ttrss-svc.loadbalancer.server.port=80
+      - traefik.http.routers.ttrss-rtr.rule=Host(`rss.${DNS_DOMAIN}`)
+      - traefik.http.routers.ttrss-rtr.entrypoints=websecure
+      - traefik.http.routers.ttrss-rtr.tls=true
+    volumes:
+      - "${PRIMARY_MOUNT}/ttrss/feed-icons:/var/www/feed-icons/"
+    networks:
+      - ttrss-net
+      - ttrss-private-net
+
+  ttrss_postgres:
+    image: postgres:13-alpine
+    restart: always
+    container_name: ttrss_postgres
+    environment:
+      - "POSTGRES_PASSWORD=${TTRSS_DB_PASSWORD}"
+    volumes:
+      - "${PRIMARY_MOUNT}/ttrss/postgres/data/:/var/lib/postgresql/data"
+    networks:
+      - ttrss-private-net
+
+  #############################
   ## WIREGUARD
   #############################
 
@@ -614,9 +654,7 @@ services:
       - "net.ipv4.conf.all.src_valid_mark=1"
       - "net.ipv4.conf.all.rp_filter=2"
     networks:
-      wireguard-net:
-      wireguard-peer1-net:
-        ipv4_address: 10.0.13.2 
+      - wireguard-net
 
 networks:
   adguard-net:
@@ -627,6 +665,8 @@ networks:
     name: cloudflare-net
   drone-net:
     name: drone-net
+  drone-private-net:
+    name: drone-private-net
   duplicati-net:
     name: duplicati-net
   jackett-net:
@@ -643,6 +683,8 @@ networks:
     name: samba-net
   seafile-net:
     name: seafile-net
+  seafile-private-net:
+    name: seafile-private-net
   shinobi-net:
     name: shinobi-net
   transmission-net:
@@ -651,11 +693,9 @@ networks:
     name: traefik-net
   unifi-net:
     name: unifi-net
+  ttrss-net:
+    name: winds-net
+  ttrss-private-net:
+    name: ttrss-private-net
   wireguard-net:
     name: wireguard-net
-  wireguard-peer1-net:
-    name: wireguard-peer1-net
-    internal: true
-    ipam:
-      config:
-        - subnet: "10.0.13.0/24"
