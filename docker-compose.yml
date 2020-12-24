@@ -585,6 +585,7 @@ services:
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
       - "${PRIMARY_MOUNT}/watchtower/config/:/config"
+      - "${PRIMARY_MOUNT}/watchtower/docker-config.json:/config.json"
 
   #############################
   ## TTRSS
