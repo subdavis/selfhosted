@@ -696,7 +696,7 @@ networks:
   unifi-net:
     name: unifi-net
   ttrss-net:
-    name: winds-net
+    name: ttrss-net
   ttrss-private-net:
     name: ttrss-private-net
   wireguard-net:
