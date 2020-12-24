@@ -107,7 +107,7 @@ services:
       - DRONE_RPC_PROTO=http
       - DRONE_RPC_HOST=drone
       - DRONE_RPC_SECRET=${DRONE_RPC_SECRET}
-      - DRONE_RUNNER_CAPACITY=2
+      - DRONE_RUNNER_CAPACITY=1
       - DRONE_RUNNER_NAME=drone-runner-1
     labels: 
       - traefik.enable=false
