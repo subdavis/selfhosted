@@ -2,7 +2,8 @@
 
 > with docker-compose and traefik
 
-![Uptime Robot ratio (30 days)](https://img.shields.io/uptimerobot/ratio/m784171033-0a5b0fa97302da182e304db8)
+![Uptime Robot ratio (30 days)](https://img.shields.io/uptimerobot/ratio/m784171038-19b52e00f52a8d916ba46346)
+[![Build Status](https://drone.subdavis.com/api/badges/subdavis/selfhosted/status.svg)](https://drone.subdavis.com/subdavis/selfhosted)
 
 This repo contains my production systemd services.  When you're done, you will be able to access your services from anywhere over HTTPS, using [traefik](https://traefik.io)
 
