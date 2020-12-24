@@ -18,4 +18,3 @@ steps:
         - git pull
         - docker-compose config
         - docker-compose --env-file .env.prod up -d
-        - sleep 10
