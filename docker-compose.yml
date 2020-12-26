@@ -166,7 +166,7 @@ services:
       - traefik.http.routers.jackett-rtr.rule=Host(`jackett.${DNS_DOMAIN}`)
       - traefik.http.routers.jackett-rtr.entrypoints=websecure
       - traefik.http.routers.jackett-rtr.tls=true
-      - traefik.http.routers.jackett-rtr.middlewares=basic-mddl@docker
+      - traefik.http.routers.jackett-rtr.middlewares=ipwhitelist-mddl@docker
     restart: always
     networks:
       - jackett-net
@@ -239,6 +239,37 @@ services:
       - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
     networks:
       - minio-net
+
+  #############################
+  ## NETDATA
+  #############################
+
+  netdata:
+    image: netdata/netdata
+    container_name: netdata
+    restart: always
+    init: true
+    cap_add:
+      - SYS_PTRACE
+    volumes: 
+      - "${LOCAL_MOUNT}/netdata/config:/etc/netdata"
+      - "${LOCAL_MOUNT}/netdata/lib:/var/lib/netdata"
+      - "${LOCAL_MOUNT}/netdata/cache:/var/cache/netdata"
+      - "/etc/passwd:/host/etc/passwd:ro"
+      - "/etc/group:/host/etc/group:ro"
+      - "/proc:/host/proc:ro"
+      - "/sys:/host/sys:ro"
+      - "/etc/os-release:/host/etc/os-release:ro"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=netdata-net
+      - traefik.http.services.netdata-svc.loadbalancer.server.port=1999
+      - traefik.http.routers.netdata-rtr.rule=Host(`netdata.${DNS_DOMAIN}`)
+      - traefik.http.routers.netdata-rtr.entrypoints=websecure
+      - traefik.http.routers.netdata-rtr.tls=true
+      - traefik.http.routers.netdata-rtr.middlewares=basic-mddl@docker,ipwhitelist-mddl@docker
+    networks:
+      - netdata-net
 
   #############################
   ## PLEX
@@ -417,7 +448,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=shinobi-net
-      - traefik.http.services.shinobi-svc.loadbalancer.server.port=32400
+      - traefik.http.services.shinobi-svc.loadbalancer.server.port=8080
       - traefik.http.routers.shinobi-rtr.rule=Host(`cameras.${DNS_DOMAIN}`)
       - traefik.http.routers.shinobi-rtr.entrypoints=websecure
       - traefik.http.routers.shinobi-rtr.tls=true
