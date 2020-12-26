@@ -32,7 +32,7 @@ services:
   #############################
 
   calibre_web:
-    image: linuxserver/calibre-web
+    image: linuxserver/calibre-web:latest
     container_name: calibre_web
     restart: always
     labels:
@@ -58,7 +58,7 @@ services:
   #############################
 
   cloudflare:
-    image: oznu/cloudflare-ddns
+    image: oznu/cloudflare-ddns:latest
     restart: always
     container_name: cloudflare
     labels:
@@ -75,7 +75,7 @@ services:
   #############################
 
   drone:
-    image: drone/drone
+    image: drone/drone:1
     restart: always
     container_name: drone
     labels:
@@ -100,7 +100,7 @@ services:
       - drone-private-net
 
   drone-runner:
-    image: drone/drone-runner-docker:latest
+    image: drone/drone-runner-docker:1
     restart: always
     container_name: drone_runner_1
     environment:
@@ -121,7 +121,7 @@ services:
   #############################
 
   duplicati:
-    image: linuxserver/duplicati
+    image: linuxserver/duplicati:latest
     container_name: duplicati
     restart: always
     labels:
@@ -149,7 +149,7 @@ services:
   #############################
 
   jackett:
-    image: linuxserver/jackett
+    image: linuxserver/jackett:latest
     container_name: jackett
     environment:
       - PUID=1000
@@ -172,7 +172,7 @@ services:
       - jackett-net
 
   radarr:
-    image: linuxserver/radarr
+    image: linuxserver/radarr:latest
     container_name: radarr
     restart: always
     environment:
@@ -198,7 +198,7 @@ services:
   #############################
 
   kobodl:
-    image: subdavis/kobodl
+    image: subdavis/kobodl:latest
     container_name: kobodl
     restart: always
     labels:
@@ -221,7 +221,7 @@ services:
   #############################
 
   minio:
-    image: minio/minio
+    image: minio/minio:latest
     container_name: minio
     restart: always
     command: server /data
@@ -244,32 +244,32 @@ services:
   ## NETDATA
   #############################
 
-  netdata:
-    image: netdata/netdata
-    container_name: netdata
-    restart: always
-    init: true
-    cap_add:
-      - SYS_PTRACE
-    volumes: 
-      - "${LOCAL_MOUNT}/netdata/config:/etc/netdata"
-      - "${LOCAL_MOUNT}/netdata/lib:/var/lib/netdata"
-      - "${LOCAL_MOUNT}/netdata/cache:/var/cache/netdata"
-      - "/etc/passwd:/host/etc/passwd:ro"
-      - "/etc/group:/host/etc/group:ro"
-      - "/proc:/host/proc:ro"
-      - "/sys:/host/sys:ro"
-      - "/etc/os-release:/host/etc/os-release:ro"
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=netdata-net
-      - traefik.http.services.netdata-svc.loadbalancer.server.port=1999
-      - traefik.http.routers.netdata-rtr.rule=Host(`netdata.${DNS_DOMAIN}`)
-      - traefik.http.routers.netdata-rtr.entrypoints=websecure
-      - traefik.http.routers.netdata-rtr.tls=true
-      - traefik.http.routers.netdata-rtr.middlewares=basic-mddl@docker,ipwhitelist-mddl@docker
-    networks:
-      - netdata-net
+  # netdata:
+  #   image: netdata/netdata
+  #   container_name: netdata
+  #   restart: always
+  #   init: true
+  #   cap_add:
+  #     - SYS_PTRACE
+  #   volumes: 
+  #     - "${LOCAL_MOUNT}/netdata/config:/etc/netdata"
+  #     - "${LOCAL_MOUNT}/netdata/lib:/var/lib/netdata"
+  #     - "${LOCAL_MOUNT}/netdata/cache:/var/cache/netdata"
+  #     - "/etc/passwd:/host/etc/passwd:ro"
+  #     - "/etc/group:/host/etc/group:ro"
+  #     - "/proc:/host/proc:ro"
+  #     - "/sys:/host/sys:ro"
+  #     - "/etc/os-release:/host/etc/os-release:ro"
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.docker.network=netdata-net
+  #     - traefik.http.services.netdata-svc.loadbalancer.server.port=1999
+  #     - traefik.http.routers.netdata-rtr.rule=Host(`netdata.${DNS_DOMAIN}`)
+  #     - traefik.http.routers.netdata-rtr.entrypoints=websecure
+  #     - traefik.http.routers.netdata-rtr.tls=true
+  #     - traefik.http.routers.netdata-rtr.middlewares=basic-mddl@docker,ipwhitelist-mddl@docker
+  #   networks:
+  #     - netdata-net
 
   #############################
   ## PLEX
@@ -310,7 +310,7 @@ services:
   #############################
 
   portainer:
-    image: portainer/portainer-ce
+    image: portainer/portainer-ce:latest
     restart: always
     container_name: portainer
     labels:
@@ -332,7 +332,7 @@ services:
   #############################
 
   samba:
-    image: dperson/samba
+    image: dperson/samba:latest
     container_name: samba
     restart: always
     labels:
@@ -467,7 +467,7 @@ services:
   #############################
 
   transmission:
-    image: haugene/transmission-openvpn
+    image: haugene/transmission-openvpn:latest
     container_name: transmission
     restart: always
     labels: 
@@ -493,7 +493,7 @@ services:
       - LOCAL_NETWORK=192.168.1.1/24
 
   transmission_proxy:
-    image: haugene/transmission-openvpn-proxy
+    image: haugene/transmission-openvpn-proxy:latest
     container_name: transmission_proxy
     restart: always
     labels:
@@ -514,7 +514,7 @@ services:
   #############################
 
   traefik:
-    image: traefik:v2.3
+    image: traefik:v2.4
     restart: always
     container_name: traefik
     # entrypoints.websecure.forwardedHeaders.trustedIPs: Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
@@ -581,7 +581,7 @@ services:
   #############################
 
   unifi_controller:
-    image: linuxserver/unifi-controller
+    image: linuxserver/unifi-controller:latest
     container_name: unifi_controller
     restart: always
     labels:
@@ -607,7 +607,7 @@ services:
   #############################
 
   watchtower:
-    image: containrrr/watchtower
+    image: containrrr/watchtower:latest
     container_name: watchtower
     restart: always
     command: --schedule "0 0 */6 * * *"
@@ -661,7 +661,7 @@ services:
   #############################
 
   wireguard:
-    image: linuxserver/wireguard
+    image: linuxserver/wireguard:latest
     restart: always
     container_name: wireguard
     labels:
@@ -709,8 +709,8 @@ networks:
     name: kobodl-net
   minio-net:
     name: minio-net
-  netdata-net:
-    name: netdata-net
+  # netdata-net:
+  #   name: netdata-net
   plex-net:
     name: plex-net
   portainer-net:
