@@ -709,6 +709,8 @@ networks:
     name: kobodl-net
   minio-net:
     name: minio-net
+  netdata-net:
+    name: netdata-net
   plex-net:
     name: plex-net
   portainer-net:
