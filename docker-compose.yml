@@ -130,7 +130,7 @@ services:
       - traefik.http.routers.duplicati-rtr.rule=Host(`backups.${DNS_DOMAIN}`)
       - traefik.http.routers.duplicati-rtr.entrypoints=websecure
       - traefik.http.routers.duplicati-rtr.tls=true
-      - traefik.http.routers.duplicati-rtr.middlewares=basic-mddl@docker,ipwhitelist-mddl@docker
+      - traefik.http.routers.duplicati-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     environment:
       - "TZ=${TIME_ZONE}"
       - "PUID=0"
@@ -165,7 +165,7 @@ services:
       - traefik.http.routers.jackett-rtr.rule=Host(`jackett.${DNS_DOMAIN}`)
       - traefik.http.routers.jackett-rtr.entrypoints=websecure
       - traefik.http.routers.jackett-rtr.tls=true
-      - traefik.http.routers.jackett-rtr.middlewares=ipwhitelist-mddl@docker
+      - traefik.http.routers.jackett-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     restart: always
     networks:
       - jackett-net
@@ -185,6 +185,7 @@ services:
       - traefik.http.routers.radarr-rtr.rule=Host(`radarr.${DNS_DOMAIN}`)
       - traefik.http.routers.radarr-rtr.entrypoints=websecure
       - traefik.http.routers.radarr-rtr.tls=true
+      - traefik.http.routers.radarr-rtr.middlewares=traefik-forward-auth@docker
     volumes:
       - ${PRIMARY_MOUNT}/radarr/data:/config
       - ${PRIMARY_MOUNT}/plex/media/:/data
@@ -240,37 +241,6 @@ services:
       - minio-net
 
   #############################
-  ## NETDATA
-  #############################
-
-  # netdata:
-  #   image: netdata/netdata
-  #   container_name: netdata
-  #   restart: always
-  #   init: true
-  #   cap_add:
-  #     - SYS_PTRACE
-  #   volumes: 
-  #     - "${LOCAL_MOUNT}/netdata/config:/etc/netdata"
-  #     - "${LOCAL_MOUNT}/netdata/lib:/var/lib/netdata"
-  #     - "${LOCAL_MOUNT}/netdata/cache:/var/cache/netdata"
-  #     - "/etc/passwd:/host/etc/passwd:ro"
-  #     - "/etc/group:/host/etc/group:ro"
-  #     - "/proc:/host/proc:ro"
-  #     - "/sys:/host/sys:ro"
-  #     - "/etc/os-release:/host/etc/os-release:ro"
-  #   labels:
-  #     - traefik.enable=true
-  #     - traefik.docker.network=netdata-net
-  #     - traefik.http.services.netdata-svc.loadbalancer.server.port=1999
-  #     - traefik.http.routers.netdata-rtr.rule=Host(`netdata.${DNS_DOMAIN}`)
-  #     - traefik.http.routers.netdata-rtr.entrypoints=websecure
-  #     - traefik.http.routers.netdata-rtr.tls=true
-  #     - traefik.http.routers.netdata-rtr.middlewares=basic-mddl@docker,ipwhitelist-mddl@docker
-  #   networks:
-  #     - netdata-net
-
-  #############################
   ## PLEX
   #############################
 
@@ -319,7 +289,7 @@ services:
       - traefik.http.routers.portainer-rtr.rule=Host(`portainer.${DNS_DOMAIN}`)
       - traefik.http.routers.portainer-rtr.entrypoints=websecure
       - traefik.http.routers.portainer-rtr.tls=true
-      - traefik.http.routers.portainer-rtr.middlewares=ipwhitelist-mddl@docker
+      - traefik.http.routers.portainer-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     volumes:
       - ${PRIMARY_MOUNT}/portainer/data/:/data
       - /var/run/docker.sock:/var/run/docker.sock
@@ -502,7 +472,7 @@ services:
       - traefik.http.routers.transmission-rtr.rule=Host(`torrent.${DNS_DOMAIN}`)
       - traefik.http.routers.transmission-rtr.entrypoints=websecure
       - traefik.http.routers.transmission-rtr.tls=true
-      - traefik.http.routers.transmission-rtr.middlewares=basic-mddl@docker,ipwhitelist-mddl@docker
+      - traefik.http.routers.transmission-rtr.middlewares=traefik-forward-auth@docker
     depends_on:
       - transmission
     networks:
@@ -545,7 +515,6 @@ services:
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https-mddl@docker"
       - "traefik.http.middlewares.redirect-to-https-mddl.redirectscheme.scheme=https"
       - "traefik.http.middlewares.ipwhitelist-mddl.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}"
-      - "traefik.http.middlewares.basic-mddl.basicauth.usersfile=/basicauth/passwords.txt"
       - "traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://auth:4181"
       - "traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
     environment:
@@ -554,7 +523,6 @@ services:
       - CF_ZONE_API_TOKEN=${CF_TOKEN}
     volumes:
       - /var/run/docker.sock:/var/run/docker.sock
-      - "./etc/passwords.txt:/basicauth/passwords.txt"
       - "${LOCAL_MOUNT}/traefik/letsencrypt:/letsencrypt"
       - "${LOCAL_MOUNT}/traefik/logs:/var/log/traefik"
     ports:
@@ -585,10 +553,10 @@ services:
     networks:
       - auth-net
     environment:
-      - PROVIDERS_GOOGLE_CLIENT_ID=${AUTH_PROVIDERS_GOOGLE_CLIENT_ID}
-      - PROVIDERS_GOOGLE_CLIENT_SECRET=${AUTH_PROVIDERS_GOOGLE_CLIENT_SECRET}
-      - SECRET=${AUTH_SECRET}
-      - LOG_LEVEL=debug
+      - "PROVIDERS_GOOGLE_CLIENT_ID=${AUTH_PROVIDERS_GOOGLE_CLIENT_ID}"
+      - "PROVIDERS_GOOGLE_CLIENT_SECRET=${AUTH_PROVIDERS_GOOGLE_CLIENT_SECRET}"
+      - "SECRET=${AUTH_SECRET}"
+      - "WHITELIST=${AUTH_WHITELIST}"
     command: >
       --cookie-domain="${DNS_DOMAIN}"
       --auth-host="auth.${DNS_DOMAIN}"
@@ -736,8 +704,6 @@ networks:
     name: kobodl-net
   minio-net:
     name: minio-net
-  # netdata-net:
-  #   name: netdata-net
   plex-net:
     name: plex-net
   portainer-net:
