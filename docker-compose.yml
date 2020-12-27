@@ -488,6 +488,7 @@ services:
     container_name: traefik
     # entrypoints.websecure.forwardedHeaders.trustedIPs: Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
     command: >
+      --api.insecure=true
       --accesslog=true
       --accesslog.filepath=/var/log/traefik/access.log
       --accesslog.fields.headers.names.Content-Type=keep
