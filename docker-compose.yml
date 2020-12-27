@@ -496,6 +496,7 @@ services:
       --accesslog.fields.headers.names.User-Agent=keep
       --providers.docker=true
       --providers.docker.exposedByDefault=false
+      --providers.file.filename=/etc/traefik/rules-fail2ban.yml
       --pilot.token=${TRAEFIK_PILOT_TOKEN}
       --experimental.plugins.fail2ban.modulename=github.com/tommoulard/fail2ban
       --experimental.plugins.fail2ban.version=v0.4.0
@@ -536,7 +537,7 @@ services:
       - /var/run/docker.sock:/var/run/docker.sock
       - "${LOCAL_MOUNT}/traefik/letsencrypt:/letsencrypt"
       - "${LOCAL_MOUNT}/traefik/logs:/var/log/traefik"
-      - "./etc/traefik.yml:/etc/traefik/traefik.yml"
+      - "./etc/traefik:/etc/traefik"
     ports:
       - "80:80"
       - "443:443"
