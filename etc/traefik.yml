@@ -1,0 +1,11 @@
+middlewares:
+  fail2ban-mddl:
+    plugin:
+      fail2ban:
+        rules:
+          bantime: "12h"
+          findtime: "10m"
+          maxretry: 3
+          enabled: true
+          urlregexp: ""
+          ports: "80:443"
