@@ -101,7 +101,7 @@ services:
     icon: "fas fa-heartbeat"
     items:
       - name: "Traefik"
-        icon: "fas fas fa-tachometer-alt
+        icon: "fas fa-tachometer-alt"
         subtitle: "Dashboard"
         tag: "other"
         url: "https://traefik.subdavis.com"
