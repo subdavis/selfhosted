@@ -233,7 +233,7 @@ services:
       - traefik.http.routers.kobodl-rtr.rule=Host(`kobodl.${DNS_DOMAIN}`)
       - traefik.http.routers.kobodl-rtr.entrypoints=websecure
       - traefik.http.routers.kobodl-rtr.tls=true
-      - traefik.http.routers.kobodl-rtr.middlewares=ipwhitelist-mddl@docker,authelia-mddl@docker
+      - traefik.http.routers.kobodl-rtr.middlewares=ipwhitelist-mddl@docker
     volumes:
       - ${PRIMARY_MOUNT}/kobodl/kobodl.json:/home/kobodl.json
       - ${PRIMARY_MOUNT}/kobodl/downloads:/home/downloads
