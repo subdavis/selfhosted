@@ -159,7 +159,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=homer-net
-      - traefik.http.services.homer-svc.loadbalancer.server.port=9117
+      - traefik.http.services.homer-svc.loadbalancer.server.port=8080
       - traefik.http.routers.homer-rtr.rule=Host(`home.${DNS_DOMAIN}`)
       - traefik.http.routers.homer-rtr.entrypoints=websecure
       - traefik.http.routers.homer-rtr.tls=true
