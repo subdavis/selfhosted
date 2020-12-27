@@ -144,6 +144,30 @@ services:
       - duplicati-net
 
   #############################
+  ## HOMER
+  #############################
+
+  homer:
+    image: b4bz/homer:latest
+    container_name: homer
+    restart: always
+    environment:
+      - PUID=1000
+      - PGID=1000
+    volumes:
+      - './etc/homer:/www/assets'
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=homer-net
+      - traefik.http.services.homer-svc.loadbalancer.server.port=9117
+      - traefik.http.routers.homer-rtr.rule=Host(`home.${DNS_DOMAIN}`)
+      - traefik.http.routers.homer-rtr.entrypoints=websecure
+      - traefik.http.routers.homer-rtr.tls=true
+      - traefik.http.routers.homer-rtr.middlewares=traefik-forward-auth@docker
+    networks:
+      - homer-net
+
+  #############################
   ## JACKETT
   #############################
 
@@ -548,6 +572,7 @@ services:
       - calibre-net
       - drone-net
       - duplicati-net
+      - homer-net
       - jackett-net
       - kobodl-net
       - minio-net
@@ -710,6 +735,8 @@ networks:
     name: drone-private-net
   duplicati-net:
     name: duplicati-net
+  homer-net:
+    name: homer-net
   jackett-net:
     name: jackett-net
   kobodl-net:
