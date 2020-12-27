@@ -152,8 +152,8 @@ services:
     container_name: homer
     restart: always
     environment:
-      - PUID=1000
-      - PGID=1000
+      - UID=1000
+      - GID=1000
     volumes:
       - './etc/homer:/www/assets'
     labels:
