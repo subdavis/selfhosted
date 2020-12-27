@@ -1,0 +1,9 @@
+# https://www.smarthomebeginner.com/docker-authelia-tutorial/#4_Authelia_Users
+users:
+  username:
+    displayname: "John Doe"
+    password: "HASHED_PASSWORD"
+    email: myemail@domain.com
+    groups:
+      - admins
+      - dev

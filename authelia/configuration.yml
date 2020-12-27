@@ -1,0 +1,61 @@
+###############################################################
+#                   Authelia configuration                    #
+###############################################################
+# Configured using documentation from
+# https://www.smarthomebeginner.com/docker-authelia-tutorial/#Authelia_Configuration
+
+host: 0.0.0.0
+port: 80
+log_level: warn
+
+# This secret can also be set using the env variables AUTHELIA_JWT_SECRET_FILE
+# jwt_secret: SECRET_GOES_HERE # use docker secret file instead AUTHELIA_JWT_SECRET_FILE
+
+# https://docs.authelia.com/configuration/miscellaneous.html#default-redirection-url
+default_redirection_url: https://auth.subdavis.com
+
+totp:
+  issuer: authelia.com
+  period: 30
+  skew: 1
+
+authentication_backend:
+  file:
+    path: /config/users_database.yml
+    password:
+      algorithm: argon2id
+      iterations: 1
+      salt_length: 16
+      parallelism: 8
+      memory: 1024 # blocks this much of the RAM. Tune this.
+
+access_control:
+  default_policy: deny
+  rules:
+    - domain: auth.subdavis.com
+      policy: bypass
+    - domain:
+        - "*.subdavis.com"
+      policy: two_factor
+
+session:
+  name: authelia_session
+  # This secret can also be set using the env variables AUTHELIA_SESSION_SECRET_FILE
+  # secret: SECRET_GOES_HERE # use docker secret file instead AUTHELIA_SESSION_SECRET_FILE
+  expiration: 3600 # 1 hour
+  inactivity: 300 # 5 minutes
+  domain: subdavis.com # Should match whatever your root protected domain is
+
+regulation:
+  max_retries: 3
+  find_time: 120
+  ban_time: 300
+
+storage:
+  local:
+    path: /config/db.sqlite3
+
+notifier:
+  # For testing purposes, notifications can be sent in a file. Be sure to map the volume in docker-compose.
+  filesystem:
+    filename: /config/notification.txt

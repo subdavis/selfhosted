@@ -1,6 +1,12 @@
 version: '3.8'
-services:
 
+secrets:
+  authelia_jwt_secret:
+    file: $SECRETS_DIR/authelia_jwt_secret
+  authelia_session_secret:
+    file: $SECRETS_DIR/authelia_session_secret
+
+services:
   #############################
   ## ADGUARD
   #############################
@@ -26,6 +32,37 @@ services:
       - "${LOCAL_MOUNT}/adguard/data:/opt/adguardhome/work"
       - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
     dns: "192.168.1.1"
+
+  #############################
+  ## AUTHELIA
+  #############################
+
+  authelia:
+    image: authelia/authelia:4
+    container_name: authelia
+    volumes:
+      - ${PRIMARY_MOUNT}/authelia/config:/config
+    networks:
+      - authelia-net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=authelia-net
+      - traefik.http.services.authelia-svc.loadbalancer.server.port=9091
+      - traefik.http.routers.authelia-rtr.rule=Host(`auth.${DNS_DOMAIN}`)
+      - traefik.http.routers.authelia-rtr.entrypoints=websecure
+      - traefik.http.routers.authelia-rtr.tls=true
+    volumes:
+      - ./authelia:/config
+    environment:
+      - TZ=${TIME_ZONE}
+      - AUTHELIA_JWT_SECRET_FILE=/run/secrets/authelia_jwt_secret
+      - AUTHELIA_SESSION_SECRET_FILE=/run/secrets/authelia_session_secret
+    secrets:
+      - authelia_jwt_secret
+      - authelia_session_secret
+    restart: unless-stopped
+    environment:
+      - TZ=${TIME_ZONE}
 
   #############################
   ## CALIBRE
@@ -547,6 +584,9 @@ services:
       - "traefik.http.middlewares.redirect-to-https-mddl.redirectscheme.scheme=https"
       - "traefik.http.middlewares.ipwhitelist-mddl.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}"
       - "traefik.http.middlewares.basic-mddl.basicauth.usersfile=/basicauth/passwords.txt"
+      - "traefik.http.middlewares.authelia-mddl.forwardauth.address=http://authelia:9091/api/verify?rd=https://auth.${DNS_DOMAIN}"
+      - "traefik.http.middlewares.authelia-mddl.forwardauth.trustForwardHeader=true"
+      - "traefik.http.middlewares.authelia-mddl.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email"
     environment:
       - CF_API_EMAIL=${CF_EMAIL}
       - CF_DNS_API_TOKEN=${CF_TOKEN}
@@ -563,6 +603,7 @@ services:
     networks:
       - traefik-net
       - adguard-net
+      - authelia-net
       - calibre-net
       - drone-net
       - duplicati-net
@@ -627,7 +668,7 @@ services:
     restart: always
     container_name: ttrss
     environment:
-      - "SELF_URL_PATH=https://rss.subdavis.com/"
+      - "SELF_URL_PATH=https://rss.${DNS_DOMAIN}/"
       - "DB_PASS=${TTRSS_DB_PASSWORD}"
       - DB_HOST=ttrss_postgres
       - PUID=1000
@@ -693,6 +734,8 @@ services:
 networks:
   adguard-net:
     name: adguard-net
+  authelia-net:
+    name: authelia-net
   calibre-net:
     name: calibre-net
   cloudflare-net:

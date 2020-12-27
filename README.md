@@ -103,6 +103,11 @@ Don't do this until you have your CNAMEs and Dynamic DNS working.
 * [Enable Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
 * `cp etc/traefik-logrotate.conf /etc/logrotate.d/traefik` to enable log rotation for traefik.
 
+[Configure Authelia](https://www.smarthomebeginner.com/docker-authelia-tutorial/#4_Authelia_Users)
+
+* Make secrets `pushd secrets && ./make-secrets.sh && popd`
+* Configure Authelia.  Edit `authelia/configuration.yml` and make a copy of `authelia/users_database.example.yml` with your config
+
 # Automatic deployments and drone
 
 * Create a github api app. Follow drone setup instructions.
