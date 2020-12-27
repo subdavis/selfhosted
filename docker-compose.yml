@@ -207,7 +207,7 @@ services:
       - traefik.http.routers.kobodl-rtr.rule=Host(`kobodl.${DNS_DOMAIN}`)
       - traefik.http.routers.kobodl-rtr.entrypoints=websecure
       - traefik.http.routers.kobodl-rtr.tls=true
-      - traefik.http.routers.kobodl-rtr.middlewares=ipwhitelist-mddl@docker
+      - traefik.http.routers.kobodl-rtr.middlewares=traefik-forward-auth@docker
     volumes:
       - ${PRIMARY_MOUNT}/kobodl/kobodl.json:/home/kobodl.json
       - ${PRIMARY_MOUNT}/kobodl/downloads:/home/downloads
@@ -582,12 +582,16 @@ services:
     image: thomseddon/traefik-forward-auth:2
     container_name: auth
     restart: always
+    networks:
+      - auth-net
     environment:
-      - PROVIDERS_GOOGLE_CLIENT_ID=AUTH_PROVIDERS_GOOGLE_CLIENT_ID
-      - PROVIDERS_GOOGLE_CLIENT_SECRET=AUTH_PROVIDERS_GOOGLE_CLIENT_SECRET
-      - SECRET=AUTH_SECRET
+      - PROVIDERS_GOOGLE_CLIENT_ID=${AUTH_PROVIDERS_GOOGLE_CLIENT_ID}
+      - PROVIDERS_GOOGLE_CLIENT_SECRET=${AUTH_PROVIDERS_GOOGLE_CLIENT_SECRET}
+      - SECRET=${AUTH_SECRET}
+      - LOG_LEVEL=debug
     command: >
       --cookie-domain="${DNS_DOMAIN}"
+      --auth-host="auth.${DNS_DOMAIN}"
     labels:
       - traefik.enable=true
       - traefik.docker.network=auth-net
@@ -595,6 +599,7 @@ services:
       - traefik.http.routers.auth-rtr.rule=Host(`auth.${DNS_DOMAIN}`)
       - traefik.http.routers.auth-rtr.entrypoints=websecure
       - traefik.http.routers.auth-rtr.tls=true
+      - traefik.http.routers.auth-rtr.middlewares=traefik-forward-auth
 
   #############################
   ## UNIFI CONTROLLER
