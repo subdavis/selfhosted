@@ -1,11 +1,4 @@
 version: '3.8'
-
-secrets:
-  authelia_jwt_secret:
-    file: $SECRETS_DIR/authelia_jwt_secret
-  authelia_session_secret:
-    file: $SECRETS_DIR/authelia_session_secret
-
 services:
   #############################
   ## ADGUARD
@@ -55,11 +48,6 @@ services:
       - ./authelia:/config
     environment:
       - TZ=${TIME_ZONE}
-      - AUTHELIA_JWT_SECRET_FILE=/run/secrets/authelia_jwt_secret
-      - AUTHELIA_SESSION_SECRET_FILE=/run/secrets/authelia_session_secret
-    secrets:
-      - authelia_jwt_secret
-      - authelia_session_secret
     restart: unless-stopped
     environment:
       - TZ=${TIME_ZONE}
