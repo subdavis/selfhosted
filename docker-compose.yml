@@ -27,32 +27,6 @@ services:
     dns: "192.168.1.1"
 
   #############################
-  ## AUTHELIA
-  #############################
-
-  authelia:
-    image: authelia/authelia:4
-    container_name: authelia
-    volumes:
-      - ${PRIMARY_MOUNT}/authelia/config:/config
-    networks:
-      - authelia-net
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=authelia-net
-      - traefik.http.services.authelia-svc.loadbalancer.server.port=80
-      - traefik.http.routers.authelia-rtr.rule=Host(`auth.${DNS_DOMAIN}`)
-      - traefik.http.routers.authelia-rtr.entrypoints=websecure
-      - traefik.http.routers.authelia-rtr.tls=true
-    volumes:
-      - ./authelia:/config
-    environment:
-      - TZ=${TIME_ZONE}
-    restart: unless-stopped
-    environment:
-      - TZ=${TIME_ZONE}
-
-  #############################
   ## CALIBRE
   #############################
 
@@ -572,9 +546,8 @@ services:
       - "traefik.http.middlewares.redirect-to-https-mddl.redirectscheme.scheme=https"
       - "traefik.http.middlewares.ipwhitelist-mddl.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}"
       - "traefik.http.middlewares.basic-mddl.basicauth.usersfile=/basicauth/passwords.txt"
-      - "traefik.http.middlewares.authelia-mddl.forwardauth.address=http://authelia:9091/api/verify?rd=https://auth.${DNS_DOMAIN}"
-      - "traefik.http.middlewares.authelia-mddl.forwardauth.trustForwardHeader=true"
-      - "traefik.http.middlewares.authelia-mddl.forwardauth.authResponseHeaders=Remote-User, Remote-Groups, Remote-Name, Remote-Email"
+      - "traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://auth:4181"
+      - "traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
     environment:
       - CF_API_EMAIL=${CF_EMAIL}
       - CF_DNS_API_TOKEN=${CF_TOKEN}
@@ -591,7 +564,7 @@ services:
     networks:
       - traefik-net
       - adguard-net
-      - authelia-net
+      - auth-net
       - calibre-net
       - drone-net
       - duplicati-net
@@ -604,6 +577,24 @@ services:
       - shinobi-net
       - transmission-net
       - ttrss-net
+
+  traefik-forward-auth:
+    image: thomseddon/traefik-forward-auth:2
+    container_name: auth
+    restart: always
+    environment:
+      - PROVIDERS_GOOGLE_CLIENT_ID=AUTH_PROVIDERS_GOOGLE_CLIENT_ID
+      - PROVIDERS_GOOGLE_CLIENT_SECRET=AUTH_PROVIDERS_GOOGLE_CLIENT_SECRET
+      - SECRET=AUTH_SECRET
+    command: >
+      --cookie-domain="${DNS_DOMAIN}"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=auth-net
+      - traefik.http.services.traefik-forward-auth-svc.loadbalancer.server.port=4181
+      - traefik.http.routers.auth-rtr.rule=Host(`auth.${DNS_DOMAIN}`)
+      - traefik.http.routers.auth-rtr.entrypoints=websecure
+      - traefik.http.routers.auth-rtr.tls=true
 
   #############################
   ## UNIFI CONTROLLER
@@ -722,8 +713,8 @@ services:
 networks:
   adguard-net:
     name: adguard-net
-  authelia-net:
-    name: authelia-net
+  auth-net:
+    name: auth-net
   calibre-net:
     name: calibre-net
   cloudflare-net:
