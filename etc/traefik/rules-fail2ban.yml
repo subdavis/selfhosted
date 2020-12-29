@@ -5,7 +5,7 @@ http:
         fail2ban:
           whitelist:
             ip:
-              - "192.168.1.0/24"
+              - "192.168.1.1"
           rules:
             bantime: "12h"
             findtime: "10m"
