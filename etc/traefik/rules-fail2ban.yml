@@ -9,7 +9,7 @@ http:
           rules:
             bantime: "12h"
             findtime: "10m"
-            maxretry: 3
+            maxretry: 2000
             enabled: true
             urlregexp: ""
             ports: "80:443"
