@@ -3,6 +3,9 @@ http:
     fail2ban-mddl:
       plugin:
         fail2ban:
+          whitelist:
+            ip:
+              - "192.168.0.0/16"
           rules:
             bantime: "12h"
             findtime: "10m"
