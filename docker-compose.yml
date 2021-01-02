@@ -428,34 +428,6 @@ services:
       - seafile-private-net
 
   #############################
-  ## SHINOBI
-  #############################
-
-  shinobi:
-    image: shinobisystems/shinobi:latest
-    container_name: shinobi
-    restart: always
-    environment:
-      - APP_BRANCH=dev
-    shm_size: '1g'
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=shinobi-net
-      - traefik.http.services.shinobi-svc.loadbalancer.server.port=8080
-      - traefik.http.routers.shinobi-rtr.rule=Host(`cameras.${DNS_DOMAIN}`)
-      - traefik.http.routers.shinobi-rtr.entrypoints=websecure
-      - traefik.http.routers.shinobi-rtr.tls=true
-    volumes:
-      - /etc/localtime:/etc/localtime:ro
-      - /etc/timezone:/etc/timezone:ro
-      - ${PRIMARY_MOUNT}/shinobi/config:/config:rw
-      - ${PRIMARY_MOUNT}/shinobi/customAutoLoad:/customAutoLoad:rw
-      - ${PRIMARY_MOUNT}/shinobi/mysql:/var/lib/mysql:rw
-      - ${SECONDARY_MOUNT}/shinobi/videos:/home/Shinobi/videos:rw
-    networks:
-      - shinobi-net
-
-  #############################
   ## TRANSMISSION_TORRENT
   #############################
 
@@ -580,7 +552,6 @@ services:
       - plex-net
       - portainer-net
       - seafile-net
-      - shinobi-net
       - transmission-net
       - ttrss-net
 
@@ -754,8 +725,6 @@ networks:
     name: seafile-net
   seafile-private-net:
     name: seafile-private-net
-  shinobi-net:
-    name: shinobi-net
   transmission-net:
     name: transmission-net
   traefik-net:
