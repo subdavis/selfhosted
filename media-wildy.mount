@@ -1,0 +1,11 @@
+[Unit]
+Description=Wildy
+
+[Mount]
+What=/dev/sdb1
+Where=/media/wildy
+#Type=ext2
+Options=defaults,auto,noatime,exec
+
+[Install]
+WantedBy=multi-user.target
