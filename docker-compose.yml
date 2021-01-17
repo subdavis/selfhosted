@@ -432,7 +432,7 @@ services:
   #############################
 
   transmission:
-    image: haugene/transmission-openvpn:latest
+    image: haugene/transmission-openvpn:dev
     container_name: transmission
     restart: always
     labels: 
@@ -450,15 +450,17 @@ services:
       - /etc/localtime:/etc/localtime:ro
     environment:
       - CREATE_TUN_DEVICE=true
+      - OPENVPN_CONFIG=france,sweden
       - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
       - "OPENVPN_USERNAME=${TORRENT_USERNAME}"
       - "OPENVPN_PASSWORD=${TORRENT_PASSWORD}"
       - "TRANSMISSION_UMASK=0"
       - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
-      - LOCAL_NETWORK=192.168.1.1/24
+      - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
+      - LOCAL_NETWORK=192.168.1.0/24
 
   transmission_proxy:
-    image: haugene/transmission-openvpn-proxy:latest
+    image: haugene/transmission-openvpn-proxy:dev
     container_name: transmission_proxy
     restart: always
     labels:
