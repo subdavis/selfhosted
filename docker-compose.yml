@@ -19,8 +19,8 @@ services:
     networks:
       - adguard-net
     ports:
-      - "53:53/udp"
-      - "53:53/tcp"
+      - "5353:53/udp"
+      - "5353:53/tcp"
     volumes:
       - "${LOCAL_MOUNT}/adguard/data:/opt/adguardhome/work"
       - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
@@ -42,8 +42,8 @@ services:
       - traefik.http.routers.calibre-rtr.entrypoints=websecure
       - traefik.http.routers.calibre-rtr.tls=true
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=1000
+      - PGID=1000
       - "TZ=${TIME_ZONE}"
       - "DOCKER_MODS=linuxserver/calibre-web:calibre"
     volumes:
@@ -111,7 +111,7 @@ services:
     labels: 
       - traefik.enable=false
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
     networks:
       - drone-private-net
 
@@ -133,8 +133,8 @@ services:
       - traefik.http.routers.duplicati-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     environment:
       - "TZ=${TIME_ZONE}"
-      - "PUID=0"
-      - "PGID=0"
+      - "PUID=1000"
+      - "PGID=1000"
     volumes:
       - ${PRIMARY_MOUNT}:/sources/primary
       - ${LOCAL_MOUNT}:/sources/local
@@ -142,30 +142,6 @@ services:
       - ${SECONDARY_MOUNT}/duplicati/backups:/backups
     networks:
       - duplicati-net
-
-  #############################
-  ## HOMER
-  #############################
-
-  homer:
-    image: b4bz/homer:latest
-    container_name: homer
-    restart: always
-    environment:
-      - UID=1000
-      - GID=1000
-    volumes:
-      - './etc/homer:/www/assets'
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=homer-net
-      - traefik.http.services.homer-svc.loadbalancer.server.port=8080
-      - traefik.http.routers.homer-rtr.rule=Host(`home.${DNS_DOMAIN}`)
-      - traefik.http.routers.homer-rtr.entrypoints=websecure
-      - traefik.http.routers.homer-rtr.tls=true
-      - traefik.http.routers.homer-rtr.middlewares=traefik-forward-auth@docker
-    networks:
-      - homer-net
 
   #############################
   ## JACKETT
@@ -316,7 +292,7 @@ services:
       - traefik.http.routers.portainer-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     volumes:
       - ${PRIMARY_MOUNT}/portainer/data/:/data
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
     networks:
       - portainer-net
 
@@ -331,7 +307,7 @@ services:
     labels:
       - traefik.enable=false
     ports:
-      - "445:445"
+      - "4445:445"
     environment:
       - TZ=EST5EDT
       - "USER=${SAMBA_USER};${SAMBA_PASSWORD}"
@@ -533,7 +509,7 @@ services:
       - CF_DNS_API_TOKEN=${CF_TOKEN}
       - CF_ZONE_API_TOKEN=${CF_TOKEN}
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
       - "${LOCAL_MOUNT}/traefik/letsencrypt:/letsencrypt"
       - "${LOCAL_MOUNT}/traefik/logs:/var/log/traefik"
       - "./etc/traefik:/etc/traefik"
@@ -618,7 +594,7 @@ services:
     labels:
       - traefik.enable=false
     volumes:
-      - /var/run/docker.sock:/var/run/docker.sock
+      - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
       - "${PRIMARY_MOUNT}/watchtower/config/:/config"
       - "${PRIMARY_MOUNT}/watchtower/docker-config.json:/config.json"
 

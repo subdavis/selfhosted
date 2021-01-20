@@ -2,4 +2,5 @@
 *.service.d/*.conf
 profile.env
 .env.prod
+.env
 etc/passwords.txt
