@@ -1,32 +1,6 @@
 version: '3.8'
 services:
   #############################
-  ## ADGUARD
-  #############################
-
-  adguard:
-    image: adguard/adguardhome:latest
-    container_name: adguardhome
-    restart: always
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=adguard-net
-      - traefik.http.services.adguard-svc.loadbalancer.server.port=80
-      - traefik.http.routers.adguard-rtr.rule=Host(`adguard.${DNS_DOMAIN}`)
-      - traefik.http.routers.adguard-rtr.entrypoints=websecure
-      - traefik.http.routers.adguard-rtr.tls=true
-      - traefik.http.routers.adguard-rtr.middlewares=ipwhitelist-mddl@docker
-    networks:
-      - adguard-net
-    ports:
-      - "5353:53/udp"
-      - "5353:53/tcp"
-    volumes:
-      - "${LOCAL_MOUNT}/adguard/data:/opt/adguardhome/work"
-      - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
-    dns: "192.168.1.1"
-
-  #############################
   ## CALIBRE
   #############################
 
@@ -42,8 +16,8 @@ services:
       - traefik.http.routers.calibre-rtr.entrypoints=websecure
       - traefik.http.routers.calibre-rtr.tls=true
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=0
+      - PGID=0
       - "TZ=${TIME_ZONE}"
       - "DOCKER_MODS=linuxserver/calibre-web:calibre"
     volumes:
@@ -133,8 +107,8 @@ services:
       - traefik.http.routers.duplicati-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     environment:
       - "TZ=${TIME_ZONE}"
-      - "PUID=1000"
-      - "PGID=1000"
+      - "PUID=0"
+      - "PGID=0"
     volumes:
       - ${PRIMARY_MOUNT}:/sources/primary
       - ${LOCAL_MOUNT}:/sources/local
@@ -151,8 +125,8 @@ services:
     image: linuxserver/jackett:latest
     container_name: jackett
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=0
+      - PGID=0
       - TZ=${TIME_ZONE}
       - AUTO_UPDATE=true
     volumes:
@@ -175,8 +149,8 @@ services:
     container_name: radarr
     restart: always
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=0
+      - PGID=0
       - TZ=${TIME_ZONE}
     labels:
       - traefik.enable=true
@@ -189,7 +163,6 @@ services:
     volumes:
       - ${PRIMARY_MOUNT}/radarr/data:/config
       - ${PRIMARY_MOUNT}/plex/media/:/data
-      - /path/to/downloadclient-downloads:/downloads
     networks:
       - jackett-net
 
@@ -263,8 +236,8 @@ services:
       - TZ="${TIME_ZONE}"
       - ADVERTISE_IP="https://plex.${DNS_DOMAIN}/"
       - PLEX_CLAIM="${PLEX_CLAIM}"
-      - PLEX_UID=1000
-      - PLEX_GID=1000
+      - PLEX_UID=0
+      - PLEX_GID=0
     volumes:
       - ${PRIMARY_MOUNT}/plex/config:/config
       - /tmp/plex/transcode:/transcode
@@ -307,7 +280,7 @@ services:
     labels:
       - traefik.enable=false
     ports:
-      - "4445:445"
+      - "445:445"
     environment:
       - TZ=EST5EDT
       - "USER=${SAMBA_USER};${SAMBA_PASSWORD}"
@@ -361,8 +334,8 @@ services:
       - "TAKE_FILE_OWNERSHIP=1"
     ulimits:
       memlock:
-        soft: -1
-        hard: -1
+        soft: 65536
+        hard: 65536
     mem_limit: 2g
     volumes:
       # Requested, specifies the path to Elasticsearch data persistent store.
@@ -386,7 +359,6 @@ services:
       - traefik.http.routers.seafile-rtr.tls=true
     volumes:
       - ${PRIMARY_MOUNT}/seafile:/shared # Requested, specifies the path to Seafile data persistent store.
-      - ${PRIMARY_MOUNT}/data:/source_data
     environment:
       - "TIME_ZONE=${TIME_ZONE}"
       - "DB_HOST=mariadb"
@@ -567,8 +539,8 @@ services:
     labels:
       - traefik.enable=false
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=0
+      - PGID=0
       - MEM_LIMIT=1024M
     ports:
       - "3478:3478/udp"
@@ -610,8 +582,8 @@ services:
       - "SELF_URL_PATH=https://rss.${DNS_DOMAIN}/"
       - "DB_PASS=${TTRSS_DB_PASSWORD}"
       - DB_HOST=ttrss_postgres
-      - PUID=1000
-      - PGID=1000
+      - PUID=0
+      - PGID=0
     labels:
       - traefik.enable=true
       - traefik.docker.network=ttrss-net
@@ -627,6 +599,7 @@ services:
 
   ttrss_postgres:
     image: postgres:13-alpine
+    user: "0:0"
     restart: always
     container_name: ttrss_postgres
     environment:
@@ -650,8 +623,8 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     environment:
-      - PUID=1000
-      - PGID=1000
+      - PUID=0
+      - PGID=0
       - TZ=${TIME_ZONE}
       - SERVERURL="wireguard.${DNS_DOMAIN}"
       - SERVERPORT=51820
