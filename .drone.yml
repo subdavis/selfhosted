@@ -7,9 +7,11 @@ steps:
   - name: ssh commands
     image: appleboy/drone-ssh
     settings:
-      host: lumbridge.lan
-      username: deploy
       port: 22
+      host:
+        from_secret: ssh_host
+      username:
+        from_secret: ssh_user
       key:
         from_secret: ssh_key
       script_stop: true

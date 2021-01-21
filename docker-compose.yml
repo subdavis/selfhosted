@@ -16,8 +16,8 @@ services:
       - traefik.http.routers.calibre-rtr.entrypoints=websecure
       - traefik.http.routers.calibre-rtr.tls=true
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${XID:-1000}
+      - PGID=${XID:-1000}
       - "TZ=${TIME_ZONE}"
       - "DOCKER_MODS=linuxserver/calibre-web:calibre"
     volumes:
@@ -107,8 +107,8 @@ services:
       - traefik.http.routers.duplicati-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     environment:
       - "TZ=${TIME_ZONE}"
-      - "PUID=0"
-      - "PGID=0"
+      - "PUID=${XID:-1000}"
+      - "PGID=${XID:-1000}"
     volumes:
       - ${PRIMARY_MOUNT}:/sources/primary
       - ${LOCAL_MOUNT}:/sources/local
@@ -125,8 +125,8 @@ services:
     image: linuxserver/jackett:latest
     container_name: jackett
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${XID:-1000}
+      - PGID=${XID:-1000}
       - TZ=${TIME_ZONE}
       - AUTO_UPDATE=true
     volumes:
@@ -149,8 +149,8 @@ services:
     container_name: radarr
     restart: always
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${XID:-1000}
+      - PGID=${XID:-1000}
       - TZ=${TIME_ZONE}
     labels:
       - traefik.enable=true
@@ -539,8 +539,8 @@ services:
     labels:
       - traefik.enable=false
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${XID:-1000}
+      - PGID=${XID:-1000}
       - MEM_LIMIT=1024M
     ports:
       - "3478:3478/udp"
@@ -582,8 +582,8 @@ services:
       - "SELF_URL_PATH=https://rss.${DNS_DOMAIN}/"
       - "DB_PASS=${TTRSS_DB_PASSWORD}"
       - DB_HOST=ttrss_postgres
-      - PUID=0
-      - PGID=0
+      - PUID=${XID:-1000}
+      - PGID=${XID:-1000}
     labels:
       - traefik.enable=true
       - traefik.docker.network=ttrss-net
@@ -623,8 +623,8 @@ services:
       - NET_ADMIN
       - SYS_MODULE
     environment:
-      - PUID=0
-      - PGID=0
+      - PUID=${XID:-1000}
+      - PGID=${XID:-1000}
       - TZ=${TIME_ZONE}
       - SERVERURL="wireguard.${DNS_DOMAIN}"
       - SERVERPORT=51820

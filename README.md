@@ -79,6 +79,15 @@ Requires=docker.socket media-primary.mount media-secondary.mount
 # ...
 ```
 
+## Rootless docker caveats
+
+* [Understanding UID remapping](https://medium.com/@tonistiigi/experimenting-with-rootless-docker-416c9ad8c0d6)
+* Note that id 0 maps to the host user's UID
+
+## DNS and DHCP
+
+* `systemd-resolve --help`
+
 ## Installation
 
 It's best to have a dedicated user for running these services.
