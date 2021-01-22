@@ -1,11 +1,11 @@
-# selfhosted services
+# rootless docker selfhosted services
 
 > with docker-compose and traefik
 
 ![Uptime Robot ratio (30 days)](https://img.shields.io/uptimerobot/ratio/m784171038-19b52e00f52a8d916ba46346)
 [![Build Status](https://drone.subdavis.com/api/badges/subdavis/selfhosted/status.svg)](https://drone.subdavis.com/subdavis/selfhosted)
 
-This repo contains my production docker services accessible from anywhere over HTTPS using [traefik](https://traefik.io).  These services (and others) run on a single server.
+This repo contains my production **rootless** docker services accessible from anywhere over HTTPS using [traefik](https://traefik.io).  These services (and others) run on a single server.
 
 * Plex Media
 * Seafile Pro with Elasticache
@@ -33,7 +33,7 @@ More great documentation.
 
 ## Prerequisites
 
-* A recent version of ubuntu server with `Docker CE` and `docker-compose` installed.
+* A recent version of ubuntu server with rootless `Docker CE` and `docker-compose` installed (see below)
 * A router or firewall capable of dnsmasq. I use a Ubiquiti EdgeRouter X.
 * A domain name.
 * A cloudflare account.
@@ -57,74 +57,68 @@ In this setup, each container's service will serve from a different subdomain of
 Resolving the IP address of your home network is annoying because most DNS providers change your IP every now and again.  Services like No-IP combat this, but they aren't the most reliable.  However, setting DNS programatically is pretty easy with Cloudflare API.
 
 * Follow the instructions in [Configuring Wildcard Certs for Traefik](docs/wildcard-certs.md) to get this part set up.
-* You'll need to modify `docker/.env.prod` with your domain info, ACME email, and cloudflare API tokens.
-
-### Systemd Mount Dependencies
-
-Some of my services like `media-primary.mount` may not apply to you, and you might have to disable them.  My server has several separate storage volumes that I spread my volume mounts across.  Some containers share mounts, like plex and samba.  You can change the container mount points in `docker/.env.prod` without having to modify service files.
-
-* Most of my mounts are on a Raid 1 mirror at `/media/primary`.
-* Backups and lower-redundancy data (like plex movies) go on `/media/secondary`.
-* High-iops, low-redundancy data like access logs go on `/media/local` where data loss will be tolerated.
-
-> **Note**: I've chosen to use systemd mounts rather than `/etc/fstab` to enforce startup behavior.  Dockerd will not be able to start without successful mounts to prevent data corruption from missing mount points.
-
-Modify `Requires` and `After` in `/lib/systemd/system/docker.service` to reference your mount files.
-
-```conf
-[Unit]
-# ...
-After=network-online.target firewalld.service containerd.service media-primary.mount media-secondary.mount
-Requires=docker.socket media-primary.mount media-secondary.mount
-# ...
-```
-
-## Rootless docker caveats
-
-* [Understanding UID remapping](https://medium.com/@tonistiigi/experimenting-with-rootless-docker-416c9ad8c0d6)
-* Note that id 0 maps to the host user's UID
-
-## DNS and DHCP
-
-* `systemd-resolve --help`
+* You'll need to modify `.env` with your domain info, ACME email, and cloudflare API tokens.
 
 ## Installation
 
-It's best to have a dedicated user for running these services.
+1. start with ubuntu lts
+1. [Enable Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
+1. clone this repo
+1. Sign into any private docker registries
+  a. [Seafile Pro](https://www.seafile.com/en/product/private_server/) is free for 3 users
+  a. [Seafile Pro Docker Docs](https://download.seafile.com/published/seafile-manual/docker/pro-edition/)
+1. install [rootless docker](https://docs.docker.com/engine/security/rootless/)
+  a [Understanding UID remapping](https://medium.com/@tonistiigi/experimenting-with-rootless-docker-416c9ad8c0d6)
+  a. ignore the env exports it says to set, see below
+1. [install docker compose](https://docs.docker.com/compose/install/)
+1. make sure `UsePAM yes` is set in `/etc/ssh/sshd_config` [read more](https://superuser.com/questions/1561076/systemctl-use-failed-to-connect-to-bus-no-such-file-or-directory-debian-9)
 
-* Create a `deploy` user with SSH authentication
-* Add the user to the `docker` group
-* Add your public key key to `/home/deploy/.ssh/authorized_keys`
+```bash
+cd selfhosted
+cp .env.example .env # edit this
 
-Don't do this until you have your CNAMEs and Dynamic DNS working.
+# make mount points
+mkdir /media/local /media/primary /media/secondary
 
-* Start with a fresh install of Ubuntu server
-* `mkdir /media/local` for host disk mounts
-* create `.env.prod` from the `.env` template
-* create `etc/passwords.txt` using the `htpasswd` command
-* Sign into any private docker registries
-  * [Seafile Pro](https://www.seafile.com/en/product/private_server/) is free for 3 users
-  * [Seafile Pro Docker Docs](https://download.seafile.com/published/seafile-manual/docker/pro-edition/Deploy%20Seafile-pro%20with%20Docker.md) are hard to find.
-* Install and enable `media-*.mount` systemd services.
-* You may need to disable ubuntu's default dns service and remove resolf.conf [read more](https://www.smarthomebeginner.com/run-pihole-in-docker-on-ubuntu-with-reverse-proxy/).
-  * There's a chicken-and-egg problem here.  You can't use your new DNS resolver until it's running, and you can't get it running without working DNS.  Don't make this change until you get the whole stack up and running and you can `dig @adguard-container-IP somedomain.com` successfully.
-* Start all the containers: `docker-compose --env-file .env.prod up -d`
-* [Enable Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
-* `cp etc/traefik-logrotate.conf /etc/logrotate.d/traefik` to enable log rotation for traefik.
+# install mounts
+systemctl link media-primary.mount
+systemctl link media-secondary.mount
 
-[Configure Authelia](https://www.smarthomebeginner.com/docker-authelia-tutorial/#4_Authelia_Users)
+# enable traefik logrotate
+cp etc/traefik-logrotate.conf /etc/logrotate.d/traefik
 
-* Make secrets `pushd secrets && ./make-secrets.sh && popd`
-* Configure Authelia.  Edit `authelia/configuration.yml` and make a copy of `authelia/users_database.example.yml` with your config
+# Add to .profile
+# export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
+nano .profile
+```
+
+[Set up docker daemon.json](https://forums.docker.com/t/rootless-docker-ip-range-conflicts/103341).
+
+``` json
+{
+    "default-address-pools": [
+        {"base":"172.16.0.0/16","size":24},
+        {"base":"172.20.0.0/16","size":24}
+    ]
+}
+```
+
+Edit `/lib/systemd/system/user@.service` to include dependencies on mounts
+
+```conf
+[Unit]
+Requires=user-runtime-dir@%i.service media-primary.mount media-secondary.mount
+```
 
 # Automatic deployments and drone
 
 * Create a github api app. Follow drone setup instructions.
 * Make sure the user filtering config is set correctly so other users can't log in
-* Add the private key to `ssh_key` for your `deploy` user's secret key in drone.
+* Add secrets `ssh_key`, `ssh_host`, `ssh_user` for your deploy user.
 * Open `drone.yourdomain.com` and finish configuring your repo.
 
-# Other notes
+## Adguard DNS (currently unused)
 
-* TTRSS icons dir requires permissions for "nobody" 65534
-* docker login for watchtower seafile pro should be placed in 
+You may need to disable ubuntu's default dns service and remove resolf.conf [read more](https://www.smarthomebeginner.com/run-pihole-in-docker-on-ubuntu-with-reverse-proxy/).
+
+`systemd-resolve --help` is your friend.
