@@ -33,6 +33,7 @@ services:
   cloudflare:
     image: oznu/cloudflare-ddns:latest
     restart: always
+    user: ${XID:-1000}
     container_name: cloudflare
     labels:
       - traefik.enable=false
@@ -44,13 +45,14 @@ services:
       - cloudflare-net
 
   #############################
-  ## DRONE CI
+  ## DRONE CI - ROOT
   #############################
 
   drone:
     image: drone/drone:1
     restart: always
     container_name: drone
+    user: ${XID:-1000}
     labels:
       - traefik.enable=true
       - traefik.docker.network=drone-net
@@ -174,6 +176,7 @@ services:
     image: subdavis/kobodl:latest
     container_name: kobodl
     restart: always
+    user: ${XID:-1000}
     labels:
       - traefik.enable=true
       - traefik.docker.network=kobodl-net
@@ -198,6 +201,7 @@ services:
     container_name: minio
     restart: always
     command: server /data
+    user: ${XID:-1000}
     labels:
       - traefik.enable=true
       - traefik.docker.network=minio-net
@@ -236,8 +240,8 @@ services:
       - TZ="${TIME_ZONE}"
       - ADVERTISE_IP="https://plex.${DNS_DOMAIN}/"
       - PLEX_CLAIM="${PLEX_CLAIM}"
-      - PLEX_UID=0
-      - PLEX_GID=0
+      - PLEX_UID=${XID:-1000}
+      - PLEX_GID=${XID:-1000}
     volumes:
       - ${PRIMARY_MOUNT}/plex/config:/config
       - /tmp/plex/transcode:/transcode
@@ -248,7 +252,7 @@ services:
       - plex-net
 
   #############################
-  ## PORTAINER
+  ## PORTAINER - ROOT
   #############################
 
   portainer:
@@ -277,6 +281,7 @@ services:
     image: dperson/samba:latest
     container_name: samba
     restart: always
+    user: ${XID:-1000}
     labels:
       - traefik.enable=false
     ports:
@@ -291,7 +296,7 @@ services:
       - samba-net
 
   #############################
-  ## SEAFILE 
+  ## SEAFILE
   #############################
 
   # from https://download.seafile.com/d/320e8adf90fa43ad8fee/files/?p=/docker/pro-edition/docker-compose.yml
@@ -301,6 +306,7 @@ services:
     image: mariadb:10.1
     container_name: seafile-mariadb
     restart: always
+    user: ${XID:-1000}
     labels:
       - traefik.enable=false
     environment:
@@ -325,6 +331,7 @@ services:
     image: seafileltd/elasticsearch-with-ik:5.6.16
     container_name: seafile-elasticsearch
     restart: always
+    user: ${XID:-1000}
     labels:
       - traefik.enable=false
     environment:
@@ -347,6 +354,7 @@ services:
     image: docker.seadrive.org/seafileltd/seafile-pro-mc:latest
     container_name: seafile
     restart: always
+    user: ${XID:-1000}
     links:
       - seafile_elasticsearch:elasticsearch
       - seafile_db:mariadb
@@ -383,6 +391,7 @@ services:
     image: haugene/transmission-openvpn:dev
     container_name: transmission
     restart: always
+    user: ${XID:-1000}
     labels: 
       - traefik.enable=false
     networks:
@@ -411,6 +420,7 @@ services:
     image: haugene/transmission-openvpn-proxy:dev
     container_name: transmission_proxy
     restart: always
+    user: ${XID:-1000}
     labels:
       - traefik.enable=true
       - traefik.docker.network=transmission-net
@@ -432,6 +442,7 @@ services:
     image: traefik:v2.4
     restart: always
     container_name: traefik
+    user: ${XID:-1000}
     # entrypoints.websecure.forwardedHeaders.trustedIPs: Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
     # --entrypoints.websecure.http.middlewares=fail2ban-mddl@file
     command: >
@@ -509,6 +520,7 @@ services:
     image: thomseddon/traefik-forward-auth:2
     container_name: auth
     restart: always
+    user: ${XID:-1000}
     networks:
       - auth-net
     environment:
@@ -555,7 +567,7 @@ services:
       - unifi-net
 
   #############################
-  ## WATCHTOWER
+  ## WATCHTOWER - ROOT
   #############################
 
   watchtower:
@@ -599,7 +611,7 @@ services:
 
   ttrss_postgres:
     image: postgres:13-alpine
-    user: "0:0"
+    user: ${XID:-1000}
     restart: always
     container_name: ttrss_postgres
     environment:
