@@ -638,13 +638,13 @@ services:
       - PUID=${XID:-1000}
       - PGID=${XID:-1000}
       - TZ=${TIME_ZONE}
-      - SERVERURL="wireguard.${DNS_DOMAIN}"
+      - SERVERURL=wireguard.${DNS_DOMAIN}
       - SERVERPORT=51820
       - PEERS=2
-      - PEERDNS=192.168.1.175
+      - PEERDNS=192.168.1.1
       - INTERNAL_SUBNET=10.13.13.0
     ports:
-      - "54155:51820/udp"
+      - "51820:51820/udp"
     volumes:
       - ${PRIMARY_MOUNT}/wireguard/config:/config
       - /lib/modules:/lib/modules
