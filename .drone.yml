@@ -16,6 +16,7 @@ steps:
         from_secret: ssh_key
       script_stop: true
       script:
+        - source .profile
         - cd selfhosted
         - git pull
         - docker-compose config
