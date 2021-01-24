@@ -92,7 +92,7 @@ cp etc/traefik-logrotate.conf /etc/logrotate.d/traefik
 nano .profile
 ```
 
-[Set up docker daemon.json](https://forums.docker.com/t/rootless-docker-ip-range-conflicts/103341).
+[Set up docker daemon.json](https://forums.docker.com/t/rootless-docker-ip-range-conflicts/103341).  Otherwise, you may end up with subnet ranges inside your containers that overlap with the real LAN and make hosts unreachable.
 
 ``` json
 {
@@ -122,3 +122,22 @@ Requires=user-runtime-dir@%i.service media-primary.mount media-secondary.mount
 You may need to disable ubuntu's default dns service and remove resolf.conf [read more](https://www.smarthomebeginner.com/run-pihole-in-docker-on-ubuntu-with-reverse-proxy/).
 
 `systemd-resolve --help` is your friend.
+
+## WireGurad and subnet overlap
+
+* use `wg-quick` for simplicity
+* May need to [install or symlink resolvconf](https://superuser.com/questions/1500691/usr-bin-wg-quick-line-31-resolvconf-command-not-found-wireguard-debian)
+* Need to avoid [overlapping subnets](https://www.reddit.com/r/WireGuard/comments/bp01ci/connecting_to_services_through_vpn_when_the/).
+
+* My subnet is `192.168.48.0/20`
+* The mask is `255.255.240.0`
+* The default LAN will be `192.168.52.0`
+* The gateway is `192.168.52.1`
+
+```
+Gateway: 11000000.10101000.0011 | 0100.00000001
+Mask:    11111111.11111111.1111 | 0000.00000000
+```
+
+* The upper 4 bits will be used for VLANs (16).
+* The lower 8 shoud belong to a single VLAN.
