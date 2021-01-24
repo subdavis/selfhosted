@@ -414,7 +414,7 @@ services:
       - "TRANSMISSION_UMASK=0"
       - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
       - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
-      - LOCAL_NETWORK=192.168.1.0/24
+      - LOCAL_NETWORK=${LOCAL_NETWORK}
 
   transmission_proxy:
     image: haugene/transmission-openvpn-proxy:dev
@@ -638,13 +638,12 @@ services:
       - PUID=${XID:-1000}
       - PGID=${XID:-1000}
       - TZ=${TIME_ZONE}
-      - SERVERURL="wireguard.${DNS_DOMAIN}"
+      - SERVERURL=wireguard.${DNS_DOMAIN}
       - SERVERPORT=51820
       - PEERS=2
-      - PEERDNS=192.168.1.175
       - INTERNAL_SUBNET=10.13.13.0
     ports:
-      - "54155:51820/udp"
+      - "51820:51820/udp"
     volumes:
       - ${PRIMARY_MOUNT}/wireguard/config:/config
       - /lib/modules:/lib/modules

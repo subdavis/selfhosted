@@ -36,7 +36,7 @@ services:
       - "OPENVPN_PASSWORD=${TORRENT_PASSWORD}"
       - "TRANSMISSION_UMASK=0"
       - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
-      - LOCAL_NETWORK=192.168.1.0/24
+      - LOCAL_NETWORK=${LOCAL_NETWORK}
 
   transmission_proxy:
     image: haugene/transmission-openvpn-proxy:latest
