@@ -24,6 +24,7 @@ I've also written some intermediate to advanced generic usage docs for traefik, 
 * [LAN-only Traefik Routing with ACME SSL](docs/lan-only-routes.md)
 * [Configuring PiHole with dnsmasq](docs/pihole-dnsmasq.md)
 * [EdgeRouter Backups over SSH (SCP)](docs/edgerouter-backups.md)
+* [Expand LVM to fill remaining disk](docs/ubuntu-expand-lvm.md)
 
 More great documentation.
 
@@ -110,14 +111,14 @@ Edit `/lib/systemd/system/user@.service` to include dependencies on mounts
 Requires=user-runtime-dir@%i.service media-primary.mount media-secondary.mount
 ```
 
-# Automatic deployments and drone
+## Automatic deployments and drone
 
 * Create a github api app. Follow drone setup instructions.
 * Make sure the user filtering config is set correctly so other users can't log in
 * Add secrets `ssh_key`, `ssh_host`, `ssh_user` for your deploy user.
 * Open `drone.yourdomain.com` and finish configuring your repo.
 
-## Adguard DNS (currently unused)
+## Adguard DNS
 
 You may need to disable ubuntu's default dns service and remove resolf.conf [read more](https://www.smarthomebeginner.com/run-pihole-in-docker-on-ubuntu-with-reverse-proxy/).
 
@@ -141,3 +142,15 @@ Mask:    11111111.11111111.1111 | 0000.00000000
 
 * The upper 4 bits will be used for VLANs (16).
 * The lower 8 shoud belong to a single VLAN.
+
+## IPv6
+
+Some references I encountered while rolling out ipv6.
+
+[My full edgerouter config](docs/config.boot)
+
+* [Docker IPV6](https://docs.docker.com/config/daemon/ipv6/)
+* [Kernel modules lazy-load ip6tables](https://github.com/moby/moby/issues/33605#issuecomment-307361421)
+  * `SYS_MODULE` capability doesn't seemt to do it. issuing an `ip6tables` dummy rule worked
+* [IPv6 Firewall Rules](https://community.ui.com/questions/Can-someone-let-us-know-the-added-default-IPv6-firewall-rule-mentioned-in-the-new-Edge-OS-2-01/9683f591-6cd2-4677-83c9-e90d2b7c3fbe)
+* Must [Block LAN to WLAN Multicast and Broadcast Data for ipv6 over wifi](https://community.ui.com/questions/IPv6-for-UniFi-WiFi/fa7109bb-c33f-4af4-9d98-dc82f0e31d99)
