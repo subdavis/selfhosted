@@ -122,6 +122,8 @@ Requires=user-runtime-dir@%i.service media-primary.mount media-secondary.mount
 
 You may need to disable ubuntu's default dns service and remove resolf.conf [read more](https://www.smarthomebeginner.com/run-pihole-in-docker-on-ubuntu-with-reverse-proxy/).
 
+After disabling `systemd-resolved.service`, I ususally set a different DNS server in `/etc/resolv.conf` so that DNS doesn't break when I screw up the stack.
+
 `systemd-resolve --help` is your friend.
 
 ## WireGurad and subnet overlap
