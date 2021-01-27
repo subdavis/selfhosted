@@ -143,6 +143,12 @@ Mask:    11111111.11111111.1111 | 0000.00000000
 * The upper 4 bits will be used for VLANs (16).
 * The lower 8 shoud belong to a single VLAN.
 
+Using wireguard:
+
+```bash
+sudo systemctl enable wg-quick@peerN --now
+```
+
 ## IPv6
 
 Some references I encountered while rolling out ipv6.

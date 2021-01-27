@@ -1,6 +1,32 @@
 version: '3.8'
 services:
   #############################
+  ## ADGUARD
+  #############################
+
+  adguard:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    restart: always
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=adguard-net
+      - traefik.http.services.adguard-svc.loadbalancer.server.port=80
+      - traefik.http.routers.adguard-rtr.rule=Host(`adguard.${DNS_DOMAIN}`)
+      - traefik.http.routers.adguard-rtr.entrypoints=websecure
+      - traefik.http.routers.adguard-rtr.tls=true
+      - traefik.http.routers.adguard-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+    networks:
+      - adguard-net
+    ports:
+      - "53:53/udp"
+      - "53:53/tcp"
+    volumes:
+      - "${LOCAL_MOUNT}/adguard/data:/opt/adguardhome/work"
+      - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
+    dns: "192.168.52.1"
+
+  #############################
   ## CALIBRE
   #############################
 
