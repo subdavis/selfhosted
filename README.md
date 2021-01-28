@@ -162,3 +162,16 @@ Some references I encountered while rolling out ipv6.
   * `SYS_MODULE` capability doesn't seemt to do it. issuing an `ip6tables` dummy rule worked
 * [IPv6 Firewall Rules](https://community.ui.com/questions/Can-someone-let-us-know-the-added-default-IPv6-firewall-rule-mentioned-in-the-new-Edge-OS-2-01/9683f591-6cd2-4677-83c9-e90d2b7c3fbe)
 * Must [Block LAN to WLAN Multicast and Broadcast Data for ipv6 over wifi](https://community.ui.com/questions/IPv6-for-UniFi-WiFi/fa7109bb-c33f-4af4-9d98-dc82f0e31d99)
+* [You might have to disable some firewall stuff on the upstream ISP gateway](https://community.ui.com/questions/Allow-HTTPs-over-IPv6-in-firewall-Edgemax/c5f00707-4476-4b1b-91d4-7391f73aafa6)
+* [Disable ISP IPv6 DNS](https://kazoo.ga/dhcpv6-pd-for-native-ipv6/#)
+  * `no-dns` in `interface` config for `rdnss`
+
+## Other useful nonsense
+
+```bash
+# set own IP, delete set
+ifconfig eth0 192.168.1.5 netmask 255.255.255.0 up
+ifconfig en1 delete 192.168.1.5
+```
+
+
