@@ -2,6 +2,10 @@ firewall {
     all-ping enable
     broadcast-ping disable
     group {
+        address-group DNS-Servers {
+            address 192.168.52.175
+            address 192.168.52.112
+        }
     }
     ipv6-name WANv6_IN {
         default-action drop
@@ -21,6 +25,30 @@ firewall {
             state {
                 invalid enable
             }
+        }
+        rule 201 {
+            action accept
+            description "icmpv6 destination-unreachable"
+            log enable
+            protocol ipv6-icmp
+        }
+        rule 300 {
+            action accept
+            description Traefik
+            destination {
+                address ::8e89:a5ff:fe3b:3b41/::ffff:ffff:ffff:ffff # This is a neat trick
+                port 80,443
+            }
+            protocol tcp
+        }
+        rule 301 {
+            action accept
+            description Wireguard
+            destination {
+                address ::8e89:a5ff:fe3b:3b41/::ffff:ffff:ffff:ffff
+                port 51820
+            }
+            protocol tcp_udp
         }
     }
     ipv6-name WANv6_LOCAL {
@@ -116,8 +144,10 @@ interfaces {
             name-server no-update
         }
         dhcpv6-pd {
+            no-dns
             pd 0 {
                 interface switch0 {
+                    no-dns
                     service slaac
                 }
                 prefix-length /64
@@ -279,7 +309,7 @@ service {
                 service dyndns {
                     host-name subdavis
                     login nouser
-                    password ************
+                    password ********
                     protocol dyndns2
                     server www.duckdns.org
                 }
@@ -289,8 +319,7 @@ service {
         forwarding {
             cache-size 150
             listen-on switch0
-            name-server 1.1.1.2
-            name-server 1.0.0.2
+            name-server 192.168.52.175
             options dhcp-option=6,192.168.52.1
             options bind-interfaces
             options listen-address=127.0.0.1
@@ -303,6 +332,38 @@ service {
         older-ciphers enable
     }
     nat {
+        rule 1002 {
+            description "Redirect DNS"
+            destination {
+                port 53
+            }
+            inbound-interface switch0
+            inside-address {
+                address 192.168.52.175
+                port 53
+            }
+            log disable
+            protocol tcp_udp
+            source {
+                group {
+                    address-group !DNS-Servers
+                }
+            }
+            type destination
+        }
+        rule 5002 {
+            description "Translate DNS to Internal reply"
+            destination {
+                group {
+                    address-group DNS-Servers
+                }
+                port 53
+            }
+            log disable
+            outbound-interface switch0
+            protocol tcp_udp
+            type masquerade
+        }
         rule 5010 {
             description "masquerade for WAN"
             outbound-interface eth0
@@ -327,7 +388,7 @@ system {
     login {
         user ubnt {
             authentication {
-                encrypted-password *************
+                encrypted-password ********
                 plaintext-password ""
             }
             full-name ""
