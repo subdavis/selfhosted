@@ -131,6 +131,7 @@ After disabling `systemd-resolved.service`, I ususally set a different DNS serve
 * use `wg-quick` for simplicity
 * May need to [install or symlink resolvconf](https://superuser.com/questions/1500691/usr-bin-wg-quick-line-31-resolvconf-command-not-found-wireguard-debian)
 * Need to avoid [overlapping subnets](https://www.reddit.com/r/WireGuard/comments/bp01ci/connecting_to_services_through_vpn_when_the/).
+* Set MTU down to 1280 for issues with cellular networks, on BOTH sides of the connection.
 
 * My subnet is `192.168.48.0/20`
 * The mask is `255.255.240.0`
