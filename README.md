@@ -85,6 +85,11 @@ mkdir /media/local /media/primary /media/secondary
 systemctl link media-primary.mount
 systemctl link media-secondary.mount
 
+# install logrotate
+systenctl --user link $HOME/selfhosted/logrotate.timer
+systenctl --user link $HOME/selfhosted/logrotate.service
+systemctl --user enable logrotate.timer --now
+
 # enable traefik logrotate
 cp etc/traefik-logrotate.conf /etc/logrotate.d/traefik
 
