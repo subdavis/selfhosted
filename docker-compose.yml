@@ -24,7 +24,7 @@ services:
     volumes:
       - "${LOCAL_MOUNT}/adguard/data:/opt/adguardhome/work"
       - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
-    dns: "192.168.52.1"
+    dns: "1.1.1.1"
 
   #############################
   ## CALIBRE
@@ -41,6 +41,7 @@ services:
       - traefik.http.routers.calibre-rtr.rule=Host(`calibre.${DNS_DOMAIN}`)
       - traefik.http.routers.calibre-rtr.entrypoints=websecure
       - traefik.http.routers.calibre-rtr.tls=true
+      - traefik.http.routers.calibre-rtr.middlewares=traefik-forward-auth@docker
     environment:
       - PUID=${XID:-1000}
       - PGID=${XID:-1000}
@@ -235,6 +236,7 @@ services:
       - traefik.http.routers.minio-rtr.rule=Host(`minio.${DNS_DOMAIN}`)
       - traefik.http.routers.minio-rtr.entrypoints=websecure
       - traefik.http.routers.minio-rtr.tls=true
+      - traefik.http.routers.minio-rtr.middlewares=traefik-forward-auth@docker
     volumes:
       - ${PRIMARY_MOUNT}:/data
     environment:
@@ -629,6 +631,7 @@ services:
       - traefik.http.routers.ttrss-rtr.rule=Host(`rss.${DNS_DOMAIN}`)
       - traefik.http.routers.ttrss-rtr.entrypoints=websecure
       - traefik.http.routers.ttrss-rtr.tls=true
+      - traefik.http.routers.ttrss-rtr.middlewares=traefik-forward-auth@docker
     volumes:
       - "${PRIMARY_MOUNT}/ttrss/feed-icons:/var/www/feed-icons/"
     networks:
