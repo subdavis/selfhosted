@@ -542,8 +542,6 @@ services:
       - seafile-net
       - transmission-net
       - ttrss-net
-      - cvat-net
-      - viame-net
 
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:2
