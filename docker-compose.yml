@@ -67,8 +67,8 @@ services:
       - "API_KEY=${CF_TOKEN}"
       - "ZONE=${DNS_DOMAIN}"
       - "SUBDOMAIN=${SUBDOMAIN}"
-    networks:
-      - cloudflare-net
+      - "DNS_SERVER=1.0.0.1"
+    dns: 1.1.1.1
 
   #############################
   ## DRONE CI - ROOT
@@ -217,6 +217,42 @@ services:
     command: --config /home/kobodl.json serve -h 0.0.0.0 --output-dir /home/downloads
     networks:
       - seafile-net
+
+  #############################
+  ## MATRIX
+  #############################
+
+#  matrix:
+#    image: matrixdotorg/synapse:latest
+#    container_name: matrix
+#    restart: always
+#    environment:
+#      - UID=${PUID}
+#      - GID=${PUID}
+#    volumes:
+#      - "${PRIMARY_MOUNT}/synapse-data:/data"
+#    labels:
+#      - traefik.enable=true
+#      - traefik.docker.network=matrix-net
+#      - traefik.http.services.matrix-svc.loadbalancer.server.port=8008
+#      - traefik.http.routers.matrix-rtr.rule=Host(`matrix.${DNS_DOMAIN}`)
+#      - traefik.http.routers.matrix-rtr.entrypoints=websecure
+#      - traefik.http.routers.matrix-rtr.tls=true
+#    networks:
+#      - matrix-net
+
+#  matrix_postgres:
+#    image: postgres:13-alpine
+#    restart: always
+#    container_name: matrix_postgres
+#    environment:
+#      - "POSTGRES_PASSWORD=${MATRIX_DB_PASSWORD}"
+#    volumes:
+#      - "${PRIMARY_MOUNT}/matrix_postgres/data/:/var/lib/postgresql/data"
+#    networks:
+#      matrix-net:
+#        aliases:
+#          - postgres
 
   #############################
   ## MINIO
@@ -481,10 +517,6 @@ services:
       --accesslog.fields.headers.names.User-Agent=keep
       --providers.docker=true
       --providers.docker.exposedByDefault=false
-      --providers.file.filename=/etc/traefik/rules-fail2ban.yml
-      --pilot.token=${TRAEFIK_PILOT_TOKEN}
-      --experimental.plugins.fail2ban.modulename=github.com/tommoulard/fail2ban
-      --experimental.plugins.fail2ban.version=v0.5.0
       --entrypoints.web.address=:80
       --entrypoints.websecure.address=:443
       --entrypoints.websecure.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22
@@ -536,13 +568,14 @@ services:
       - homer-net
       - jackett-net
       - kobodl-net
+      - matrix-net
       - minio-net
       - plex-net
       - portainer-net
       - seafile-net
       - transmission-net
       - ttrss-net
-
+     
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:2
     container_name: auth
@@ -695,8 +728,6 @@ networks:
     name: auth-net
   calibre-net:
     name: calibre-net
-  cloudflare-net:
-    name: cloudflare-net
   drone-net:
     name: drone-net
   drone-private-net:
@@ -709,6 +740,8 @@ networks:
     name: jackett-net
   kobodl-net:
     name: kobodl-net
+  matrix-net:
+    name: matrix-net
   minio-net:
     name: minio-net
   plex-net:
