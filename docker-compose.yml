@@ -31,7 +31,7 @@ services:
   #############################
 
   calibre_web:
-    image: linuxserver/calibre-web:latest
+    image: ghcr.io/linuxserver/calibre-web:latest
     container_name: calibre_web
     restart: always
     labels:
@@ -122,7 +122,7 @@ services:
   #############################
 
   duplicati:
-    image: linuxserver/duplicati:latest
+    image: ghcr.io/linuxserver/duplicati:latest
     container_name: duplicati
     restart: always
     labels:
@@ -150,7 +150,7 @@ services:
   #############################
 
   jackett:
-    image: linuxserver/jackett:latest
+    image: ghcr.io/linuxserver/jackett:latest
     container_name: jackett
     environment:
       - PUID=${PUID:-1000}
@@ -173,7 +173,7 @@ services:
       - jackett-net
 
   radarr:
-    image: linuxserver/radarr:latest
+    image: ghcr.io/linuxserver/radarr:latest
     container_name: radarr
     restart: always
     environment:
@@ -605,7 +605,7 @@ services:
   #############################
 
   unifi_controller:
-    image: linuxserver/unifi-controller:latest
+    image: ghcr.io/linuxserver/unifi-controller:latest
     container_name: unifi_controller
     restart: always
     labels:
@@ -686,7 +686,7 @@ services:
   #############################
 
   wireguard:
-    image: linuxserver/wireguard:latest
+    image: ghcr.io/linuxserver/wireguard:latest
     restart: always
     container_name: wireguard
     labels:
