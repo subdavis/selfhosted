@@ -41,7 +41,6 @@ services:
       - traefik.http.routers.calibre-rtr.rule=Host(`calibre.${DNS_DOMAIN}`)
       - traefik.http.routers.calibre-rtr.entrypoints=websecure
       - traefik.http.routers.calibre-rtr.tls=true
-      - traefik.http.routers.calibre-rtr.middlewares=traefik-forward-auth@docker
     environment:
       - PUID=${PUID:-1001}
       - PGID=${PUID:-1001}
