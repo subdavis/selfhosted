@@ -270,7 +270,6 @@ services:
       - traefik.http.routers.minio-rtr.rule=Host(`minio.${DNS_DOMAIN}`)
       - traefik.http.routers.minio-rtr.entrypoints=websecure
       - traefik.http.routers.minio-rtr.tls=true
-      - traefik.http.routers.minio-rtr.middlewares=traefik-forward-auth@docker
     volumes:
       - ${PRIMARY_MOUNT}:/data
     environment:
