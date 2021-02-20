@@ -49,7 +49,7 @@ We need to configure the router to tell DHCP clients that the local DNS server i
 I have a Ubiquiti Edgerouter X, so [enabling dnsmasq](https://help.ui.com/hc/en-us/articles/115002673188-EdgeRouter-DHCP-Server-Using-Dnsmasq) is easy enough.
 
 * Change dnsmasq's DNS forwarding to the public server you choose.  I like `1.1.1.2` from [cloudflare](https://blog.cloudflare.com/introducing-1-1-1-1-for-families/)
-* Set dnsmasq `dhcp-option` option 6 `dns-server` to the IP of your Pi Hole.  `dhcp-option=6,192.168.1.33` is the likely syntax
+* Set dnsmasq `dhcp-option` option 6 `dns-server` to the IP of your Router.  `dhcp-option=6,192.168.1.1` is the likely syntax
 * Set the system nameserver to be localhost, so all local DNS queries also go through dnsmasq.
 * Set a local domain name, like `lan` so that all your hostnames will be accessible as `hostname.lan`.
 
