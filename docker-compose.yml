@@ -86,6 +86,8 @@ services:
     image: mongo:latest
     volumes:
       - dive_mongo_db:/data/db
+    networks:
+      - dive-net
 
   dive_girder:
     container_name: dive_girder
