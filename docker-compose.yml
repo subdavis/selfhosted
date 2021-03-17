@@ -105,6 +105,7 @@ services:
     volumes:
       - dive_girder_assetstore:/home/assetstore
     environment:
+      - "WORKER_API_URL=http://dive_girder:8080/girder/api/v1"
       - GIRDER_MONGO_URI=mongodb://dive_mongo:27017/girder
     labels:
       - traefik.enable=true
