@@ -70,6 +70,64 @@ services:
     dns: 1.1.1.1
 
   #############################
+  ## DIVE
+  #############################
+
+  dive_rabbit:
+    container_name: dive_rabbit
+    restart: always
+    image: rabbitmq:management
+    networks:
+      - dive-net
+  
+  dive_mongo:
+    container_name: dive_mongo
+    restart: always
+    image: mongo:latest
+    volumes:
+      - dive_mongo_db:/data/db
+
+  dive_girder:
+    container_name: dive_girder
+    restart: always
+    image: kitware/viame-web:latest
+    healthcheck:
+        test: ["CMD", "curl", "-f", "http://localhost:8080"]
+        interval: 5s
+        timeout: 5s
+        retries: 5
+    depends_on:
+      - dive_mongo
+    networks:
+      - dive-net
+    volumes:
+      - dive_girder_assetstore:/home/assetstore
+    environment:
+      - GIRDER_MONGO_URI=mongodb://dive_mongo:27017/girder
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dive-net
+      - traefik.http.services.dive-svc.loadbalancer.server.port=8080
+      - traefik.http.routers.dive-rtr.rule=Host(`dive.${DNS_DOMAIN}`)
+      - traefik.http.routers.dive-rtr.entrypoints=websecure
+      - traefik.http.routers.dive-rtr.tls=true
+
+  dive_worker:
+    image: kitware/viame-worker:latest
+    restart: always
+    depends_on:
+      dive_girder:
+          condition: service_healthy
+      dive_rabbit:
+          condition: service_started
+    volumes:
+      - dive_addons:/tmp/addons:rw
+    environment:
+      - WORKER_WATCHING_QUEUES=celery
+    networks:
+      - dive-net
+
+  #############################
   ## DRONE CI - ROOT
   #############################
 
@@ -561,6 +619,7 @@ services:
       - adguard-net
       - auth-net
       - calibre-net
+      - dive-net
       - drone-net
       - duplicati-net
       - homer-net
@@ -726,6 +785,8 @@ networks:
     name: auth-net
   calibre-net:
     name: calibre-net
+  dive-net:
+    name: dive-net
   drone-net:
     name: drone-net
   drone-private-net:
@@ -765,3 +826,7 @@ networks:
   wireguard-net:
     name: wireguard-net
 
+volumes:
+  dive_addons:
+  dive_mongo_db:
+  dive_girder_assetstore:
