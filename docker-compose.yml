@@ -73,8 +73,8 @@ services:
   ## DIVE
   #############################
 
-  dive_rabbit:
-    container_name: dive_rabbit
+  rabbit:
+    container_name: rabbit
     restart: always
     image: rabbitmq:management
     networks:
@@ -120,7 +120,7 @@ services:
     depends_on:
       dive_girder:
           condition: service_healthy
-      dive_rabbit:
+      rabbit:
           condition: service_started
     volumes:
       - dive_addons:/tmp/addons:rw
