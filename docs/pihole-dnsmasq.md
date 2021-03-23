@@ -44,7 +44,7 @@ Here's how we want the query order to work:
 
 ### Setting dnsmasq options
 
-We need to configure the router to tell DHCP clients that the local DNS server is pihole, at `192.168.1.33` (for example).  This happens when a client leases and IP, so after you change these settings, you may need to use `dhclient` to refresh your lease.
+We need to configure the router to tell DHCP clients that the local DNS server is pihole, at `192.168.1.33` (for example).  This happens when a client leases an IP, so after you change these settings, you may need to use `dhclient` to refresh your lease.
 
 I have a Ubiquiti Edgerouter X, so [enabling dnsmasq](https://help.ui.com/hc/en-us/articles/115002673188-EdgeRouter-DHCP-Server-Using-Dnsmasq) is easy enough.
 
@@ -115,6 +115,10 @@ nmcli dev
 nmcli dev show eth0
 # Look for "IP4.DNS", it should be your PiHole IP
 ```
+
+In addition, try renewing a DHCP lease on a client to ensure the new lease is sending your PiHole's IP for the DNS server. If it's not working, check to make sure that the DHCP Server in `Services` has blank entries for both `DNS Server 1` and `DNS Server 2`. 
+
+![Edgerouter System GUI](images/router-dhcp.png)
 
 ## DNS over TLS with Unbound
 
