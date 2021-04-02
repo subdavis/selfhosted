@@ -571,6 +571,7 @@ services:
     # --entrypoints.websecure.http.middlewares=fail2ban-mddl@file
     command: >
       --api.insecure=true
+      --serversTransport.insecureSkipVerify=true
       --accesslog=true
       --accesslog.filepath=/var/log/traefik/access.log
       --accesslog.fields.headers.names.Content-Type=keep
@@ -637,6 +638,7 @@ services:
       - seafile-net
       - transmission-net
       - ttrss-net
+      - unifi-net
      
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:2
@@ -677,12 +679,19 @@ services:
       - PGID=${PUID:-1000}
       - MEM_LIMIT=1024M
     ports:
-      - "3478:3478/udp"
-      - "10001:10001/udp"
-      - "8080:8080"
-      - "8081:8081"
-      - "8443:8443"
-      - "6789:6789"
+      - "3478:3478/udp" # STUN
+      - "10001:10001/udp" # Discovery
+      - "8080:8080" # Device comms
+      - "6789:6789" # Mobile speedtest
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=unifi-net
+      - traefik.http.routers.ubiq-rtr.rule=Host(`unifi.${DNS_DOMAIN}`)
+      - traefik.http.routers.ubiq-rtr.entrypoints=websecure
+      - traefik.http.routers.ubiq-rtr.tls=true
+      - traefik.http.routers.ubiq-rtr.middlewares=traefik-forward-auth@docker
+      - traefik.http.services.ubiq-svc.loadbalancer.server.scheme=https
+      - traefik.http.services.ubiq-svc.loadbalancer.server.port=8443
     volumes:
       - "${PRIMARY_MOUNT}/unifi/config/:/config"
     networks:
