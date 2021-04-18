@@ -77,6 +77,8 @@ services:
     container_name: rabbit
     restart: always
     image: rabbitmq:management
+    ports:
+      - "5672:5672"
     networks:
       - dive-net
   
@@ -92,10 +94,10 @@ services:
   dive_girder:
     container_name: dive_girder
     restart: always
-    image: kitware/viame-web:latest
+    image: subdavis/viame-web:latest
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost:8080"]
-        interval: 5s
+        interval: 1m
         timeout: 5s
         retries: 5
     depends_on:
@@ -105,8 +107,9 @@ services:
     volumes:
       - dive_girder_assetstore:/home/assetstore
     environment:
-      - "WORKER_API_URL=http://dive_girder:8080/girder/api/v1"
+      - "WORKER_API_URL=https://dive.${DNS_DOMAIN}/api/v1"
       - GIRDER_MONGO_URI=mongodb://dive_mongo:27017/girder
+      - "CELERY_BROKER_URL=${DIVE_BROKER_URL}"
     labels:
       - traefik.enable=true
       - traefik.docker.network=dive-net
@@ -127,6 +130,7 @@ services:
       - dive_addons:/tmp/addons:rw
     environment:
       - WORKER_WATCHING_QUEUES=celery
+      - "CELERY_BROKER_URL=${DIVE_BROKER_URL}"
     networks:
       - dive-net
 
