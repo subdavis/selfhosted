@@ -709,7 +709,7 @@ services:
     image: containrrr/watchtower:latest
     container_name: watchtower
     restart: always
-    command: --schedule "0 10 */3 * * *"
+    command: --schedule "0 10 3 * * *"
     labels:
       - traefik.enable=false
     volumes:
