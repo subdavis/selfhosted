@@ -708,40 +708,40 @@ services:
   ## TTRSS
   #############################
 
-  ttrss:
-    image: wangqiru/ttrss:latest
-    restart: always
-    container_name: ttrss
-    environment:
-      - "SELF_URL_PATH=https://rss.${DNS_DOMAIN}/"
-      - "DB_PASS=${TTRSS_DB_PASSWORD}"
-      - DB_HOST=ttrss_postgres
-      - PUID=${PUID:-1000}
-      - PGID=${PUID:-1000}
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=ttrss-net
-      - traefik.http.services.ttrss-svc.loadbalancer.server.port=80
-      - traefik.http.routers.ttrss-rtr.rule=Host(`rss.${DNS_DOMAIN}`)
-      - traefik.http.routers.ttrss-rtr.entrypoints=websecure
-      - traefik.http.routers.ttrss-rtr.tls=true
-      - traefik.http.routers.ttrss-rtr.middlewares=traefik-forward-auth@docker
-    volumes:
-      - "${PRIMARY_MOUNT}/ttrss/feed-icons:/var/www/feed-icons/"
-    networks:
-      - ttrss-net
-      - ttrss-private-net
+  # ttrss:
+  #   image: wangqiru/ttrss:latest
+  #   restart: always
+  #   container_name: ttrss
+  #   environment:
+  #     - "SELF_URL_PATH=https://rss.${DNS_DOMAIN}/"
+  #     - "DB_PASS=${TTRSS_DB_PASSWORD}"
+  #     - DB_HOST=ttrss_postgres
+  #     - PUID=${PUID:-1000}
+  #     - PGID=${PUID:-1000}
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.docker.network=ttrss-net
+  #     - traefik.http.services.ttrss-svc.loadbalancer.server.port=80
+  #     - traefik.http.routers.ttrss-rtr.rule=Host(`rss.${DNS_DOMAIN}`)
+  #     - traefik.http.routers.ttrss-rtr.entrypoints=websecure
+  #     - traefik.http.routers.ttrss-rtr.tls=true
+  #     - traefik.http.routers.ttrss-rtr.middlewares=traefik-forward-auth@docker
+  #   volumes:
+  #     - "${PRIMARY_MOUNT}/ttrss/feed-icons:/var/www/feed-icons/"
+  #   networks:
+  #     - ttrss-net
+  #     - ttrss-private-net
 
-  ttrss_postgres:
-    image: postgres:13-alpine
-    restart: always
-    container_name: ttrss_postgres
-    environment:
-      - "POSTGRES_PASSWORD=${TTRSS_DB_PASSWORD}"
-    volumes:
-      - "${PRIMARY_MOUNT}/ttrss/postgres/data/:/var/lib/postgresql/data"
-    networks:
-      - ttrss-private-net
+  # ttrss_postgres:
+  #   image: postgres:13-alpine
+  #   restart: always
+  #   container_name: ttrss_postgres
+  #   environment:
+  #     - "POSTGRES_PASSWORD=${TTRSS_DB_PASSWORD}"
+  #   volumes:
+  #     - "${PRIMARY_MOUNT}/ttrss/postgres/data/:/var/lib/postgresql/data"
+  #   networks:
+  #     - ttrss-private-net
 
   #############################
   ## WIREGUARD
