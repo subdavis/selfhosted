@@ -53,6 +53,28 @@ services:
       - calibre-net
   
   #############################
+  ## CHANGEDETECTION
+  #############################
+
+  changedetection:
+    image: dgtlmoon/changedetection.io
+    container_name: changedetection
+    restart: always
+    user: ${XID:-1000}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=changedetection-net
+      - traefik.http.services.changedetection-svc.loadbalancer.server.port=5000
+      - traefik.http.routers.changedetection-rtr.rule=Host(`change.${DNS_DOMAIN}`)
+      - traefik.http.routers.changedetection-rtr.entrypoints=websecure
+      - traefik.http.routers.changedetection-rtr.tls=true
+      - traefik.http.routers.changedetection-rtr.middlewares=traefik-forward-auth@docker
+    volumes:
+      - ${PRIMARY_MOUNT}/changedetection/datastore:/datastore
+    networks:
+      - changedetection-net
+
+  #############################
   ## CLOUDFLARE - ROOT
   #############################
 
@@ -281,42 +303,6 @@ services:
     command: --config /home/kobodl.json serve -h 0.0.0.0 --output-dir /home/downloads
     networks:
       - seafile-net
-
-  #############################
-  ## MATRIX
-  #############################
-
-#  matrix:
-#    image: matrixdotorg/synapse:latest
-#    container_name: matrix
-#    restart: always
-#    environment:
-#      - UID=${PUID}
-#      - GID=${PUID}
-#    volumes:
-#      - "${PRIMARY_MOUNT}/synapse-data:/data"
-#    labels:
-#      - traefik.enable=true
-#      - traefik.docker.network=matrix-net
-#      - traefik.http.services.matrix-svc.loadbalancer.server.port=8008
-#      - traefik.http.routers.matrix-rtr.rule=Host(`matrix.${DNS_DOMAIN}`)
-#      - traefik.http.routers.matrix-rtr.entrypoints=websecure
-#      - traefik.http.routers.matrix-rtr.tls=true
-#    networks:
-#      - matrix-net
-
-#  matrix_postgres:
-#    image: postgres:13-alpine
-#    restart: always
-#    container_name: matrix_postgres
-#    environment:
-#      - "POSTGRES_PASSWORD=${MATRIX_DB_PASSWORD}"
-#    volumes:
-#      - "${PRIMARY_MOUNT}/matrix_postgres/data/:/var/lib/postgresql/data"
-#    networks:
-#      matrix-net:
-#        aliases:
-#          - postgres
 
   #############################
   ## MINIO
@@ -803,6 +789,8 @@ networks:
     name: auth-net
   calibre-net:
     name: calibre-net
+  changedetection-net:
+    name: changedetection-net
   dive-net:
     name: dive-net
   drone-net:
