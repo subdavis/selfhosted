@@ -615,6 +615,7 @@ services:
       - adguard-net
       - auth-net
       - calibre-net
+      - changedetection-net
       - dive-net
       - drone-net
       - duplicati-net
