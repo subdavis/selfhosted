@@ -42,8 +42,8 @@ services:
       - traefik.http.routers.calibre-rtr.entrypoints=websecure
       - traefik.http.routers.calibre-rtr.tls=true
     environment:
-      - PUID=${PUID:-1001}
-      - PGID=${PUID:-1001}
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
       - "TZ=${TIME_ZONE}"
       - "DOCKER_MODS=linuxserver/calibre-web:calibre"
     volumes:
