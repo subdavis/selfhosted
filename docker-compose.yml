@@ -135,7 +135,7 @@ services:
   dive_girder:
     container_name: dive_girder
     restart: unless-stopped
-    image: subdavis/viame-web:latest
+    image: kitware/viame-web:latest
     healthcheck:
         test: ["CMD", "curl", "-f", "http://localhost:8080"]
         interval: 1m
