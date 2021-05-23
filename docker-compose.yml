@@ -282,8 +282,8 @@ services:
     container_name: radarr
     restart: unless-stopped
     environment:
-      - PUID=${XID:-1000}
-      - PGID=${XID:-1000}
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
       - TZ=${TIME_ZONE}
     labels:
       - traefik.enable=true
@@ -371,8 +371,8 @@ services:
       - TZ="${TIME_ZONE}"
       - ADVERTISE_IP="https://plex.${DNS_DOMAIN}/"
       - PLEX_CLAIM="${PLEX_CLAIM}"
-      - PLEX_UID=${XID:-1000}
-      - PLEX_GID=${XID:-1000}
+      - PLEX_UID=${PUID:-1000}
+      - PLEX_GID=${PUID:-1000}
     volumes:
       - ${PRIMARY_MOUNT}/plex/config:/config
       - /tmp/plex/transcode:/transcode
@@ -564,6 +564,8 @@ services:
       - ${PRIMARY_MOUNT}/plex/media/:/data
       - /etc/localtime:/etc/localtime:ro
     environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
       - CREATE_TUN_DEVICE=true
       - OPENVPN_CONFIG=france,sweden
       - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
