@@ -108,6 +108,7 @@ services:
       - "TARGET_DOMAIN=${SUBDOMAIN}"
       - "DOMAIN1=${DNS_DOMAIN}"
       - "DOMAIN1_ZONE_ID=${DNS_DOMAIN_ZONE_ID}"
+    dns: 1.1.1.1
 
   #############################
   ## DIVE
