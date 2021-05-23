@@ -92,6 +92,24 @@ services:
     dns: 1.1.1.1
 
   #############################
+  ## CLOUDFLARE-COMPANION - ROOT
+  #############################
+
+  cloudflare-companion:
+    image: tiredofit/traefik-cloudflare-companion
+    container_name: cloudflare-companion
+    restart: always
+    volumes:
+      - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+    environment:
+      - "TRAEFIK_VERSION=2"
+      # - "CF_EMAIL=" Leave blank for scopepd
+      - "CF_TOKEN=${CF_TOKEN}"
+      - "TARGET_DOMAIN=${SUBDOMAIN}"
+      - "DOMAIN1=${DNS_DOMAIN}"
+      - "DOMAIN1_ZONE_ID=${DNS_DOMAIN_ZONE_ID}"
+
+  #############################
   ## DIVE
   #############################
 
