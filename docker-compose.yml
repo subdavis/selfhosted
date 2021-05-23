@@ -105,7 +105,7 @@ services:
       - "TRAEFIK_VERSION=2"
       # - "CF_EMAIL=" Leave blank for scopepd
       - "CF_TOKEN=${CF_TOKEN}"
-      - "TARGET_DOMAIN=${SUBDOMAIN}"
+      - "TARGET_DOMAIN=${SUBDOMAIN}.${DNS_DOMAIN}"
       - "DOMAIN1=${DNS_DOMAIN}"
       - "DOMAIN1_ZONE_ID=${DNS_DOMAIN_ZONE_ID}"
     dns: 1.1.1.1
