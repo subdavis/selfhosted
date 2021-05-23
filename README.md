@@ -47,6 +47,8 @@ More great documentation.
 
 ### DNS Configuration
 
+**UPDATE**: This is now done automatically with [Docker Traefik Cloudflare Companion](https://github.com/tiredofit/docker-traefik-cloudflare-companion).  Instructions below are left as an explanation of how this works.
+
 In this setup, each container's service will serve from a different subdomain of your Cloudflare hosted zone dyndns subdomain.
 
 * Create an `A` record for `core.mydomain.com` to point to your public IP.
