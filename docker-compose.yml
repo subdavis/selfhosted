@@ -60,7 +60,7 @@ services:
     image: dgtlmoon/changedetection.io
     container_name: changedetection
     restart: unless-stopped
-    user: ${XID:-1000}
+    user: ${PUID:-1000}
     labels:
       - traefik.enable=true
       - traefik.docker.network=changedetection-net
