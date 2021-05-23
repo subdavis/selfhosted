@@ -413,8 +413,8 @@ services:
     container_name: projectsend
     restart: unless-stopped
     environment:
-      - PUID=${XID:-1000}
-      - PGID=${XID:-1000}
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
       - TZ=${TIME_ZONE}
       # - MAX_UPLOAD=<5000>
     volumes:
