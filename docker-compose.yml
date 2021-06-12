@@ -111,71 +111,6 @@ services:
     dns: 1.1.1.1
 
   #############################
-  ## DIVE
-  #############################
-
-  rabbit:
-    container_name: rabbit
-    restart: unless-stopped
-    image: rabbitmq:management
-    ports:
-      - "5672:5672"
-    networks:
-      - dive-net
-  
-  dive_mongo:
-    container_name: dive_mongo
-    restart: unless-stopped
-    image: mongo:latest
-    volumes:
-      - dive_mongo_db:/data/db
-    networks:
-      - dive-net
-
-  dive_girder:
-    container_name: dive_girder
-    restart: unless-stopped
-    image: kitware/viame-web:latest
-    healthcheck:
-        test: ["CMD", "curl", "-f", "http://localhost:8080"]
-        interval: 1m
-        timeout: 5s
-        retries: 5
-    depends_on:
-      - dive_mongo
-    networks:
-      - dive-net
-    volumes:
-      - dive_girder_assetstore:/home/assetstore
-    environment:
-      - "WORKER_API_URL=https://dive.${DNS_DOMAIN}/api/v1"
-      - GIRDER_MONGO_URI=mongodb://dive_mongo:27017/girder
-      - "CELERY_BROKER_URL=${DIVE_BROKER_URL}"
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=dive-net
-      - traefik.http.services.dive-svc.loadbalancer.server.port=8080
-      - traefik.http.routers.dive-rtr.rule=Host(`dive.${DNS_DOMAIN}`)
-      - traefik.http.routers.dive-rtr.entrypoints=websecure
-      - traefik.http.routers.dive-rtr.tls=true
-
-  dive_worker:
-    image: kitware/viame-worker:latest
-    restart: unless-stopped
-    depends_on:
-      dive_girder:
-          condition: service_healthy
-      rabbit:
-          condition: service_started
-    volumes:
-      - dive_addons:/tmp/addons:rw
-    environment:
-      - WORKER_WATCHING_QUEUES=celery
-      - "CELERY_BROKER_URL=${DIVE_BROKER_URL}"
-    networks:
-      - dive-net
-
-  #############################
   ## DRONE CI - ROOT
   #############################
 
@@ -663,7 +598,6 @@ services:
       - auth-net
       - calibre-net
       - changedetection-net
-      - dive-net
       - drone-net
       - duplicati-net
       - homer-net
@@ -840,8 +774,6 @@ networks:
     name: calibre-net
   changedetection-net:
     name: changedetection-net
-  dive-net:
-    name: dive-net
   drone-net:
     name: drone-net
   drone-private-net:
@@ -882,8 +814,3 @@ networks:
     name: ttrss-private-net
   wireguard-net:
     name: wireguard-net
-
-volumes:
-  dive_addons:
-  dive_mongo_db:
-  dive_girder_assetstore:
