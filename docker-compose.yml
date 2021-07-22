@@ -15,7 +15,7 @@ services:
       - traefik.http.routers.adguard-rtr.rule=Host(`adguard.${DNS_DOMAIN}`)
       - traefik.http.routers.adguard-rtr.entrypoints=websecure
       - traefik.http.routers.adguard-rtr.tls=true
-      - traefik.http.routers.adguard-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+      - traefik.http.routers.adguard-rtr.middlewares=ipwhitelist-mddl@docker
     networks:
       - adguard-net
     ports:
