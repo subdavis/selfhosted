@@ -266,7 +266,7 @@ services:
     image: minio/minio:latest
     container_name: minio
     restart: unless-stopped
-    command: server /data --console-address ":9090" --address "minio-api.${DNS_DOMAIN}"
+    command: server /data --console-address ":9090"
     user: ${XID:-1000}
     labels:
       - traefik.enable=true
