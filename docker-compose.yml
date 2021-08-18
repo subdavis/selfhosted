@@ -266,15 +266,21 @@ services:
     image: minio/minio:latest
     container_name: minio
     restart: unless-stopped
-    command: server /data --console-address ":9090"
+    command: server /data --console-address ":9090" --address "minio-api.${DNS_DOMAIN}"
     user: ${XID:-1000}
     labels:
       - traefik.enable=true
       - traefik.docker.network=minio-net
+      # Minio Console
       - traefik.http.services.minio-svc.loadbalancer.server.port=9090
       - traefik.http.routers.minio-rtr.rule=Host(`minio.${DNS_DOMAIN}`)
       - traefik.http.routers.minio-rtr.entrypoints=websecure
       - traefik.http.routers.minio-rtr.tls=true
+      # Minio API
+      - traefik.http.services.minio-api-svc.loadbalancer.server.port=9000
+      - traefik.http.routers.minio-api-rtr.rule=Host(`minio-api.${DNS_DOMAIN}`)
+      - traefik.http.routers.minio-api-rtr.entrypoints=websecure
+      - traefik.http.routers.minio-api-rtr.tls=true
     volumes:
       - ${PRIMARY_MOUNT}:/data
     environment:
