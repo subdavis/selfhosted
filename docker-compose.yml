@@ -418,7 +418,6 @@ services:
     image: analogj/scrutiny
     container_name: scrutiny
     restart: unless-stopped
-    user: ${XID:-1000}
     networks:
       - scrutiny-net
     labels:
