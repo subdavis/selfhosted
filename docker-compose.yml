@@ -351,6 +351,20 @@ services:
   ## PROJECTSEND
   #############################
 
+  projectsend_db:
+    image: mariadb
+    container_name: projectsend_maria
+    restart: unless-stopped
+    environment:
+      - MARIADB_ROOT_PASSWORD=projectsend
+    networks:
+      - projectsend-net
+    user: ${XID:-1000}
+    labels:
+      - traefik.enable=false
+    volumes:
+      - ${PRIMARY_MOUNT}/projectsend/mariadb/var/lib/mysql:/var/lib/mysql
+
   projectsend:
     image: ghcr.io/linuxserver/projectsend
     container_name: projectsend
@@ -372,6 +386,7 @@ services:
       - traefik.http.routers.projectsend-rtr.rule=Host(`upload.${DNS_DOMAIN}`)
       - traefik.http.routers.projectsend-rtr.entrypoints=websecure
       - traefik.http.routers.projectsend-rtr.tls=true
+      - traefik.http.routers.projectsend-rtr.middlewares=traefik-forward-auth@docker
 
   #############################
   ## SAMBA
@@ -394,6 +409,34 @@ services:
       - /media:/mount
     networks:
       - samba-net
+
+  #############################
+  ## SCRUTINY
+  #############################
+
+  scrutiny:
+    image: analogj/scrutiny
+    container_name: scrutiny
+    restart: unless-stopped
+    user: ${XID:-1000}
+    networks:
+      - scrutiny-net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=scrutiny-net
+      - traefik.http.services.scrutiny-svc.loadbalancer.server.port=8080
+      - traefik.http.routers.scrutiny-rtr.rule=Host(`scrutiny.${DNS_DOMAIN}`)
+      - traefik.http.routers.scrutiny-rtr.entrypoints=websecure
+      - traefik.http.routers.scrutiny-rtr.tls=true
+      - traefik.http.routers.scrutiny-rtr.middlewares=traefik-forward-auth@docker
+    volumes:
+      - /run/udev:/run/udev:ro
+    cap_add:
+      - SYS_RAWIO
+    devices:
+      - /dev/sda
+      - /dev/sdb
+      - /dev/sdd
 
   #############################
   ## SEAFILE
@@ -617,6 +660,7 @@ services:
       - portainer-net
       - projectsend-net
       - seafile-net
+      - scrutiny-net
       - transmission-net
       - ttrss-net
       - unifi-net
@@ -806,6 +850,8 @@ networks:
     name: projectsend-net
   samba-net:
     name: samba-net
+  scrutiny-net:
+    name: scrutiny-net
   seafile-net:
     name: seafile-net
   seafile-private-net:
