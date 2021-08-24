@@ -433,6 +433,7 @@ services:
       - /run/udev:/run/udev:ro
     cap_add:
       - SYS_RAWIO
+      - SYS_ADMIN
     devices:
       - /dev/sda
       - /dev/sdb
