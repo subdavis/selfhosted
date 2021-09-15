@@ -645,7 +645,7 @@ services:
       - traefik.http.routers.ubiq-rtr.rule=Host(`unifi.${DNS_DOMAIN}`)
       - traefik.http.routers.ubiq-rtr.entrypoints=websecure
       - traefik.http.routers.ubiq-rtr.tls=true
-      - traefik.http.routers.ubiq-rtr.middlewares=traefik-forward-auth@docker
+      - traefik.http.routers.ubiq-rtr.middlewares=ipwhitelist-mddl@docker
       - traefik.http.services.ubiq-svc.loadbalancer.server.scheme=https
       - traefik.http.services.ubiq-svc.loadbalancer.server.port=8443
     volumes:
