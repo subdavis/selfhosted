@@ -159,6 +159,8 @@ Using wireguard:
 sudo systemctl enable wg-quick@peerN --now
 ```
 
+I have aliases `wgup` and `wgdown` for this in my `.bashrc`.
+
 ## IPv6
 
 Some references I encountered while rolling out ipv6.
@@ -173,6 +175,7 @@ Some references I encountered while rolling out ipv6.
 * [You might have to disable some firewall stuff on the upstream ISP gateway](https://community.ui.com/questions/Allow-HTTPs-over-IPv6-in-firewall-Edgemax/c5f00707-4476-4b1b-91d4-7391f73aafa6)
 * [Disable ISP IPv6 DNS](https://kazoo.ga/dhcpv6-pd-for-native-ipv6/#)
   * `no-dns` in `interface` config for `rdnss`
+* I have not been able to get wireguard to route ipv6 traffic under slirp4netns (rootlesss).  As a result, it is not possible to connect to wireguard via an ipv6 endpoint.  Wireguard for ios prefers ipv4, but the desktop client prefers ipv6.  Recommend creating an ipv4-only DNS record such as `wireguard4.domain.com` to force ipv4.
 
 ## Other useful nonsense
 

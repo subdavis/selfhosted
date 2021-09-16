@@ -205,3 +205,7 @@ firewall {
     }
 }
 ```
+
+## Adguard Home
+
+You can specify your router's IP for LAN reverse resolution inside adguard.
