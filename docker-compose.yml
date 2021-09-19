@@ -757,6 +757,8 @@ services:
     environment:
       # Default user/pass is admin/admin
       - SESSION_SECRET="${AUTH_SECRET}"
+      - WGUI_USERNAME=admin
+      - WGUI_PASSWORD="${WGUI_PASSWORD}"
     labels:
       - traefik.enable=true
       - traefik.docker.network=wireguard-net
