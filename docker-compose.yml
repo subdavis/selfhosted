@@ -749,26 +749,26 @@ services:
     networks:
       - wireguard-net
 
-  wireguard-ui:
-    image: ngoduykhanh/wireguard-ui:latest
-    container_name: wgui
-    cap_add:
-      - NET_ADMIN
-    environment:
-      # Default user/pass is admin/admin
-      - SESSION_SECRET="${AUTH_SECRET}"
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=wireguard-net
-      - traefik.http.routers.wg-rtr.rule=Host(`wireguard.${DNS_DOMAIN}`)
-      - traefik.http.routers.wg-rtr.entrypoints=websecure
-      - traefik.http.routers.wg-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-      - traefik.http.services.wg-svc.loadbalancer.server.port=5000
-    volumes:
-      - ${PRIMARY_MOUNT}/wireguard/ui/db:/app/db
-      - ${PRIMARY_MOUNT}/wireguard/config:/etc/wireguard
-    networks:
-      - wireguard-net
+  # wireguard-ui:
+  #   image: ngoduykhanh/wireguard-ui:latest
+  #   container_name: wgui
+  #   cap_add:
+  #     - NET_ADMIN
+  #   environment:
+  #     # Default user/pass is admin/admin
+  #     - SESSION_SECRET="${AUTH_SECRET}"
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.docker.network=wireguard-net
+  #     - traefik.http.routers.wg-rtr.rule=Host(`wireguard.${DNS_DOMAIN}`)
+  #     - traefik.http.routers.wg-rtr.entrypoints=websecure
+  #     - traefik.http.routers.wg-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+  #     - traefik.http.services.wg-svc.loadbalancer.server.port=5000
+  #   volumes:
+  #     - ${PRIMARY_MOUNT}/wireguard/ui/db:/app/db
+  #     - ${PRIMARY_MOUNT}/wireguard/config:/etc/wireguard
+  #   networks:
+  #     - wireguard-net
 
 networks:
   adguard-net:
