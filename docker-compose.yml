@@ -727,7 +727,7 @@ services:
       - TZ=${TIME_ZONE}
       - SERVERURL=wireguard.${DNS_DOMAIN}
       - SERVERPORT=51820
-      - PEERS=2
+      - PEERS=4
       - PEERDNS=192.168.52.1
       - INTERNAL_SUBNET=10.13.13.0
     ports:
