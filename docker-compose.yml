@@ -227,7 +227,7 @@ services:
       - traefik.http.routers.radarr-rtr.rule=Host(`radarr.${DNS_DOMAIN}`)
       - traefik.http.routers.radarr-rtr.entrypoints=websecure
       - traefik.http.routers.radarr-rtr.tls=true
-      - traefik.http.routers.radarr-rtr.middlewares=traefik-forward-auth@docker
+      - traefik.http.routers.radarr-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
     volumes:
       - ${PRIMARY_MOUNT}/radarr/data:/config
       - ${PRIMARY_MOUNT}/plex/media/:/data
@@ -276,13 +276,13 @@ services:
       - traefik.http.routers.minio-rtr.rule=Host(`minio.${DNS_DOMAIN}`)
       - traefik.http.routers.minio-rtr.entrypoints=websecure
       - traefik.http.routers.minio-rtr.service=minio-svc
-      - traefik.http.routers.minio-rtr.tls=true
+      - traefik.http.routers.minio-rtr.middlewares=ipwhitelist-mddl@docker
       # Minio API
       - traefik.http.services.minio-api-svc.loadbalancer.server.port=9000
       - traefik.http.routers.minio-api-rtr.rule=Host(`minio-api.${DNS_DOMAIN}`)
       - traefik.http.routers.minio-api-rtr.entrypoints=websecure
       - traefik.http.routers.minio-api-rtr.service=minio-api-svc
-      - traefik.http.routers.minio-api-rtr.tls=true
+      - traefik.http.routers.minio-api-rtr.middlewares=ipwhitelist-mddl@docker
     volumes:
       - ${PRIMARY_MOUNT}:/data
     environment:
@@ -506,7 +506,7 @@ services:
       - traefik.http.routers.transmission-rtr.rule=Host(`torrent.${DNS_DOMAIN}`)
       - traefik.http.routers.transmission-rtr.entrypoints=websecure
       - traefik.http.routers.transmission-rtr.tls=true
-      - traefik.http.routers.transmission-rtr.middlewares=traefik-forward-auth@docker
+      - traefik.http.routers.transmission-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
     depends_on:
       - transmission
     networks:
