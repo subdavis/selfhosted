@@ -235,6 +235,35 @@ services:
       - jackett-net
 
   #############################
+  ## JELLYFIN
+  #############################
+
+  jellyfin:
+    image: jellyfin/jellyfin
+    container_name: jellyfin
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=plex-net
+      - traefik.http.services.jellyfin-svc.loadbalancer.server.port=8096
+      - traefik.http.routers.jellyfin-rtr.rule=Host(`jellyfin.${DNS_DOMAIN}`)
+      - traefik.http.routers.jellyfin-rtr.entrypoints=websecure
+      - traefik.http.routers.jellyfin-rtr.tls=true
+    environment:
+      - "TZ=${TIME_ZONE}"
+      - "PUID=${XID:-1000}"
+      - "PGID=${XID:-1000}"
+      - JELLYFIN_PublishedServerUrl="https://jellyfin.${DNS_DOMAIN}/"
+    volumes:
+      - ${PRIMARY_MOUNT}/jellyfin/config:/config
+      - ${PRIMARY_MOUNT}/plex/media/movies:/data/movies:ro
+      - ${PRIMARY_MOUNT}/plex/media/tv_shows:/data/tvshows:ro
+    devices:
+      - /dev/dri:/dev/dri
+    networks:
+      - plex-net
+
+  #############################
   ## KOBODL
   #############################
 
