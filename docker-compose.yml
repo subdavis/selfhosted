@@ -239,7 +239,7 @@ services:
   #############################
 
   jellyfin:
-    image: jellyfin/jellyfin
+    image: lscr.io/linuxserver/jellyfin
     container_name: jellyfin
     restart: unless-stopped
     labels:
