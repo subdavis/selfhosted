@@ -253,7 +253,7 @@ services:
       - "TZ=${TIME_ZONE}"
       - "PUID=${PUID:-1000}"
       - "PGID=${PUID:-1000}"
-      - JELLYFIN_PublishedServerUrl="jellyfin.${DNS_DOMAIN}"
+      - "JELLYFIN_PublishedServerUrl=jellyfin.${DNS_DOMAIN}"
     volumes:
       - ${PRIMARY_MOUNT}/jellyfin/config:/config
       - ${PRIMARY_MOUNT}/plex/media/movies:/data/movies:ro
