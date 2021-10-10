@@ -484,7 +484,7 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PUID:-1000}
       - CREATE_TUN_DEVICE=true
-      - OPENVPN_CONFIG=france,sweden
+      # - OPENVPN_CONFIG=france,swede
       - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
       - "OPENVPN_USERNAME=${TORRENT_USERNAME}"
       - "OPENVPN_PASSWORD=${TORRENT_PASSWORD}"
