@@ -251,8 +251,8 @@ services:
       - traefik.http.routers.jellyfin-rtr.tls=true
     environment:
       - "TZ=${TIME_ZONE}"
-      - "PUID=${XID:-1000}"
-      - "PGID=${XID:-1000}"
+      - "PUID=${PUID:-1000}"
+      - "PGID=${PUID:-1000}"
       - JELLYFIN_PublishedServerUrl="https://jellyfin.${DNS_DOMAIN}/"
     volumes:
       - ${PRIMARY_MOUNT}/jellyfin/config:/config
