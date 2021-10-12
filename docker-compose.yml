@@ -222,7 +222,7 @@ services:
       - TZ=${TIME_ZONE}
     labels:
       - traefik.enable=true
-      - traefik.docker.network=radarr-net
+      - traefik.docker.network=jackett-net
       - traefik.http.services.radarr-svc.loadbalancer.server.port=7878
       - traefik.http.routers.radarr-rtr.rule=Host(`radarr.${DNS_DOMAIN}`)
       - traefik.http.routers.radarr-rtr.entrypoints=websecure
@@ -230,6 +230,28 @@ services:
       - traefik.http.routers.radarr-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
     volumes:
       - ${PRIMARY_MOUNT}/radarr/data:/config
+      - ${PRIMARY_MOUNT}/plex/media/:/data
+    networks:
+      - jackett-net
+
+  sonarr:
+    image: ghcr.io/linuxserver/sonarr
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
+      - TZ=${TIME_ZONE}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=jackett-net
+      - traefik.http.services.sonarr-svc.loadbalancer.server.port=7878
+      - traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.${DNS_DOMAIN}`)
+      - traefik.http.routers.sonarr-rtr.entrypoints=websecure
+      - traefik.http.routers.sonarr-rtr.tls=true
+      - traefik.http.routers.sonarr-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
+    volumes:
+      - ${PRIMARY_MOUNT}/sonarr/data:/config
       - ${PRIMARY_MOUNT}/plex/media/:/data
     networks:
       - jackett-net
