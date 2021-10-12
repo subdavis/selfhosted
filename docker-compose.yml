@@ -245,7 +245,7 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=jackett-net
-      - traefik.http.services.sonarr-svc.loadbalancer.server.port=7878
+      - traefik.http.services.sonarr-svc.loadbalancer.server.port=8989
       - traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.${DNS_DOMAIN}`)
       - traefik.http.routers.sonarr-rtr.entrypoints=websecure
       - traefik.http.routers.sonarr-rtr.tls=true
