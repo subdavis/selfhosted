@@ -633,18 +633,13 @@ services:
       - changedetection-net
       - drone-net
       - duplicati-net
-      - homer-net
       - jackett-net
       - kobodl-net
-      - matrix-net
       - minio-net
       - plex-net
       - portainer-net
-      - projectsend-net
       - seafile-net
-      - scrutiny-net
       - transmission-net
-      - ttrss-net
       - unifi-net
       - wireguard-net
      
@@ -720,45 +715,6 @@ services:
       - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
       - "${PRIMARY_MOUNT}/watchtower/config/:/config"
       - "${PRIMARY_MOUNT}/watchtower/docker-config.json:/config.json"
-
-  #############################
-  ## TTRSS
-  #############################
-
-  # ttrss:
-  #   image: wangqiru/ttrss:latest
-  #   restart: unless-stopped
-  #   container_name: ttrss
-  #   environment:
-  #     - "SELF_URL_PATH=https://rss.${DNS_DOMAIN}/"
-  #     - "DB_PASS=${TTRSS_DB_PASSWORD}"
-  #     - DB_HOST=ttrss_postgres
-  #     - PUID=${PUID:-1000}
-  #     - PGID=${PUID:-1000}
-  #   labels:
-  #     - traefik.enable=true
-  #     - traefik.docker.network=ttrss-net
-  #     - traefik.http.services.ttrss-svc.loadbalancer.server.port=80
-  #     - traefik.http.routers.ttrss-rtr.rule=Host(`rss.${DNS_DOMAIN}`)
-  #     - traefik.http.routers.ttrss-rtr.entrypoints=websecure
-  #     - traefik.http.routers.ttrss-rtr.tls=true
-  #     - traefik.http.routers.ttrss-rtr.middlewares=traefik-forward-auth@docker
-  #   volumes:
-  #     - "${PRIMARY_MOUNT}/ttrss/feed-icons:/var/www/feed-icons/"
-  #   networks:
-  #     - ttrss-net
-  #     - ttrss-private-net
-
-  # ttrss_postgres:
-  #   image: postgres:13-alpine
-  #   restart: unless-stopped
-  #   container_name: ttrss_postgres
-  #   environment:
-  #     - "POSTGRES_PASSWORD=${TTRSS_DB_PASSWORD}"
-  #   volumes:
-  #     - "${PRIMARY_MOUNT}/ttrss/postgres/data/:/var/lib/postgresql/data"
-  #   networks:
-  #     - ttrss-private-net
 
   #############################
   ## WIREGUARD
@@ -838,26 +794,18 @@ networks:
     name: drone-private-net
   duplicati-net:
     name: duplicati-net
-  homer-net:
-    name: homer-net
   jackett-net:
     name: jackett-net
   kobodl-net:
     name: kobodl-net
-  matrix-net:
-    name: matrix-net
   minio-net:
     name: minio-net
   plex-net:
     name: plex-net
   portainer-net:
     name: portainer-net
-  projectsend-net:
-    name: projectsend-net
   samba-net:
     name: samba-net
-  scrutiny-net:
-    name: scrutiny-net
   seafile-net:
     name: seafile-net
   seafile-private-net:
@@ -868,9 +816,5 @@ networks:
     name: traefik-net
   unifi-net:
     name: unifi-net
-  ttrss-net:
-    name: ttrss-net
-  ttrss-private-net:
-    name: ttrss-private-net
   wireguard-net:
     name: wireguard-net
