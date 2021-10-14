@@ -186,6 +186,32 @@ services:
       - duplicati-net
 
   #############################
+  ## HANDBRAKE
+  #############################
+
+  handbrake:
+    image: jlesage/handbrake
+    container_name: handbrake
+    environment:
+      - USER_ID=${PUID:-1000}
+      - GROUP_ID=${PUID:-1000}
+      - TZ=${TIME_ZONE}
+    volumes:
+      - ${SECONDARY_MOUNT}/handbrake/config:/config
+      - ${SECONDARY_MOUNT}/handbrake/storage:/storage
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=handbrake-net
+      - traefik.http.services.handbrake-svc.loadbalancer.server.port=5800
+      - traefik.http.routers.handbrake-rtr.rule=Host(`handbrake.${DNS_DOMAIN}`)
+      - traefik.http.routers.handbrake-rtr.entrypoints=websecure
+      - traefik.http.routers.handbrake-rtr.tls=true
+      - traefik.http.routers.handbrake-rtr.middlewares=traefik-forward-auth@docker
+    restart: unless-stopped
+    networks:
+      - handbrake-net
+
+  #############################
   ## JACKETT
   #############################
 
@@ -633,6 +659,7 @@ services:
       - changedetection-net
       - drone-net
       - duplicati-net
+      - handbrake-net
       - jackett-net
       - kobodl-net
       - minio-net
@@ -794,6 +821,8 @@ networks:
     name: drone-private-net
   duplicati-net:
     name: duplicati-net
+  handbrake-net:
+    name: handbrake-net
   jackett-net:
     name: jackett-net
   kobodl-net:
