@@ -7,14 +7,20 @@
 
 This repo contains my production **rootless** docker services accessible from anywhere over HTTPS using [traefik](https://traefik.io).  These services (and others) run on a single server.
 
-* Plex Media
+* Jellyfin
+* Sonarr, Radarr, Jackett
 * Seafile Pro with Elasticache
 * Minio
 * Calibre Web
+* Kobo book downloader (kobodl)
 * Samba Fileshare
 * Transmission torrent server with OpenVPN over NordVPN
 * AdGuard Home DNS
 * Drone CI and runner
+* Wireguard and Wireguard-UI
+* Duplicati
+* Watchtower
+* Cloudflare DNS Automation
 
 # Documentation
 
