@@ -774,7 +774,7 @@ services:
   #############################
 
   webtop:
-    image: ghcr.io/linuxserver/webtop
+    image: ghcr.io/linuxserver/webtop:ubuntu-xfce
     restart: unless-stopped
     container_name: webtop
     shm_size: "1gb"
