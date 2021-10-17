@@ -693,6 +693,7 @@ services:
       - seafile-net
       - transmission-net
       - unifi-net
+      - webtop-net
       - wireguard-net
      
   traefik-forward-auth:
@@ -767,6 +768,31 @@ services:
       - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
       - "${PRIMARY_MOUNT}/watchtower/config/:/config"
       - "${PRIMARY_MOUNT}/watchtower/docker-config.json:/config.json"
+
+  #############################
+  ## WEBTOP
+  #############################
+
+  webtop:
+    image: ghcr.io/linuxserver/webtop
+    restart: unless-stopped
+    container_name: webtop
+    shm_size: "1gb"
+    environment:
+      - PUID=${XID:-1000}
+      - PGID=${XID:-1000}
+      - TZ=${TIME_ZONE}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=webtop-net
+      - traefik.http.services.webtop-svc.loadbalancer.server.port=3000
+      - traefik.http.routers.webtop-rtr.rule=Host(`webtop.${DNS_DOMAIN}`)
+      - traefik.http.routers.webtop-rtr.entrypoints=websecure
+      - traefik.http.routers.webtop-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+    volumes:
+      - ${SECONDARY_MOUNT}/webtop/config/:/config
+    networks:
+      - webtop-net
 
   #############################
   ## WIREGUARD
@@ -867,5 +893,7 @@ networks:
     name: traefik-net
   unifi-net:
     name: unifi-net
+  webtop-net:
+    name: webtop-net
   wireguard-net:
     name: wireguard-net
