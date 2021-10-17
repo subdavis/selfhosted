@@ -782,8 +782,8 @@ services:
     container_name: webtop
     shm_size: "1gb"
     environment:
-      - PUID=${XID:-1000}
-      - PGID=${XID:-1000}
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
       - TZ=${TIME_ZONE}
     labels:
       - traefik.enable=true
