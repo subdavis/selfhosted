@@ -711,6 +711,9 @@ services:
     command: >
       --cookie-domain="${DNS_DOMAIN}"
       --auth-host="auth.${DNS_DOMAIN}"
+      --config=/etc/authconfig.ini
+    volumes:
+      - "./etc/authconfig.ini:/etc/authconfig.ini:ro"
     labels:
       - traefik.enable=true
       - traefik.docker.network=auth-net
