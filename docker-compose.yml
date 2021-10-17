@@ -697,7 +697,7 @@ services:
       - wireguard-net
      
   traefik-forward-auth:
-    image: thomseddon/traefik-forward-auth:2
+    image: thomseddon/traefik-forward-auth:latest
     container_name: auth
     restart: unless-stopped
     user: ${XID:-1000}
