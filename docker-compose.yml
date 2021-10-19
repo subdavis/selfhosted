@@ -602,7 +602,6 @@ services:
       - jackett-net
       - kobodl-net
       - minio-net
-      - n8n-net
       - plex-net
       - portainer-net
       - seafile-net
