@@ -186,32 +186,6 @@ services:
       - duplicati-net
 
   #############################
-  ## HANDBRAKE
-  #############################
-
-  handbrake:
-    image: jlesage/handbrake
-    container_name: handbrake
-    environment:
-      - USER_ID=${PUID:-1000}
-      - GROUP_ID=${PUID:-1000}
-      - TZ=${TIME_ZONE}
-    volumes:
-      - ${SECONDARY_MOUNT}/handbrake/config:/config
-      - ${SECONDARY_MOUNT}/handbrake/storage:/storage
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=handbrake-net
-      - traefik.http.services.handbrake-svc.loadbalancer.server.port=5800
-      - traefik.http.routers.handbrake-rtr.rule=Host(`handbrake.${DNS_DOMAIN}`)
-      - traefik.http.routers.handbrake-rtr.entrypoints=websecure
-      - traefik.http.routers.handbrake-rtr.tls=true
-      - traefik.http.routers.handbrake-rtr.middlewares=traefik-forward-auth@docker
-    restart: unless-stopped
-    networks:
-      - handbrake-net
-
-  #############################
   ## JACKETT
   #############################
 
@@ -304,8 +278,8 @@ services:
       - "JELLYFIN_PublishedServerUrl=jellyfin.${DNS_DOMAIN}"
     volumes:
       - ${PRIMARY_MOUNT}/jellyfin/config:/config
-      - ${PRIMARY_MOUNT}/plex/media/movies:/data/movies:ro
-      - ${PRIMARY_MOUNT}/plex/media/tv_shows:/data/tvshows:ro
+      - ${PRIMARY_MOUNT}/plex/media/movies:/data/movies
+      - ${PRIMARY_MOUNT}/plex/media/tv_shows:/data/tvshows
     devices:
       - /dev/dri:/dev/dri
     networks:
@@ -367,64 +341,6 @@ services:
       - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
     networks:
       - minio-net
-
-  #############################
-  ## N8N
-  #############################
-
-  n8n:
-    image: n8nio/n8n
-    container_name: n8n
-    user: ${XID:-1000}
-    restart: unless-stopped
-    init: true
-    environment:
-      - TZ="${TIME_ZONE}"
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=n8n-net
-      - traefik.http.services.n8n-svc.loadbalancer.server.port=5678
-      - traefik.http.routers.n8n-rtr.rule=Host(`n8n.${DNS_DOMAIN}`)
-      - traefik.http.routers.n8n-rtr.entrypoints=websecure
-      - traefik.http.routers.n8n-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-    volumes:
-      - ${PRIMARY_MOUNT}/n8n:/home/node/.n8n
-    networks:
-      - n8n-net
-
-  #############################
-  ## PLEX
-  #############################
-
-  plex:
-    image: plexinc/pms-docker:beta
-    container_name: plex
-    restart: unless-stopped
-    init: true
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=plex-net
-      - traefik.http.services.plex-svc.loadbalancer.server.port=32400
-      - traefik.http.routers.plex-rtr.rule=Host(`plex.${DNS_DOMAIN}`)
-      - traefik.http.routers.plex-rtr.entrypoints=websecure
-      - traefik.http.routers.plex-rtr.tls=true
-    ports:
-      - "32400:32400/tcp"
-      - "8324:8324/tcp"
-    environment:
-      - TZ="${TIME_ZONE}"
-      - ADVERTISE_IP="https://plex.${DNS_DOMAIN}/"
-      - PLEX_CLAIM="${PLEX_CLAIM}"
-      - PLEX_UID=${PUID:-1000}
-      - PLEX_GID=${PUID:-1000}
-    volumes:
-      - ${PRIMARY_MOUNT}/plex/config:/config
-      - /tmp/plex/transcode:/transcode
-      - ${PRIMARY_MOUNT}/plex/media:/data
-    devices:
-      - /dev/dri:/dev/dri
-    networks:
-      - plex-net
 
   #############################
   ## PORTAINER - ROOT
@@ -683,7 +599,6 @@ services:
       - changedetection-net
       - drone-net
       - duplicati-net
-      - handbrake-net
       - jackett-net
       - kobodl-net
       - minio-net
@@ -693,7 +608,6 @@ services:
       - seafile-net
       - transmission-net
       - unifi-net
-      - webtop-net
       - wireguard-net
      
   traefik-forward-auth:
@@ -773,31 +687,6 @@ services:
       - "${PRIMARY_MOUNT}/watchtower/docker-config.json:/config.json"
 
   #############################
-  ## WEBTOP
-  #############################
-
-  webtop:
-    image: ghcr.io/linuxserver/webtop:ubuntu-xfce
-    restart: unless-stopped
-    container_name: webtop
-    shm_size: "1gb"
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PUID:-1000}
-      - TZ=${TIME_ZONE}
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=webtop-net
-      - traefik.http.services.webtop-svc.loadbalancer.server.port=3000
-      - traefik.http.routers.webtop-rtr.rule=Host(`webtop.${DNS_DOMAIN}`)
-      - traefik.http.routers.webtop-rtr.entrypoints=websecure
-      - traefik.http.routers.webtop-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-    volumes:
-      - ${SECONDARY_MOUNT}/webtop/config/:/config
-    networks:
-      - webtop-net
-
-  #############################
   ## WIREGUARD
   #############################
 
@@ -870,16 +759,12 @@ networks:
     name: drone-private-net
   duplicati-net:
     name: duplicati-net
-  handbrake-net:
-    name: handbrake-net
   jackett-net:
     name: jackett-net
   kobodl-net:
     name: kobodl-net
   minio-net:
     name: minio-net
-  n8n-net:
-    name: n8n-net
   plex-net:
     name: plex-net
   portainer-net:
@@ -896,7 +781,5 @@ networks:
     name: traefik-net
   unifi-net:
     name: unifi-net
-  webtop-net:
-    name: webtop-net
   wireguard-net:
     name: wireguard-net
