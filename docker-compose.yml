@@ -355,7 +355,7 @@ services:
     security_opt:
       - seccomp:unconfined
       - apparmor:unconfined
-    user: ${XID:-1000}
+    user: ${PUID:-1000}
     environment:
       PHOTOPRISM_ADMIN_PASSWORD: "${PHOTOPRISM_ADMIN_PASSWORD}" # PLEASE CHANGE: Your initial admin password (min 4 characters)
       PHOTOPRISM_SITE_URL: "https://photos.${DNS_DOMAIN}/" # Public server URL incl http:// or https:// and /path, :port is optional
@@ -441,7 +441,7 @@ services:
       --innodb-lock-wait-timeout=120
     volumes:
       - "${PRIMARY_MOUNT}/photoprism/mariadb:/var/lib/mysql"
-    user: ${XID:-1000}
+    user: ${PUID:-1000}
     environment:
       MYSQL_ROOT_PASSWORD: ${PHOTOPRISM_MYSQL_PASSWORD}
       MYSQL_DATABASE: photoprism
