@@ -399,11 +399,11 @@ services:
     labels:
       - traefik.enable=true
       - traefik.docker.network=photoprism-net
-      - traefik.http.services.portainer-svc.loadbalancer.server.port=2342
-      - traefik.http.routers.portainer-rtr.rule=Host(`photos.${DNS_DOMAIN}`)
-      - traefik.http.routers.portainer-rtr.entrypoints=websecure
-      - traefik.http.routers.portainer-rtr.tls=true
-      - traefik.http.routers.portainer-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+      - traefik.http.services.photoprism-svc.loadbalancer.server.port=2342
+      - traefik.http.routers.photoprism-rtr.rule=Host(`photos.${DNS_DOMAIN}`)
+      - traefik.http.routers.photoprism-rtr.entrypoints=websecure
+      - traefik.http.routers.photoprism-rtr.tls=true
+      - traefik.http.routers.photoprism-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     networks:
       - photoprism-net
     ## Hardware devices for video transcoding and machine learning (optional):
