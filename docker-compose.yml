@@ -818,7 +818,7 @@ services:
   #############################
 
   wireguard:
-    image: ghcr.io/linuxserver/wireguard:latest
+    image: ghcr.io/linuxserver/wireguard:1.0.20210914
     restart: unless-stopped
     container_name: wireguard
     labels:
