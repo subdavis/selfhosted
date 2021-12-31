@@ -473,28 +473,6 @@ services:
       - portainer-net
 
   #############################
-  ## SAMBA
-  #############################
-
-  samba:
-    image: dperson/samba:latest
-    container_name: samba
-    restart: unless-stopped
-    user: ${XID:-1000}
-    labels:
-      - traefik.enable=false
-    ports:
-      - "445:445"
-    environment:
-      - TZ=EST5EDT
-      - "USER=${SAMBA_USER};${SAMBA_PASSWORD}"
-      - "SHARE=data;/mount;yes;no;no;${SAMBA_USER};${SAMBA_USER};;"
-    volumes:
-      - /media:/mount
-    networks:
-      - samba-net
-
-  #############################
   ## SEAFILE
   #############################
 
@@ -898,8 +876,6 @@ networks:
     name: plex-net
   portainer-net:
     name: portainer-net
-  samba-net:
-    name: samba-net
   seafile-net:
     name: seafile-net
   seafile-private-net:
