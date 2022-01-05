@@ -615,24 +615,6 @@ services:
     networks:
       - transmission-net
 
-  taguette:
-    image: quay.io/remram44/taguette
-    command: server /data/config.py
-    restart: unless-stopped
-    container_name: taguette
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=taguette-net
-      - traefik.http.services.taguette-svc.loadbalancer.server.port=7465
-      - traefik.http.routers.taguette-rtr.rule=Host(`taguette.${DNS_DOMAIN}`)
-      - traefik.http.routers.taguette-rtr.entrypoints=websecure
-      - traefik.http.routers.taguette-rtr.tls=true
-      - traefik.http.routers.taguette-rtr.middlewares=traefik-forward-auth@docker
-    volumes:
-      - "${PRIMARY_MOUNT}/taguette/data/:/data"
-    networks:
-      - taguette-net
-
   #############################
   ## TRAEFIK
   #############################
@@ -710,7 +692,6 @@ services:
       - plex-net
       - portainer-net
       - seafile-net
-      - taguette-net
       - transmission-net
       - unifi-net
       - wireguard-net
@@ -796,7 +777,7 @@ services:
   #############################
 
   wireguard:
-    image: ghcr.io/linuxserver/wireguard:1.0.20210914
+    image: ghcr.io/linuxserver/wireguard:latest
     restart: unless-stopped
     container_name: wireguard
     labels:
@@ -880,8 +861,6 @@ networks:
     name: seafile-net
   seafile-private-net:
     name: seafile-private-net
-  taguette-net:
-    name: taguette-net
   transmission-net:
     name: transmission-net
   traefik-net:
