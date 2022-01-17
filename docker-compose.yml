@@ -30,29 +30,6 @@ services:
   ## ARRS
   #############################
 
-  jackett:
-    image: ghcr.io/linuxserver/jackett:latest
-    container_name: jackett
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PUID:-1000}
-      - TZ=${TIME_ZONE}
-      - AUTO_UPDATE=true
-    volumes:
-      - ${PRIMARY_MOUNT}/jackett/config:/config
-      - ${PRIMARY_MOUNT}/plex/media/watch:/downloads
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=jackett-net
-      - traefik.http.services.jackett-svc.loadbalancer.server.port=9117
-      - traefik.http.routers.jackett-rtr.rule=Host(`jackett.${DNS_DOMAIN}`)
-      - traefik.http.routers.jackett-rtr.entrypoints=websecure
-      - traefik.http.routers.jackett-rtr.tls=true
-      - traefik.http.routers.jackett-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-    restart: unless-stopped
-    networks:
-      - jackett-net
-
   prowlarr:
     image: ghcr.io/linuxserver/prowlarr:develop
     container_name: prowlarr
@@ -64,7 +41,7 @@ services:
       - ${PRIMARY_MOUNT}/prowlarr/config:/config
     labels:
       - traefik.enable=true
-      - traefik.docker.network=jackett-net
+      - traefik.docker.network=arr-net
       - traefik.http.services.prowlarr-svc.loadbalancer.server.port=9696
       - traefik.http.routers.prowlarr-rtr.rule=Host(`prowlarr.${DNS_DOMAIN}`)
       - traefik.http.routers.prowlarr-rtr.entrypoints=websecure
@@ -72,7 +49,7 @@ services:
       - traefik.http.routers.prowlarr-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     restart: unless-stopped
     networks:
-      - jackett-net
+      - arr-net
 
   radarr:
     image: ghcr.io/linuxserver/radarr:latest
@@ -84,7 +61,7 @@ services:
       - TZ=${TIME_ZONE}
     labels:
       - traefik.enable=true
-      - traefik.docker.network=jackett-net
+      - traefik.docker.network=arr-net
       - traefik.http.services.radarr-svc.loadbalancer.server.port=7878
       - traefik.http.routers.radarr-rtr.rule=Host(`radarr.${DNS_DOMAIN}`)
       - traefik.http.routers.radarr-rtr.entrypoints=websecure
@@ -94,7 +71,7 @@ services:
       - ${PRIMARY_MOUNT}/radarr/data:/config
       - ${PRIMARY_MOUNT}/plex/media/:/data
     networks:
-      - jackett-net
+      - arr-net
 
   sonarr:
     image: ghcr.io/linuxserver/sonarr
@@ -106,7 +83,7 @@ services:
       - TZ=${TIME_ZONE}
     labels:
       - traefik.enable=true
-      - traefik.docker.network=jackett-net
+      - traefik.docker.network=arr-net
       - traefik.http.services.sonarr-svc.loadbalancer.server.port=8989
       - traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.${DNS_DOMAIN}`)
       - traefik.http.routers.sonarr-rtr.entrypoints=websecure
@@ -116,7 +93,7 @@ services:
       - ${PRIMARY_MOUNT}/sonarr/data:/config
       - ${PRIMARY_MOUNT}/plex/media/:/data
     networks:
-      - jackett-net
+      - arr-net
 
   #############################
   ## CALIBRE
@@ -594,7 +571,7 @@ services:
       - "com.centurylinklabs.watchtower.enable=false"
       - traefik.enable=false
     networks:
-      - jackett-net
+      - arr-net
       - transmission-net
     dns: 1.1.1.1
     cap_add:
@@ -706,7 +683,7 @@ services:
       - changedetection-net
       - drone-net
       - duplicati-net
-      - jackett-net
+      - arr-net
       - kobodl-net
       - minio-net
       - photoprism-net
@@ -854,6 +831,8 @@ services:
 networks:
   adguard-net:
     name: adguard-net
+  arr-net:
+    name: arr-net
   auth-net:
     name: auth-net
   calibre-net:
@@ -866,8 +845,6 @@ networks:
     name: drone-private-net
   duplicati-net:
     name: duplicati-net
-  jackett-net:
-    name: jackett-net
   kobodl-net:
     name: kobodl-net
   minio-net:
