@@ -8,7 +8,7 @@
 This repo contains my production **rootless** docker services accessible from anywhere over HTTPS using [traefik](https://traefik.io).  These services (and others) run on a single server.
 
 * Jellyfin
-* Sonarr, Radarr, Jackett
+* Sonarr, Radarr, Prowlarr
 * Seafile Pro with Elasticache
 * Minio
 * Calibre Web
