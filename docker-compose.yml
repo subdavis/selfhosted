@@ -27,6 +27,98 @@ services:
     dns: "1.1.1.1"
 
   #############################
+  ## ARRS
+  #############################
+
+  jackett:
+    image: ghcr.io/linuxserver/jackett:latest
+    container_name: jackett
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
+      - TZ=${TIME_ZONE}
+      - AUTO_UPDATE=true
+    volumes:
+      - ${PRIMARY_MOUNT}/jackett/config:/config
+      - ${PRIMARY_MOUNT}/plex/media/watch:/downloads
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=jackett-net
+      - traefik.http.services.jackett-svc.loadbalancer.server.port=9117
+      - traefik.http.routers.jackett-rtr.rule=Host(`jackett.${DNS_DOMAIN}`)
+      - traefik.http.routers.jackett-rtr.entrypoints=websecure
+      - traefik.http.routers.jackett-rtr.tls=true
+      - traefik.http.routers.jackett-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+    restart: unless-stopped
+    networks:
+      - jackett-net
+
+  prowlarr:
+    image: ghcr.io/linuxserver/prowlarr:develop
+    container_name: prowlarr
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
+      - TZ=${TIME_ZONE}
+    volumes:
+      - ${PRIMARY_MOUNT}/prowlarr/config:/config
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=jackett-net
+      - traefik.http.services.prowlarr-svc.loadbalancer.server.port=9696
+      - traefik.http.routers.prowlarr-rtr.rule=Host(`prowlarr.${DNS_DOMAIN}`)
+      - traefik.http.routers.prowlarr-rtr.entrypoints=websecure
+      - traefik.http.routers.prowlarr-rtr.tls=true
+      - traefik.http.routers.prowlarr-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+    restart: unless-stopped
+    networks:
+      - jackett-net
+
+  radarr:
+    image: ghcr.io/linuxserver/radarr:latest
+    container_name: radarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
+      - TZ=${TIME_ZONE}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=jackett-net
+      - traefik.http.services.radarr-svc.loadbalancer.server.port=7878
+      - traefik.http.routers.radarr-rtr.rule=Host(`radarr.${DNS_DOMAIN}`)
+      - traefik.http.routers.radarr-rtr.entrypoints=websecure
+      - traefik.http.routers.radarr-rtr.tls=true
+      - traefik.http.routers.radarr-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
+    volumes:
+      - ${PRIMARY_MOUNT}/radarr/data:/config
+      - ${PRIMARY_MOUNT}/plex/media/:/data
+    networks:
+      - jackett-net
+
+  sonarr:
+    image: ghcr.io/linuxserver/sonarr
+    container_name: sonarr
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
+      - TZ=${TIME_ZONE}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=jackett-net
+      - traefik.http.services.sonarr-svc.loadbalancer.server.port=8989
+      - traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.${DNS_DOMAIN}`)
+      - traefik.http.routers.sonarr-rtr.entrypoints=websecure
+      - traefik.http.routers.sonarr-rtr.tls=true
+      - traefik.http.routers.sonarr-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
+    volumes:
+      - ${PRIMARY_MOUNT}/sonarr/data:/config
+      - ${PRIMARY_MOUNT}/plex/media/:/data
+    networks:
+      - jackett-net
+
+  #############################
   ## CALIBRE
   #############################
 
@@ -184,77 +276,6 @@ services:
       - ${SECONDARY_MOUNT}/duplicati/backups:/backups
     networks:
       - duplicati-net
-
-  #############################
-  ## JACKETT
-  #############################
-
-  jackett:
-    image: ghcr.io/linuxserver/jackett:latest
-    container_name: jackett
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PUID:-1000}
-      - TZ=${TIME_ZONE}
-      - AUTO_UPDATE=true
-    volumes:
-      - ${PRIMARY_MOUNT}/jackett/config:/config
-      - ${PRIMARY_MOUNT}/plex/media/watch:/downloads
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=jackett-net
-      - traefik.http.services.jackett-svc.loadbalancer.server.port=9117
-      - traefik.http.routers.jackett-rtr.rule=Host(`jackett.${DNS_DOMAIN}`)
-      - traefik.http.routers.jackett-rtr.entrypoints=websecure
-      - traefik.http.routers.jackett-rtr.tls=true
-      - traefik.http.routers.jackett-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-    restart: unless-stopped
-    networks:
-      - jackett-net
-
-  radarr:
-    image: ghcr.io/linuxserver/radarr:latest
-    container_name: radarr
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PUID:-1000}
-      - TZ=${TIME_ZONE}
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=jackett-net
-      - traefik.http.services.radarr-svc.loadbalancer.server.port=7878
-      - traefik.http.routers.radarr-rtr.rule=Host(`radarr.${DNS_DOMAIN}`)
-      - traefik.http.routers.radarr-rtr.entrypoints=websecure
-      - traefik.http.routers.radarr-rtr.tls=true
-      - traefik.http.routers.radarr-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
-    volumes:
-      - ${PRIMARY_MOUNT}/radarr/data:/config
-      - ${PRIMARY_MOUNT}/plex/media/:/data
-    networks:
-      - jackett-net
-
-  sonarr:
-    image: ghcr.io/linuxserver/sonarr
-    container_name: sonarr
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PUID:-1000}
-      - TZ=${TIME_ZONE}
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=jackett-net
-      - traefik.http.services.sonarr-svc.loadbalancer.server.port=8989
-      - traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.${DNS_DOMAIN}`)
-      - traefik.http.routers.sonarr-rtr.entrypoints=websecure
-      - traefik.http.routers.sonarr-rtr.tls=true
-      - traefik.http.routers.sonarr-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
-    volumes:
-      - ${PRIMARY_MOUNT}/sonarr/data:/config
-      - ${PRIMARY_MOUNT}/plex/media/:/data
-    networks:
-      - jackett-net
 
   #############################
   ## JELLYFIN
