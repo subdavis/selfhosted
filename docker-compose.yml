@@ -585,13 +585,14 @@ services:
       - PUID=${PUID:-1000}
       - PGID=${PUID:-1000}
       - CREATE_TUN_DEVICE=true
-      # - OPENVPN_CONFIG=france,swede
+      - OPENVPN_CONFIG="${OPENVPN_CONFIG}"
       - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
       - "OPENVPN_USERNAME=${TORRENT_USERNAME}"
       - "OPENVPN_PASSWORD=${TORRENT_PASSWORD}"
       - "TRANSMISSION_UMASK=0"
       - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
       - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
+      - "TRANSMISSION_WEB_UI=flood-for-transmission"
       - LOCAL_NETWORK=${LOCAL_NETWORK}
 
   transmission_proxy:
