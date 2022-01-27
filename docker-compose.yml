@@ -346,7 +346,7 @@ services:
   netdata:
     image: netdata/netdata
     container_name: netdata
-    hostname: "core.${DNS_DOMAIN}" # set to fqdn of host
+    hostname: "core.${DNS_DOMAIN}"
     restart: unless-stopped
     cap_add:
       - SYS_PTRACE
