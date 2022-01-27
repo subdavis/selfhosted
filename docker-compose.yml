@@ -362,8 +362,8 @@ services:
       - traefik.http.routers.netdata-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     volumes:
       - "${PRIMARY_MOUNT}/netdata/config:/etc/netdata"
-      - "${PRIMARY_MOUNT}/netdata/lib:/var/lib/netdata"
-      - "${PRIMARY_MOUNT}/netdata/cache:/var/cache/netdata"
+      - netdatalib:/var/lib/netdata
+      - netdatacache:/var/cache/netdata
       - /etc/passwd:/host/etc/passwd:ro
       - /etc/group:/host/etc/group:ro
       - /sys:/host/sys:ro
@@ -902,3 +902,7 @@ networks:
     name: unifi-net
   wireguard-net:
     name: wireguard-net
+
+volumes:
+  netdatalib:
+  netdatacache:
