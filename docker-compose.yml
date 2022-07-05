@@ -122,28 +122,6 @@ services:
       - calibre-net
   
   #############################
-  ## CHANGEDETECTION
-  #############################
-
-  changedetection:
-    image: dgtlmoon/changedetection.io
-    container_name: changedetection
-    restart: unless-stopped
-    user: ${PUID:-1000}
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=changedetection-net
-      - traefik.http.services.changedetection-svc.loadbalancer.server.port=5000
-      - traefik.http.routers.changedetection-rtr.rule=Host(`change.${DNS_DOMAIN}`)
-      - traefik.http.routers.changedetection-rtr.entrypoints=websecure
-      - traefik.http.routers.changedetection-rtr.tls=true
-      - traefik.http.routers.changedetection-rtr.middlewares=traefik-forward-auth@docker
-    volumes:
-      - ${PRIMARY_MOUNT}/changedetection/datastore:/datastore
-    networks:
-      - changedetection-net
-
-  #############################
   ## CLOUDFLARE - ROOT
   #############################
 
@@ -371,114 +349,6 @@ services:
       - netdata-net
 
   #############################
-  ## PHOTOPRISM
-  #############################
-
-  photoprism:
-    ## Use photoprism/photoprism:preview for testing preview builds:
-    image: photoprism/photoprism:latest
-    container_name: photoprism
-    depends_on:
-      - photoprism_maria
-    security_opt:
-      - seccomp:unconfined
-      - apparmor:unconfined
-    user: ${PUID:-1000}
-    environment:
-      PHOTOPRISM_ADMIN_PASSWORD: "${PHOTOPRISM_ADMIN_PASSWORD}" # PLEASE CHANGE: Your initial admin password (min 4 characters)
-      PHOTOPRISM_SITE_URL: "https://photos.${DNS_DOMAIN}/" # Public server URL incl http:// or https:// and /path, :port is optional
-      PHOTOPRISM_ORIGINALS_LIMIT: 5000               # File size limit for originals in MB (increase for high-res video)
-      PHOTOPRISM_HTTP_COMPRESSION: "gzip"            # Improves transfer speed and bandwidth utilization (none or gzip)
-      PHOTOPRISM_DEBUG: "false"                      # Run in debug mode (shows additional log messages)
-      PHOTOPRISM_PUBLIC: "false"                     # No authentication required (disables password protection)
-      PHOTOPRISM_READONLY: "false"                   # Don't modify originals directory (reduced functionality)
-      PHOTOPRISM_EXPERIMENTAL: "false"               # Enables experimental features
-      PHOTOPRISM_DISABLE_CHOWN: "false"              # Disables storage permission updates on startup
-      PHOTOPRISM_DISABLE_WEBDAV: "false"             # Disables built-in WebDAV server
-      PHOTOPRISM_DISABLE_SETTINGS: "false"           # Disables Settings in Web UI
-      PHOTOPRISM_DISABLE_TENSORFLOW: "false"         # Disables all features depending on TensorFlow
-      PHOTOPRISM_DISABLE_FACES: "false"              # Disables facial recognition
-      PHOTOPRISM_DISABLE_CLASSIFICATION: "false"     # Disables image classification
-      PHOTOPRISM_DARKTABLE_PRESETS: "false"          # Enables Darktable presets and disables concurrent RAW conversion
-      PHOTOPRISM_DETECT_NSFW: "false"                # Flag photos as private that MAY be offensive (requires TensorFlow)
-      PHOTOPRISM_UPLOAD_NSFW: "true"                 # Allow uploads that MAY be offensive
-      PHOTOPRISM_DATABASE_DRIVER: "mysql"            # Use MariaDB 10.5+ or MySQL 8+ instead of SQLite for improved performance
-      PHOTOPRISM_DATABASE_SERVER: "photoprism_maria:3306"  # MariaDB or MySQL database server (hostname:port)
-      PHOTOPRISM_DATABASE_NAME: "photoprism"         # MariaDB or MySQL database schema name
-      PHOTOPRISM_DATABASE_USER: "photoprism"         # MariaDB or MySQL database user name
-      PHOTOPRISM_DATABASE_PASSWORD: "${PHOTOPRISM_MYSQL_PASSWORD}"       # MariaDB or MySQL database user password
-      PHOTOPRISM_SITE_TITLE: "PhotoPrism"
-      PHOTOPRISM_SITE_CAPTION: "Browse Your Life"
-      PHOTOPRISM_SITE_DESCRIPTION: ""
-      PHOTOPRISM_SITE_AUTHOR: ""
-      ## Set a non-root user, group, or custom umask if your Docker environment doesn't support this natively:
-      # PHOTOPRISM_UID: 1000
-      # PHOTOPRISM_GID: 1000
-      # PHOTOPRISM_UMASK: 0000
-      ## Enable TensorFlow AVX2 support for modern Intel CPUs (requires starting the container as root):
-      # PHOTOPRISM_INIT: "tensorflow-amd64-avx2"
-      ## Hardware video transcoding config (optional):
-      # PHOTOPRISM_FFMPEG_BUFFERS: "64"              # FFmpeg capture buffers (default: 32)
-      # PHOTOPRISM_FFMPEG_BITRATE: "32"              # FFmpeg encoding bitrate limit in Mbit/s (default: 50)
-      # PHOTOPRISM_FFMPEG_ENCODER: "h264_v4l2m2m"    # Use Video4Linux for AVC transcoding (default: libx264)
-      # PHOTOPRISM_FFMPEG_ENCODER: "h264_qsv"        # Use Intel Quick Sync Video for AVC transcoding (default: libx264)
-      # PHOTOPRISM_INIT: "intel-graphics tensorflow-amd64-avx2" # Enable TensorFlow AVX2 & Intel Graphics support
-      HOME: "/photoprism"
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=photoprism-net
-      - traefik.http.services.photoprism-svc.loadbalancer.server.port=2342
-      - traefik.http.routers.photoprism-rtr.rule=Host(`photos.${DNS_DOMAIN}`)
-      - traefik.http.routers.photoprism-rtr.entrypoints=websecure
-      - traefik.http.routers.photoprism-rtr.tls=true
-      - traefik.http.routers.photoprism-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-    networks:
-      - photoprism-net
-    ## Hardware devices for video transcoding and machine learning (optional):
-    devices:
-     - "/dev/dri/renderD128:/dev/dri/renderD128" # Intel GPU
-     - "/dev/dri/card0:/dev/dri/card0"
-    working_dir: "/photoprism"
-    volumes:
-      ## The *originals* folder contains your original photo and video files (- "[host folder]:/photoprism/originals"):
-      - "${PRIMARY_MOUNT}/photoprism/originals:/photoprism/originals"
-      ## Multiple folders can be made accessible by mounting them as subfolders of /photoprism/originals:
-      # - "/mnt/Family:/photoprism/originals/Family"    # [folder 1]:/photoprism/originals/[folder 1]
-      # - "/mnt/Friends:/photoprism/originals/Friends"  # [folder 2]:/photoprism/originals/[folder 2]
-      ## You may mount an *import* folder from which files can be transferred to *originals* (optional):
-      # - "~/Import:/photoprism/import"
-      ## Cache, session, thumbnail, and sidecar files will be created in the *storage* folder (never remove):
-      - "${PRIMARY_MOUNT}/photoprism/storage:/photoprism/storage"
-
-  ## Database Server (recommended)
-  ## see https://docs.photoprism.org/getting-started/faq/#should-i-use-sqlite-mariadb-or-mysql
-  photoprism_maria:
-    restart: unless-stopped
-    image: mariadb:10.6
-    container_name: photoprism_maria
-    security_opt:
-      - seccomp:unconfined
-      - apparmor:unconfined
-    command: >
-      mysqld
-      --transaction-isolation=READ-COMMITTED
-      --character-set-server=utf8mb4
-      --collation-server=utf8mb4_unicode_ci
-      --max-connections=512
-      --innodb-rollback-on-timeout=OFF
-      --innodb-lock-wait-timeout=120
-    volumes:
-      - "${PRIMARY_MOUNT}/photoprism/mariadb:/var/lib/mysql"
-    user: ${PUID:-1000}
-    environment:
-      MYSQL_ROOT_PASSWORD: ${PHOTOPRISM_MYSQL_PASSWORD}
-      MYSQL_DATABASE: photoprism
-      MYSQL_USER: photoprism
-      MYSQL_PASSWORD: ${PHOTOPRISM_MYSQL_PASSWORD}
-    networks:
-      - photoprism-net
-
-  #############################
   ## PORTAINER - ROOT
   #############################
 
@@ -688,6 +558,9 @@ services:
       - "traefik.http.middlewares.ipwhitelist-mddl.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}"
       - "traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://auth:4181"
       - "traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
+      # For Vaultwarden
+      - "traefik.http.middlewares.bw-stripPrefix.stripprefix.prefixes=/notifications/hub"
+      - "traefik.http.middlewares.bw-stripPrefix.stripprefix.forceSlash=false"
       # Traefik Dashboard config
       - traefik.http.services.traefik-svc.loadbalancer.server.port=8080
       - traefik.http.routers.traefik-rtr.rule=Host(`traefik.${DNS_DOMAIN}`)
@@ -711,19 +584,18 @@ services:
       - adguard-net
       - auth-net
       - calibre-net
-      - changedetection-net
       - drone-net
       - duplicati-net
       - arr-net
       - kobodl-net
       - minio-net
       - netdata-net
-      - photoprism-net
       - plex-net
       - portainer-net
       - seafile-net
       - transmission-net
       - unifi-net
+      - vaultwarden-net
       - wireguard-net
      
   traefik-forward-auth:
@@ -785,6 +657,35 @@ services:
       - "${PRIMARY_MOUNT}/unifi/config/:/config"
     networks:
       - unifi-net
+
+  #############################
+  ## VAULTWARDEN
+  #############################
+
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: always
+    volumes:
+      - "${PRIMARY_MOUNT}/vaultwarden/data/:/data"
+    environment:
+      - WEBSOCKET_ENABLED=true
+    networks:
+      - vaultwarden-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=vaultwarden-net"
+      # Entry Point for https
+      - "traefik.http.routers.vaultwarden-rtr.entrypoints=websecure"
+      - "traefik.http.routers.vaultwarden-rtr.rule=Host(`vaultwarden.${DNS_DOMAIN}`)"
+      - "traefik.http.routers.vaultwarden-rtr.service=vaultwarden-svc"
+      - "traefik.http.services.vaultwarden-svc.loadbalancer.server.port=80"
+      # websocket
+      - "traefik.http.routers.vaultwarden-ws-rtr.entrypoints=websecure"
+      - "traefik.http.routers.vaultwarden-ws-rtr.rule=Host(`vaultwarden.${DNS_DOMAIN}`) && Path(`/notifications/hub`)"
+      - "traefik.http.middlewares.vaultwarden-ws-rtr=bw-stripPrefix@file"
+      - "traefik.http.routers.vaultwarden-ws-rtr.service=vaultwarden-ws-svc"
+      - "traefik.http.services.vaultwarden-ws-svc.loadbalancer.server.port=3012"
 
   #############################
   ## WATCHTOWER - ROOT
@@ -869,8 +770,6 @@ networks:
     name: auth-net
   calibre-net:
     name: calibre-net
-  changedetection-net:
-    name: changedetection-net
   drone-net:
     name: drone-net
   drone-private-net:
@@ -883,8 +782,6 @@ networks:
     name: minio-net
   netdata-net:
     name: netdata-net
-  photoprism-net:
-    name: photoprism-net
   plex-net:
     name: plex-net
   portainer-net:
@@ -899,6 +796,8 @@ networks:
     name: traefik-net
   unifi-net:
     name: unifi-net
+  vaultwarden-net:
+    name: vaultwarden-net
   wireguard-net:
     name: wireguard-net
 
