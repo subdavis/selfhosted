@@ -9,11 +9,9 @@ This repo contains my production **rootless** docker services accessible from an
 
 * Jellyfin
 * Sonarr, Radarr, Prowlarr
-* Seafile Pro with Elasticache
 * Minio
 * Calibre Web
 * Kobo book downloader (kobodl)
-* Samba Fileshare
 * Transmission torrent server with OpenVPN over NordVPN
 * AdGuard Home DNS
 * Drone CI and runner
@@ -74,8 +72,6 @@ Resolving the IP address of your home network is annoying because most DNS provi
 1. [Enable Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
 1. clone this repo
 1. Sign into any private docker registries
-  a. [Seafile Pro](https://www.seafile.com/en/product/private_server/) is free for 3 users
-  a. [Seafile Pro Docker Docs](https://download.seafile.com/published/seafile-manual/docker/pro-edition/)
 1. install [rootless docker](https://docs.docker.com/engine/security/rootless/)
   a [Understanding UID remapping](https://medium.com/@tonistiigi/experimenting-with-rootless-docker-416c9ad8c0d6)
   a. ignore the env exports it says to set, see below

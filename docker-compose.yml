@@ -282,7 +282,7 @@ services:
       - ${PRIMARY_MOUNT}/kobodl/downloads:/home/downloads
     command: --config /home/kobodl.json serve -h 0.0.0.0 --output-dir /home/downloads
     networks:
-      - seafile-net
+      - kobodl-net
 
   #############################
   ## MINIO
@@ -369,94 +369,6 @@ services:
       - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
     networks:
       - portainer-net
-
-  #############################
-  ## SEAFILE
-  #############################
-
-  # from https://download.seafile.com/d/320e8adf90fa43ad8fee/files/?p=/docker/pro-edition/docker-compose.yml
-  # https://download.seafile.com/published/seafile-manual/docker/pro-edition/Deploy%20Seafile-pro%20with%20Docker.md
-
-  seafile_db:
-    image: mariadb:10.1
-    container_name: seafile-mariadb
-    restart: unless-stopped
-    user: ${XID:-1000}
-    labels:
-      - traefik.enable=false
-    environment:
-      - "MYSQL_ROOT_PASSWORD=${MYSQL_ROOT_PASSWORD}"  # Requested, set the root's password of MySQL service.
-      - MYSQL_LOG_CONSOLE=true
-    volumes:
-      - ${PRIMARY_MOUNT}/mariadb:/var/lib/mysql  # Requested, specifies the path to MySQL data persistent store.
-    networks:
-      - seafile-private-net
-
-  seafile_memcached:
-    image: memcached:1.5.6
-    container_name: seafile-memcached
-    restart: unless-stopped
-    labels:
-      - traefik.enable=false
-    entrypoint: memcached -m 256
-    networks:
-      - seafile-private-net
-
-  seafile_elasticsearch:
-    image: seafileltd/elasticsearch-with-ik:5.6.16
-    container_name: seafile-elasticsearch
-    restart: unless-stopped
-    user: ${XID:-1000}
-    labels:
-      - traefik.enable=false
-    environment:
-      - discovery.type=single-node
-      - bootstrap.memory_lock=true
-      - "ES_JAVA_OPTS=-Xms1g -Xmx1g"
-      - "TAKE_FILE_OWNERSHIP=1"
-    ulimits:
-      memlock:
-        soft: 65536
-        hard: 65536
-    mem_limit: 2g
-    volumes:
-      # Requested, specifies the path to Elasticsearch data persistent store.
-      - ${LOCAL_MOUNT}/elasticsearch/data:/usr/share/elasticsearch/data
-    networks:
-      - seafile-private-net
-
-  seafile:
-    image: docker.seadrive.org/seafileltd/seafile-pro-mc:latest
-    container_name: seafile
-    restart: unless-stopped
-    user: ${XID:-1000}
-    links:
-      - seafile_elasticsearch:elasticsearch
-      - seafile_db:mariadb
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=seafile-net
-      - traefik.http.services.seafile-svc.loadbalancer.server.port=80
-      - traefik.http.routers.seafile-rtr.rule=Host(`seafile.${DNS_DOMAIN}`)
-      - traefik.http.routers.seafile-rtr.entrypoints=websecure
-      - traefik.http.routers.seafile-rtr.tls=true
-    volumes:
-      - ${PRIMARY_MOUNT}/seafile:/shared # Requested, specifies the path to Seafile data persistent store.
-    environment:
-      - "TIME_ZONE=${TIME_ZONE}"
-      - "DB_HOST=mariadb"
-      - "DB_ROOT_PASSWD=${MYSQL_ROOT_PASSWORD}" # Requested, the value shuold be root's password of MySQL service.
-      - "SEAFILE_ADMIN_EMAIL=${SEAFILE_ADMIN_EMAIL}" # Specifies Seafile admin user, default is 'me@example.com'
-      - "SEAFILE_ADMIN_PASSWORD=${SEAFILE_ADMIN_PASSWORD}"  # Specifies Seafile admin password, default is 'asecret'
-      - "SEAFILE_SERVER_LETSENCRYPT=false"  # Whether to use https or not
-      - "SEAFILE_SERVER_HOSTNAME=seafile.${DNS_DOMAIN}" # Specifies your host name if https is enabled
-    depends_on:
-      - seafile_db
-      - seafile_memcached
-      - seafile_elasticsearch
-    networks:
-      - seafile-net
-      - seafile-private-net
 
   #############################
   ## TRANSMISSION_TORRENT
@@ -592,7 +504,6 @@ services:
       - netdata-net
       - plex-net
       - portainer-net
-      - seafile-net
       - transmission-net
       - unifi-net
       - vaultwarden-net
@@ -786,10 +697,6 @@ networks:
     name: plex-net
   portainer-net:
     name: portainer-net
-  seafile-net:
-    name: seafile-net
-  seafile-private-net:
-    name: seafile-private-net
   transmission-net:
     name: transmission-net
   traefik-net:
