@@ -296,10 +296,6 @@ services:
       - cluster.name=docker-cluster
       - bootstrap.memory_lock=true
       - "ES_JAVA_OPTS=-Xms512m -Xmx512m"
-    ulimits:
-      memlock:
-        soft: -1
-        hard: -1
     mem_limit: 1g
     volumes:
       - ${PRIMARY_MOUNT}/filerun/esearch:/usr/share/elasticsearch/data
