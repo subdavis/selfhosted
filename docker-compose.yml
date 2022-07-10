@@ -233,6 +233,23 @@ services:
       - duplicati-net
 
   #############################
+  ## FILESTASH
+  #############################
+
+  filestash:
+    container_name: filestash
+    image: machines/filestash
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=filestash-net
+      - traefik.http.services.filestash-svc.loadbalancer.server.port=8334
+      - traefik.http.routers.filestash-rtr.rule=Host(`files.${DNS_DOMAIN}`)
+      - traefik.http.routers.filestash-rtr.entrypoints=websecure
+      - traefik.http.routers.filestash-rtr.tls=true
+      - traefik.http.routers.filestash-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+
+  #############################
   ## JELLYFIN
   #############################
 
@@ -499,7 +516,7 @@ services:
       - calibre-net
       - drone-net
       - duplicati-net
-      - filerun-net
+      - filestash-net
       - kobodl-net
       - minio-net
       - netdata-net
@@ -688,8 +705,8 @@ networks:
     name: drone-private-net
   duplicati-net:
     name: duplicati-net
-  filerun-net:
-    name: filerun-net
+  filestash-net:
+    name: filestash-net
   kobodl-net:
     name: kobodl-net
   minio-net:
