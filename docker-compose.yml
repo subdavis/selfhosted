@@ -248,7 +248,8 @@ services:
       - traefik.http.routers.filestash-rtr.entrypoints=websecure
       - traefik.http.routers.filestash-rtr.tls=true
       - traefik.http.routers.filestash-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-
+    networks:
+      - filestash-net
   #############################
   ## JELLYFIN
   #############################
