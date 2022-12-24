@@ -19,6 +19,7 @@ This repo contains my production **rootless** docker services accessible from an
 * Duplicati
 * Watchtower
 * Cloudflare DNS Automation
+* Portainer
 
 # Documentation
 
