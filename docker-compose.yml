@@ -359,15 +359,15 @@ services:
       - traefik.http.routers.transmission-rtr.entrypoints=websecure
       - traefik.http.routers.transmission-rtr.tls=true
       - traefik.http.routers.transmission-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
-    networks:
-      - arr-net
-      - transmission-net
-    dns: 1.1.1.1
+    # networks:
+    #   - arr-net
+    #   - transmission-net
+    # dns: 1.1.1.1
     cap_add:
       - NET_ADMIN
-    volumes:
-      - ${PRIMARY_MOUNT}/plex/media/:/data
-      - /etc/localtime:/etc/localtime:ro
+    # volumes:
+    #   - ${PRIMARY_MOUNT}/plex/media/:/data
+    #   - /etc/localtime:/etc/localtime:ro
     environment:
       - PUID=101000
       - PGID=101000
@@ -375,10 +375,10 @@ services:
       - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
       - "OPENVPN_USERNAME=${TORRENT_USERNAME}"
       - "OPENVPN_PASSWORD=${TORRENT_PASSWORD}"
-      - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
+      # - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
       # - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
       # - "TRANSMISSION_WEB_UI=flood-for-transmission"
-      - LOCAL_NETWORK=${LOCAL_NETWORK}
+      # - LOCAL_NETWORK=${LOCAL_NETWORK}
 
   #############################
   ## TRAEFIK
