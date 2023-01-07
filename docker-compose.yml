@@ -235,24 +235,6 @@ services:
       - duplicati-net
 
   #############################
-  ## FILESTASH
-  #############################
-
-  filestash:
-    container_name: filestash
-    image: machines/filestash
-    restart: unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=filestash-net
-      - traefik.http.services.filestash-svc.loadbalancer.server.port=8334
-      - traefik.http.routers.filestash-rtr.rule=Host(`files.${DNS_DOMAIN}`)
-      - traefik.http.routers.filestash-rtr.entrypoints=websecure
-      - traefik.http.routers.filestash-rtr.tls=true
-      - traefik.http.routers.filestash-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-    networks:
-      - filestash-net
-  #############################
   ## JELLYFIN
   #############################
 
@@ -303,39 +285,6 @@ services:
     command: --config /home/kobodl.json serve -h 0.0.0.0 --output-dir /home/downloads
     networks:
       - kobodl-net
-
-  #############################
-  ## MINIO
-  #############################
-
-  minio:
-    image: minio/minio:latest
-    container_name: minio
-    restart: unless-stopped
-    command: server /data --console-address ":9090"
-    user: ${PUID:-1000}
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=minio-net
-      # Minio Console
-      - traefik.http.services.minio-svc.loadbalancer.server.port=9090
-      - traefik.http.routers.minio-rtr.rule=Host(`minio.${DNS_DOMAIN}`)
-      - traefik.http.routers.minio-rtr.entrypoints=websecure
-      - traefik.http.routers.minio-rtr.service=minio-svc
-      - traefik.http.routers.minio-rtr.middlewares=ipwhitelist-mddl@docker
-      # Minio API
-      - traefik.http.services.minio-api-svc.loadbalancer.server.port=9000
-      - traefik.http.routers.minio-api-rtr.rule=Host(`minio-api.${DNS_DOMAIN}`)
-      - traefik.http.routers.minio-api-rtr.entrypoints=websecure
-      - traefik.http.routers.minio-api-rtr.service=minio-api-svc
-      - traefik.http.routers.minio-api-rtr.middlewares=ipwhitelist-mddl@docker
-    volumes:
-      - ${PRIMARY_MOUNT}:/data
-    environment:
-      - "MINIO_ACCESS_KEY=${MINIO_ACCESS_KEY}"
-      - "MINIO_SECRET_KEY=${MINIO_SECRET_KEY}"
-    networks:
-      - minio-net
 
   #############################
   ## NETDATA
@@ -521,9 +470,7 @@ services:
       - calibre-net
       - drone-net
       - duplicati-net
-      - filestash-net
       - kobodl-net
-      - minio-net
       - netdata-net
       - plex-net
       - portainer-net
@@ -653,12 +600,8 @@ networks:
     name: drone-private-net
   duplicati-net:
     name: duplicati-net
-  filestash-net:
-    name: filestash-net
   kobodl-net:
     name: kobodl-net
-  minio-net:
-    name: minio-net
   netdata-net:
     name: netdata-net
   plex-net:
