@@ -365,20 +365,16 @@ services:
     dns: 1.1.1.1
     cap_add:
       - NET_ADMIN
-    devices:
-      - /dev/net/tun
     volumes:
       - ${PRIMARY_MOUNT}/plex/media/:/data
       - /etc/localtime:/etc/localtime:ro
     environment:
       - PUID=101000
       - PGID=101000
-      - CREATE_TUN_DEVICE=true
       - "OPENVPN_CONFIG=${OPENVPN_CONFIG}"
       - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
       - "OPENVPN_USERNAME=${TORRENT_USERNAME}"
       - "OPENVPN_PASSWORD=${TORRENT_PASSWORD}"
-      - "TRANSMISSION_UMASK=0"
       - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
       # - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
       # - "TRANSMISSION_WEB_UI=flood-for-transmission"
