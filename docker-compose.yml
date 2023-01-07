@@ -1,7 +1,7 @@
 version: '3.8'
 services:
   #############################
-  ## ADGUARD
+  ## ADGUARD - ROOT
   #############################
 
   adguard:
@@ -146,7 +146,6 @@ services:
     image: tiredofit/traefik-cloudflare-companion
     container_name: cloudflare-companion
     restart: unless-stopped
-    userns_mode: "host"
     volumes:
       - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
     environment:
@@ -189,7 +188,6 @@ services:
       - drone-private-net
 
   drone-runner:
-    userns_mode: "host"
     image: drone/drone-runner-docker:1
     restart: unless-stopped
     container_name: drone_runner_1
@@ -326,7 +324,6 @@ services:
     image: portainer/portainer-ce:latest
     restart: unless-stopped
     container_name: portainer
-    userns_mode: "host"
     labels:
       - traefik.enable=true
       - traefik.docker.network=portainer-net
@@ -349,7 +346,6 @@ services:
     image: haugene/transmission-openvpn:4
     container_name: transmission
     restart: unless-stopped
-    userns_mode: "host"
     labels: 
       - "com.centurylinklabs.watchtower.enable=false"
       - traefik.enable=true
@@ -367,33 +363,28 @@ services:
       - net.ipv6.conf.all.disable_ipv6=1
     cap_add:
       - NET_ADMIN
-    security_opt:
-      - seccomp:unconfined
     volumes:  
       - ${PRIMARY_MOUNT}/plex/media/:/data
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - PUID=101000
-      - PGID=101000
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
       - "OPENVPN_CONFIG=${OPENVPN_CONFIG}"
       - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
       - "OPENVPN_USERNAME=${TORRENT_USERNAME}"
       - "OPENVPN_PASSWORD=${TORRENT_PASSWORD}"
       - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
       - "LOCAL_NETWORK=${LOCAL_NETWORK}"
-      # - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
+      - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
 
   #############################
-  ## TRAEFIK
+  ## TRAEFIK - ROOT
   #############################
 
   traefik:
     image: traefik:v2.4
     restart: unless-stopped
     container_name: traefik
-    userns_mode: "host"
-    # entrypoints.websecure.forwardedHeaders.trustedIPs: Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
-    # --entrypoints.websecure.http.middlewares=fail2ban-mddl@file
     command: >
       --api.insecure=true
       --serversTransport.insecureSkipVerify=true
@@ -562,7 +553,6 @@ services:
     image: containrrr/watchtower:latest
     container_name: watchtower
     restart: unless-stopped
-    userns_mode: "host"
     command: --schedule "0 10 3 * * *" --cleanup
     labels:
       - traefik.enable=false
