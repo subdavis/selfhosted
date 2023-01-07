@@ -432,7 +432,7 @@ services:
     image: haugene/transmission-openvpn-proxy:latest
     container_name: transmission_proxy
     restart: unless-stopped
-    user: ${PUID:-1000}
+    user: ${XID:-0}
     labels:
       - traefik.enable=true
       - "com.centurylinklabs.watchtower.enable=false"
