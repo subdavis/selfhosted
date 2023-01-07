@@ -377,6 +377,7 @@ services:
     image: portainer/portainer-ce:latest
     restart: unless-stopped
     container_name: portainer
+    userns_mode: "host"
     labels:
       - traefik.enable=true
       - traefik.docker.network=portainer-net
