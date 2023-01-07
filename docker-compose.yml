@@ -146,6 +146,7 @@ services:
     image: tiredofit/traefik-cloudflare-companion
     container_name: cloudflare-companion
     restart: unless-stopped
+    userns_mode: "host"
     volumes:
       - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
     environment:
@@ -188,6 +189,7 @@ services:
       - drone-private-net
 
   drone-runner:
+    userns_mode: "host"
     image: drone/drone-runner-docker:1
     restart: unless-stopped
     container_name: drone_runner_1
@@ -421,8 +423,8 @@ services:
       - "OPENVPN_PASSWORD=${TORRENT_PASSWORD}"
       - "TRANSMISSION_UMASK=0"
       - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
-      - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
-      - "TRANSMISSION_WEB_UI=flood-for-transmission"
+      # - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
+      # - "TRANSMISSION_WEB_UI=flood-for-transmission"
       - LOCAL_NETWORK=${LOCAL_NETWORK}
 
   transmission_proxy:
@@ -452,7 +454,8 @@ services:
     image: traefik:v2.4
     restart: unless-stopped
     container_name: traefik
-    user: ${XID:-1000}
+    # user: ${XID:-1000}
+    userns_mode: "host"
     # entrypoints.websecure.forwardedHeaders.trustedIPs: Allow these IPs to set the X-Forwarded-* headers - Cloudflare IPs: https://www.cloudflare.com/ips/
     # --entrypoints.websecure.http.middlewares=fail2ban-mddl@file
     command: >
