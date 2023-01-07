@@ -346,7 +346,7 @@ services:
   #############################
 
   transmission:
-    image: haugene/transmission-openvpn:latest
+    image: haugene/transmission-openvpn:3.7.1
     container_name: transmission
     restart: unless-stopped
     userns_mode: "host"
