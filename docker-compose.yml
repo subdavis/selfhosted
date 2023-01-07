@@ -526,7 +526,6 @@ services:
       - transmission-net
       - unifi-net
       - vaultwarden-net
-      - wireguard-net
      
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:latest
@@ -633,64 +632,6 @@ services:
       - "${PRIMARY_MOUNT}/watchtower/config/:/config"
       - "${PRIMARY_MOUNT}/watchtower/docker-config.json:/config.json"
 
-  #############################
-  ## WIREGUARD
-  #############################
-
-  wireguard:
-    image: ghcr.io/linuxserver/wireguard:latest
-    restart: unless-stopped
-    container_name: wireguard
-    labels:
-      - traefik.enable=false
-    cap_add:
-      - NET_ADMIN
-      - SYS_MODULE
-    environment:
-      - PUID=${XID:-1000}
-      - PGID=${XID:-1000}
-      - TZ=${TIME_ZONE}
-      - SERVERURL=wireguard.${DNS_DOMAIN}
-      - SERVERPORT=51820
-      - PEERS=0
-      - PEERDNS=192.168.52.1
-      - INTERNAL_SUBNET=10.13.13.0
-    ports:
-      - "51820:51820/udp"
-      - "51820:51820/tcp"
-    volumes:
-      - ${PRIMARY_MOUNT}/wireguard/config:/config
-      - /lib/modules:/lib/modules
-    sysctls:
-      - "net.ipv4.ip_forward=1"
-      - "net.ipv4.conf.all.src_valid_mark=1"
-      - "net.ipv4.conf.all.rp_filter=2"
-    networks:
-      - wireguard-net
-
-  wireguard-ui:
-    image: ngoduykhanh/wireguard-ui:latest
-    container_name: wgui
-    cap_add:
-      - NET_ADMIN
-    environment:
-      # Default user/pass is admin/admin
-      - SESSION_SECRET="${AUTH_SECRET}"
-      - WGUI_USERNAME=admin
-      - WGUI_PASSWORD="${WGUI_PASSWORD}"
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=wireguard-net
-      - traefik.http.routers.wg-rtr.rule=Host(`wireguard.${DNS_DOMAIN}`)
-      - traefik.http.routers.wg-rtr.entrypoints=websecure
-      - traefik.http.routers.wg-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-      - traefik.http.services.wg-svc.loadbalancer.server.port=5000
-    volumes:
-      - ${PRIMARY_MOUNT}/wireguard/ui/db:/app/db
-      - ${PRIMARY_MOUNT}/wireguard/config:/etc/wireguard
-    networks:
-      - wireguard-net
-
 networks:
   adguard-net:
     name: adguard-net
@@ -726,8 +667,6 @@ networks:
     name: unifi-net
   vaultwarden-net:
     name: vaultwarden-net
-  wireguard-net:
-    name: wireguard-net
 
 volumes:
   netdatalib:

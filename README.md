@@ -15,7 +15,6 @@ This repo contains my production **rootless** docker services accessible from an
 * Transmission torrent server with OpenVPN over NordVPN
 * AdGuard Home DNS
 * Drone CI and runner
-* Wireguard and Wireguard-UI
 * Duplicati
 * Watchtower
 * Cloudflare DNS Automation
