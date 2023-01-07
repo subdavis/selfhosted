@@ -312,7 +312,7 @@ services:
     image: minio/minio:latest
     container_name: minio
     restart: unless-stopped
-    command: gateway nas /data --console-address ":9090"
+    command: server /data --console-address ":9090"
     user: ${PUID:-1000}
     labels:
       - traefik.enable=true
