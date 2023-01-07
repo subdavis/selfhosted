@@ -352,7 +352,13 @@ services:
     userns_mode: "host"
     labels: 
       - "com.centurylinklabs.watchtower.enable=false"
-      - traefik.enable=false
+      - traefik.enable=true
+      - traefik.docker.network=transmission-net
+      - traefik.http.services.transmission-svc.loadbalancer.server.port=9091
+      - traefik.http.routers.transmission-rtr.rule=Host(`torrent.${DNS_DOMAIN}`)
+      - traefik.http.routers.transmission-rtr.entrypoints=websecure
+      - traefik.http.routers.transmission-rtr.tls=true
+      - traefik.http.routers.transmission-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
     networks:
       - arr-net
       - transmission-net
@@ -377,25 +383,6 @@ services:
       # - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
       # - "TRANSMISSION_WEB_UI=flood-for-transmission"
       - LOCAL_NETWORK=${LOCAL_NETWORK}
-
-  transmission_proxy:
-    image: haugene/transmission-openvpn-proxy:latest
-    container_name: transmission_proxy
-    restart: unless-stopped
-    user: ${XID:-0}
-    labels:
-      - traefik.enable=true
-      - "com.centurylinklabs.watchtower.enable=false"
-      - traefik.docker.network=transmission-net
-      - traefik.http.services.transmission-svc.loadbalancer.server.port=8080
-      - traefik.http.routers.transmission-rtr.rule=Host(`torrent.${DNS_DOMAIN}`)
-      - traefik.http.routers.transmission-rtr.entrypoints=websecure
-      - traefik.http.routers.transmission-rtr.tls=true
-      - traefik.http.routers.transmission-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
-    depends_on:
-      - transmission
-    networks:
-      - transmission-net
 
   #############################
   ## TRAEFIK
