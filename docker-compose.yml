@@ -399,7 +399,7 @@ services:
     image: haugene/transmission-openvpn:latest
     container_name: transmission
     restart: unless-stopped
-    user: ${XID:-0}
+    userns_mode: "host"
     labels: 
       - "com.centurylinklabs.watchtower.enable=false"
       - traefik.enable=false
@@ -415,8 +415,8 @@ services:
       - ${PRIMARY_MOUNT}/plex/media/:/data
       - /etc/localtime:/etc/localtime:ro
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PUID:-1000}
+      - PUID=101000
+      - PGID=101000
       - CREATE_TUN_DEVICE=true
       - "OPENVPN_CONFIG=${OPENVPN_CONFIG}"
       - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
