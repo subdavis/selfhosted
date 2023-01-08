@@ -496,7 +496,7 @@ services:
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PUID:-1000}
-      - MEM_LIMIT=1024M
+      - MEM_LIMIT=1024
     ports:
       - "3478:3478/udp" # STUN
       - "10001:10001/udp" # Discovery
