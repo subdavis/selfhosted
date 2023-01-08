@@ -66,7 +66,7 @@ services:
       - traefik.http.routers.radarr-rtr.rule=Host(`radarr.${DNS_DOMAIN}`)
       - traefik.http.routers.radarr-rtr.entrypoints=websecure
       - traefik.http.routers.radarr-rtr.tls=true
-      - traefik.http.routers.radarr-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
+      - traefik.http.routers.radarr-rtr.middlewares=ipwhitelist-mddl@docker
     volumes:
       - ${PRIMARY_MOUNT}/radarr/data:/config
       - ${PRIMARY_MOUNT}/plex/media/:/data
@@ -88,7 +88,7 @@ services:
       - traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.${DNS_DOMAIN}`)
       - traefik.http.routers.sonarr-rtr.entrypoints=websecure
       - traefik.http.routers.sonarr-rtr.tls=true
-      - traefik.http.routers.sonarr-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
+      - traefik.http.routers.sonarr-rtr.middlewares=ipwhitelist-mddl@docker
     volumes:
       - ${PRIMARY_MOUNT}/sonarr/data:/config
       - ${PRIMARY_MOUNT}/plex/media/:/data
@@ -110,6 +110,7 @@ services:
       - traefik.http.routers.calibre-rtr.rule=Host(`calibre.${DNS_DOMAIN}`)
       - traefik.http.routers.calibre-rtr.entrypoints=websecure
       - traefik.http.routers.calibre-rtr.tls=true
+      - traefik.http.routers.duplicati-rtr.middlewares=traefik-forward-auth@docker
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PUID:-1000}
