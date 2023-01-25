@@ -1,18 +1,17 @@
-# rootless docker selfhosted services
+# docker selfhosted services
 
 > with docker-compose and traefik
 
 ![Uptime Robot ratio (30 days)](https://img.shields.io/uptimerobot/ratio/m784171038-19b52e00f52a8d916ba46346)
 [![Build Status](https://drone.subdavis.com/api/badges/subdavis/selfhosted/status.svg)](https://drone.subdavis.com/subdavis/selfhosted)
 
-This repo contains my production **rootless** docker services accessible from anywhere over HTTPS using [traefik](https://traefik.io).  These services (and others) run on a single server.
+This repo contains my production docker services accessible from anywhere over HTTPS using [traefik](https://traefik.io).  These services (and others) run on a single server.  **It used to be [rootless-mode](https://docs.docker.com/engine/security/rootless/)** but slirp4net was too slow and too much of the docker advanced configuration (permissions flags, mostly) were missing.
 
 * Jellyfin
 * Sonarr, Radarr, Prowlarr
-* Minio
 * Calibre Web
 * Kobo book downloader (kobodl)
-* Transmission torrent server with OpenVPN over NordVPN
+* Transmission torrent server
 * AdGuard Home DNS
 * Drone CI and runner
 * Duplicati
@@ -38,7 +37,7 @@ More great documentation.
 
 ## Prerequisites
 
-* A recent version of ubuntu server with rootless `Docker CE` and `docker-compose` installed (see below)
+* A recent version of ubuntu server with `Docker CE` installed (see below)
 * A router or firewall capable of dnsmasq. I use a Ubiquiti EdgeRouter X.
 * A domain name.
 * A cloudflare account.
@@ -72,10 +71,9 @@ Resolving the IP address of your home network is annoying because most DNS provi
 1. [Enable Unattended Upgrades](https://help.ubuntu.com/community/AutomaticSecurityUpdates)
 1. clone this repo
 1. Sign into any private docker registries
-1. install [rootless docker](https://docs.docker.com/engine/security/rootless/)
+1. install [docker](https://docs.docker.com/engine/install/)
   a [Understanding UID remapping](https://medium.com/@tonistiigi/experimenting-with-rootless-docker-416c9ad8c0d6)
   a. ignore the env exports it says to set, see below
-1. [install docker compose](https://docs.docker.com/compose/install/)
 1. make sure `UsePAM yes` is set in `/etc/ssh/sshd_config` [read more](https://superuser.com/questions/1561076/systemctl-use-failed-to-connect-to-bus-no-such-file-or-directory-debian-9)
 
 ```bash
