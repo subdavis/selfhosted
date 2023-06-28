@@ -286,38 +286,6 @@ services:
       - kobodl-net
 
   #############################
-  ## NETDATA
-  #############################
-  netdata:
-    image: netdata/netdata
-    user: ${PUID:-1000}
-    container_name: netdata
-    hostname: "core.${DNS_DOMAIN}"
-    restart: unless-stopped
-    cap_add:
-      - SYS_PTRACE
-    security_opt:
-      - apparmor:unconfined
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=netdata-net
-      - traefik.http.services.netdata-svc.loadbalancer.server.port=19999
-      - traefik.http.routers.netdata-rtr.rule=Host(`netdata.${DNS_DOMAIN}`)
-      - traefik.http.routers.netdata-rtr.entrypoints=websecure
-      - traefik.http.routers.netdata-rtr.tls=true
-      - traefik.http.routers.netdata-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-    volumes:
-      - "${PRIMARY_MOUNT}/netdata/config:/etc/netdata"
-      - netdatalib:/var/lib/netdata
-      - netdatacache:/var/cache/netdata
-      - /etc/passwd:/host/etc/passwd:ro
-      - /etc/group:/host/etc/group:ro
-      - /sys:/host/sys:ro
-      - /etc/os-release:/host/etc/os-release:ro
-    networks:
-      - netdata-net
-
-  #############################
   ## PORTAINER - ROOT
   #############################
 
@@ -449,7 +417,6 @@ services:
       - drone-net
       - duplicati-net
       - kobodl-net
-      - netdata-net
       - plex-net
       - portainer-net
       - transmission-net
@@ -579,8 +546,6 @@ networks:
     name: duplicati-net
   kobodl-net:
     name: kobodl-net
-  netdata-net:
-    name: netdata-net
   plex-net:
     name: plex-net
   portainer-net:
@@ -594,6 +559,3 @@ networks:
   vaultwarden-net:
     name: vaultwarden-net
 
-volumes:
-  netdatalib:
-  netdatacache:
