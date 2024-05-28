@@ -603,6 +603,8 @@ networks:
     name: kobodl-net
   plausible-net:
     name: plausible-net
+  plausible-private-net:
+    name: plausible-private-net
   plex-net:
     name: plex-net
   portainer-net:
