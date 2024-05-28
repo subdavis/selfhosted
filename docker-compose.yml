@@ -334,7 +334,6 @@ services:
       - traefik.http.routers.plausible-rtr.rule=Host(`plausible.${DNS_DOMAIN}`)
       - traefik.http.routers.plausible-rtr.entrypoints=websecure
       - traefik.http.routers.plausible-rtr.tls=true
-      - traefik.http.routers.plausible-rtr.middlewares=traefik-forward-auth@docker
     networks:
       - plausible-net
       - plausible-private-net
