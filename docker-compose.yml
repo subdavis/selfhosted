@@ -121,7 +121,31 @@ services:
       - ${PRIMARY_MOUNT}/calibre/books:/books
     networks:
       - calibre-net
-  
+
+  #############################
+  ## CHANGEDETECTION
+  #############################
+
+  changedetection:
+    image: ghcr.io/dgtlmoon/changedetection.io
+    container_name: changedetection
+    restart: unless-stopped
+    volumes:
+      - ${SECONDARY_MOUNT}/changedetection/datastore:/datastore
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=changedetection-net
+      - traefik.http.services.changedetection-svc.loadbalancer.server.port=5000
+      - traefik.http.routers.changedetection-rtr.rule=Host(`changedetection.${DNS_DOMAIN}`)
+      - traefik.http.routers.changedetection-rtr.entrypoints=websecure
+      - traefik.http.routers.changedetection-rtr.tls=true
+      - traefik.http.routers.changedetection-rtr.middlewares=traefik-forward-auth@docker
+    networks:
+      - changedetection-net
+
   #############################
   ## CLOUDFLARE - ROOT
   #############################
@@ -467,6 +491,7 @@ services:
       - arr-net
       - auth-net
       - calibre-net
+      - changedetection-net
       - drone-net
       - duplicati-net
       - kobodl-net
@@ -592,6 +617,8 @@ networks:
     name: auth-net
   calibre-net:
     name: calibre-net
+  changedetection-net:
+    name: changedetection-net
   drone-net:
     name: drone-net
   drone-private-net:
