@@ -501,6 +501,7 @@ services:
       - transmission-net
       - unifi-net
       - vaultwarden-net
+      - webdav-net
      
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:latest
@@ -593,6 +594,32 @@ services:
       - "traefik.http.services.vaultwarden-ws-svc.loadbalancer.server.port=3012"
 
   #############################
+  ## WEBDAV
+  #############################
+
+  webdav:
+    image: bytemark/webdav
+    container_name: webdav
+    user: ${PUID:-1000}
+    restart: always
+    environment:
+      AUTH_TYPE: Digest
+      USERNAME: admin
+      PASSWORD: password
+    volumes:
+      - "${PRIMARY_MOUNT}/webdav:/var/lib/dav"
+    networks:
+      - webdav-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=webdav-net"
+      - "traefik.http.routers.webdav-rtr.entrypoints=websecure"
+      - "traefik.http.routers.webdav-rtr.rule=Host(`webdav.${DNS_DOMAIN}`)"
+      - "traefik.http.routers.webdav-rtr.service=webdav-svc"
+      - "traefik.http.services.webdav-svc.loadbalancer.server.port=80"
+      - "traefik.http.routers.webdav-rtr.middlewares=ipwhitelist-mddl@docker"
+
+  #############################
   ## WATCHTOWER - ROOT
   #############################
 
@@ -643,4 +670,5 @@ networks:
     name: unifi-net
   vaultwarden-net:
     name: vaultwarden-net
-
+  webdav-net:
+    name: webdav-net
