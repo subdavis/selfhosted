@@ -598,7 +598,6 @@ services:
   webdav:
     image: bytemark/webdav
     container_name: webdav
-    user: ${PUID:-1000}
     restart: always
     environment:
       AUTH_TYPE: Digest
