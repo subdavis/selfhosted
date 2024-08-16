@@ -538,8 +538,6 @@ services:
     image: ghcr.io/linuxserver/unifi-controller:latest
     container_name: unifi_controller
     restart: unless-stopped
-    labels:
-      - traefik.enable=false
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PUID:-1000}
