@@ -310,62 +310,6 @@ services:
       - kobodl-net
 
   #############################
-  ## PLAUSIBLE
-  #############################
-
-  plausible_db:
-    # Plausible v2.1.0 was tested against PostgreSQL versions 15 and 16
-    # https://github.com/plausible/analytics/blob/v2.1.0/.github/workflows/elixir.yml#L21-L32
-    image: postgres:16-alpine
-    restart: always
-    container_name: plausible_db
-    volumes:
-      - ${PRIMARY_MOUNT}/plausible/postgres_data:/var/lib/postgresql/data
-    environment:
-      - POSTGRES_PASSWORD=postgres
-    networks:
-      - plausible-private-net
-
-  plausible_events_db:
-    image: clickhouse/clickhouse-server:24.3.3.102-alpine
-    restart: always
-    container_name: plausible_events_db
-    volumes:
-      - ${PRIMARY_MOUNT}/plausible/clickhouse_event_data:/var/lib/clickhouse
-      - ${PRIMARY_MOUNT}/plausible/clickhouse_event_logs:/var/log/clickhouse-server
-      - ./etc/clickhouse/clickhouse-config.xml:/etc/clickhouse-server/config.d/logging.xml:ro
-      - ./etc/clickhouse/clickhouse-user-config.xml:/etc/clickhouse-server/users.d/logging.xml:ro
-    ulimits:
-      nofile:
-        soft: 262144
-        hard: 262144
-    networks:
-      - plausible-private-net
-
-  plausible:
-    image: ghcr.io/plausible/community-edition:v2.1.0
-    restart: always
-    container_name: plausible
-    command: sh -c "sleep 10 && /entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh run"
-    depends_on:
-      - plausible_db
-      - plausible_events_db
-    environment:
-      - "BASE_URL=https://plausible.${DNS_DOMAIN}"
-      - "SECRET_KEY_BASE=${PLAUSIBLE_SECRET_KEY}"
-      - "TOTP_VAULT_KEY=${PLAUSIBLE_TOTP_KEY}"
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=plausible-net
-      - traefik.http.services.plausible-svc.loadbalancer.server.port=8000
-      - traefik.http.routers.plausible-rtr.rule=Host(`plausible.${DNS_DOMAIN}`)
-      - traefik.http.routers.plausible-rtr.entrypoints=websecure
-      - traefik.http.routers.plausible-rtr.tls=true
-    networks:
-      - plausible-net
-      - plausible-private-net
-
-  #############################
   ## PORTAINER - ROOT
   #############################
 
@@ -386,6 +330,53 @@ services:
       - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
     networks:
       - portainer-net
+
+  #############################
+  ## RSSHUB
+  #############################
+
+  rsshub:
+    # two ways to enable puppeteer:
+    # * comment out marked lines, then use this image instead: diygod/rsshub:chromium-bundled
+    # * (consumes more disk space and memory) leave everything unchanged
+    image: diygod/rsshub:chromium-bundled
+    container_name: rsshub
+    restart: always
+    environment:
+      NODE_ENV: production
+      CACHE_TYPE: redis
+      REDIS_URL: "redis://redis:6379/"
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:1200/healthz"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=rsshub-net
+      - traefik.http.services.rsshub-svc.loadbalancer.server.port=1200
+      - traefik.http.routers.rsshub-rtr.rule=Host(`rsshub.${DNS_DOMAIN}`)
+      - traefik.http.routers.rsshub-rtr.entrypoints=websecure
+      - traefik.http.routers.rsshub-rtr.tls=true
+    depends_on:
+      - redis
+    networks:
+      - rsshub-net
+
+  redis:
+    image: redis:alpine
+    restart: always
+    container_name: rsshub_redis
+    volumes:
+      - redis-data:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 5s
+    networks:
+      - rsshub-private-net
 
   #############################
   ## TRANSMISSION_TORRENT
@@ -499,7 +490,7 @@ services:
       - duplicati-net
       - kobodl-net
       - plex-net
-      - plausible-net
+      - umami-net
       - portainer-net
       - transmission-net
       - unifi-net
@@ -532,6 +523,59 @@ services:
       - traefik.http.routers.auth-rtr.entrypoints=websecure
       - traefik.http.routers.auth-rtr.tls=true
       - traefik.http.routers.auth-rtr.middlewares=traefik-forward-auth
+
+  #############################
+  ## Umami
+  #############################
+
+  postgres_db:
+    image: postgres:15-alpine
+    restart: always
+    container_name: umami_postgres
+    user: ${PUID:-1000}
+    volumes:
+      - ${PRIMARY_MOUNT}/postgres_15:/var/lib/postgresql/data
+      - /etc/passwd:/etc/passwd:ro
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: umami
+    networks:
+      - umami-private-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+  
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    restart: always
+    container_name: umami
+    user: ${PUID:-1000}
+    command: sh -c "sleep 10 && /entrypoint.sh db createdb && /entrypoint.sh db migrate && /entrypoint.sh run"
+    depends_on:
+      postgres_db:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://umami:umami@db:5432/umami
+      DATABASE_TYPE: postgresql
+      APP_SECRET: ${DNS_DOMAIN_ZONE_ID}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=umami-net
+      - traefik.http.services.umami-svc.loadbalancer.server.port=3000
+      - traefik.http.routers.umami-rtr.rule=Host(`umami.${DNS_DOMAIN}`)
+      - traefik.http.routers.umami-rtr.entrypoints=websecure
+      - traefik.http.routers.umami-rtr.tls=true
+    networks:
+      - umami-net
+      - umami-private-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://localhost:3000/api/heartbeat"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
 
   #############################
   ## UNIFI CONTROLLER
@@ -654,21 +698,28 @@ networks:
     name: duplicati-net
   kobodl-net:
     name: kobodl-net
-  plausible-net:
-    name: plausible-net
-  plausible-private-net:
-    name: plausible-private-net
   plex-net:
     name: plex-net
   portainer-net:
     name: portainer-net
+  rsshub-net:
+    name: rsshub-net
+  rsshub-private-net:
+    name: rsshub-private-net
   transmission-net:
     name: transmission-net
   traefik-net:
     name: traefik-net
+  umami-net:
+    name: umami-net
+  umami-private-net:
+    name: umami-private-net
   unifi-net:
     name: unifi-net
   vaultwarden-net:
     name: vaultwarden-net
   webdav-net:
     name: webdav-net
+
+volumes:
+  redis-data:
