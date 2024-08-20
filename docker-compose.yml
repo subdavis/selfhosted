@@ -336,16 +336,13 @@ services:
   #############################
 
   rsshub:
-    # two ways to enable puppeteer:
-    # * comment out marked lines, then use this image instead: diygod/rsshub:chromium-bundled
-    # * (consumes more disk space and memory) leave everything unchanged
     image: diygod/rsshub:chromium-bundled
     container_name: rsshub
     restart: always
     environment:
       NODE_ENV: production
       CACHE_TYPE: redis
-      REDIS_URL: "redis://redis:6379/"
+      REDIS_URL: "redis://rsshub_redis:6379/"
     healthcheck:
       test: ["CMD", "curl", "-f", "http://localhost:1200/healthz"]
       interval: 30s
@@ -362,6 +359,7 @@ services:
       - redis
     networks:
       - rsshub-net
+      - rsshub-private-net
 
   redis:
     image: redis:alpine
@@ -490,9 +488,10 @@ services:
       - duplicati-net
       - kobodl-net
       - plex-net
-      - umami-net
       - portainer-net
+      - rsshub-net
       - transmission-net
+      - umami-net
       - unifi-net
       - vaultwarden-net
       - webdav-net
@@ -558,7 +557,7 @@ services:
       postgres_db:
         condition: service_healthy
     environment:
-      DATABASE_URL: postgresql://umami:umami@db:5432/umami
+      DATABASE_URL: postgresql://umami:umami@umami_postgres:5432/umami
       DATABASE_TYPE: postgresql
       APP_SECRET: ${DNS_DOMAIN_ZONE_ID}
     labels:
