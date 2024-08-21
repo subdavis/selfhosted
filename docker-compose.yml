@@ -523,7 +523,7 @@ services:
   ## Umami
   #############################
 
-  postgres_db:
+  umami_postgres:
     image: postgres:15-alpine
     restart: always
     container_name: umami_postgres
@@ -549,7 +549,7 @@ services:
     container_name: umami
     user: ${PUID:-1000}
     depends_on:
-      postgres_db:
+      umami_postgres:
         condition: service_healthy
     environment:
       DATABASE_URL: postgresql://umami:umami@umami_postgres:5432/umami
