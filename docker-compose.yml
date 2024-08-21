@@ -343,11 +343,6 @@ services:
       NODE_ENV: production
       CACHE_TYPE: redis
       REDIS_URL: "redis://rsshub_redis:6379/"
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:1200/healthz"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
     labels:
       - traefik.enable=true
       - traefik.docker.network=rsshub-net
