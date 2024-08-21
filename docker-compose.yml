@@ -527,10 +527,8 @@ services:
     image: postgres:15-alpine
     restart: always
     container_name: umami_postgres
-    user: ${PUID:-1000}
     volumes:
       - ${PRIMARY_MOUNT}/postgres_15:/var/lib/postgresql/data
-      - /etc/passwd:/etc/passwd:ro
     environment:
       POSTGRES_DB: umami
       POSTGRES_USER: umami
