@@ -1,9 +1,9 @@
 [Unit]
-Description=General data
+Description=4TB Disk
 
 [Mount]
-What=UUID=7de2e82b-e282-468f-976a-8a2e6c9722a8
-Where=/media/secondary
+What=UUID=98d3794b-3f70-4bbc-8d39-ffd0847c621b
+Where=/media/4tb
 Type=ext4
 Options=defaults,auto,noatime,exec
 
