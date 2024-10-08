@@ -386,7 +386,7 @@ services:
       - plex-net
     environment:
       - POLLING_INTERVAL=60
-      - SERVER_URL=http://podfetch.subdavis.com
+      - SERVER_URL=https://podfetch.subdavis.com
       - DATABASE_URL=sqlite:///app/db/podcast.db
 
   #############################
