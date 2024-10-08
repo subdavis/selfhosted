@@ -363,6 +363,33 @@ services:
       - kobodl-net
 
   #############################
+  ## PODFETCH
+  #############################   
+
+  podfetch:
+    image: samuel19982/podfetch:latest
+    container_name: podfetch
+    restart: unless-stopped
+    user: ${PUID:-1000}:${PUID:-1000}
+    volumes:
+      - ${MEDIA_MOUNT}/podfetch/podcasts:/app/podcasts
+      - ${LOCAL_MOUNT}/podfetch/db:/app/db
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=plex-net
+      - traefik.http.services.podfetch-svc.loadbalancer.server.port=80
+      - traefik.http.routers.podfetch-rtr.rule=Host(`podfetch.${DNS_DOMAIN}`)
+      - traefik.http.routers.podfetch-rtr.entrypoints=websecure
+      - traefik.http.routers.podfetch-rtr.tls=true
+      - traefik.http.routers.podfetch-rtr.middlewares=ipwhitelist-mddl@docker
+    networks:
+      - plex-net
+    environment:
+      - POLLING_INTERVAL=60
+      - SERVER_URL=http://podfetch.subdavis.com
+      - DATABASE_URL=sqlite:///app/db/podcast.db
+
+  #############################
   ## PORTAINER - ROOT
   #############################
 
