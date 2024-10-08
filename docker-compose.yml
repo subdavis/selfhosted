@@ -286,28 +286,57 @@ services:
       - plex-net
 
   #############################
-  ## FreshRSS
+  ## MINIFLUX
   #############################
 
-  freshrss:
-    image: lscr.io/linuxserver/freshrss:latest
-    container_name: freshrss
+  miniflux_postgres:
+    image: postgres:15-alpine
     restart: unless-stopped
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PUID:-1000}
-      - TZ=${TIME_ZONE}
+    container_name: miniflux_postgres
     volumes:
-      - ${PRIMARY_MOUNT}/freshrss/config:/config
+      - ${PRIMARY_MOUNT}/miniflux_postgres_15:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: miniflux
+      POSTGRES_USER: miniflux
+      POSTGRES_PASSWORD: miniflux
+    networks:
+      - miniflux-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  miniflux:
+    image: ghcr.io/miniflux/miniflux:latest
+    container_name: miniflux
+    restart: unless-stopped
+    depends_on:
+      miniflux_postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/usr/bin/miniflux", "-healthcheck", "auto"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - "BASE_URL=https://miniflux.${DNS_DOMAIN}"
+      - "DATABASE_URL=postgres://miniflux:miniflux@miniflux_postgres/miniflux?sslmode=disable"
+      - RUN_MIGRATIONS=1
+      - CREATE_ADMIN=1
+      - ADMIN_USERNAME=admin
+      - ADMIN_PASSWORD=miniflux
+    volumes:
+      - ${PRIMARY_MOUNT}/miniflux/config:/config
     labels:
       - traefik.enable=true
-      - traefik.docker.network=freshrss-net
-      - traefik.http.services.freshrss-svc.loadbalancer.server.port=80
-      - traefik.http.routers.freshrss-rtr.rule=Host(`freshrss.${DNS_DOMAIN}`)
-      - traefik.http.routers.freshrss-rtr.entrypoints=websecure
-      - traefik.http.routers.freshrss-rtr.tls=true
+      - traefik.docker.network=miniflux-net
+      - traefik.http.services.miniflux-svc.loadbalancer.server.port=8080
+      - traefik.http.routers.miniflux-rtr.rule=Host(`miniflux.${DNS_DOMAIN}`)
+      - traefik.http.routers.miniflux-rtr.entrypoints=websecure
+      - traefik.http.routers.miniflux-rtr.tls=true
     networks:
-      - freshrss-net
+      - miniflux-net
 
   #############################
   ## KOBODL
@@ -506,7 +535,7 @@ services:
       - changedetection-net
       - drone-net
       - duplicati-net
-      - freshrss-net
+      - miniflux-net
       - kobodl-net
       - plex-net
       - portainer-net
@@ -713,8 +742,8 @@ networks:
     name: drone-private-net
   duplicati-net:
     name: duplicati-net
-  freshrss-net:
-    name: freshrss-net
+  miniflux-net:
+    name: miniflux-net
   kobodl-net:
     name: kobodl-net
   plex-net:
