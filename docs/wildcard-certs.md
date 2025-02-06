@@ -40,7 +40,7 @@ docker run --rm --name traefik \
   --env CF_ZONE_API_TOKEN=${CF_TOKEN} \
   --volume /var/run/docker.sock:/var/run/docker.sock \
   --volume "/var/lib/traefik/letsencrypt:/letsencrypt" \
-  --publis 8080:8080 \
+  --publish 8080:8080 \
   --publish 80:80 \
   --publish 443:443 \
   traefik:v2.2 \
