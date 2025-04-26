@@ -152,6 +152,7 @@ services:
     image: selenium/standalone-chrome-debug:latest
     container_name: changedetection-selenium
     restart: unless-stopped
+    shm_size: '2gb'
     labels:
       - traefik.enable=false
     networks:
