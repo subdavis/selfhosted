@@ -135,6 +135,7 @@ services:
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PUID:-1000}
+      - WEBDRIVER_URL="http://changedetection-selenium:4444/wd/hub"
     labels:
       - traefik.enable=true
       - traefik.docker.network=changedetection-net
@@ -145,6 +146,16 @@ services:
       - traefik.http.routers.changedetection-rtr.middlewares=traefik-forward-auth@docker
     networks:
       - changedetection-net
+      - changedetection-private-net
+
+  changedetection-selenium:
+    image: selenium/standalone-chrome-debug:latest
+    container_name: changedetection-selenium
+    restart: unless-stopped
+    labels:
+      - traefik.enable=false
+    networks:
+      - changedetection-private-net
 
   #############################
   ## CLOUDFLARE - ROOT
@@ -736,6 +747,8 @@ networks:
     name: calibre-net
   changedetection-net:
     name: changedetection-net
+  changedetection-private-net:
+    name: changedetection-private-net
   drone-net:
     name: drone-net
   drone-private-net:
