@@ -388,24 +388,24 @@ services:
   ## SonarQube Enterprise
   #############################
 
-  sonarqube:
-    image: sonarqube:2025.4-enterprise
-    container_name: sonarqube
-    restart: unless-stopped
-    volumes:
-      - ${SECONDARY_MOUNT}/sonarqube/data:/opt/sonarqube/data
-      - ${SECONDARY_MOUNT}/sonarqube/logs:/opt/sonarqube/logs
-      - ${SECONDARY_MOUNT}/sonarqube/extensions:/opt/sonarqube/extensions
-    networks:
-      - sonarqube-net
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=sonarqube-net
-      - traefik.http.services.sonarqube-svc.loadbalancer.server.port=9000
-      - traefik.http.routers.sonarqube-rtr.rule=Host(`sonar.${DNS_DOMAIN}`)
-      - traefik.http.routers.sonarqube-rtr.entrypoints=websecure
-      - traefik.http.routers.sonarqube-rtr.tls=true
-      - traefik.http.routers.sonarqube-rtr.middlewares=ipwhitelist-mddl@docker
+  # sonarqube:
+  #   image: sonarqube:2025.4-enterprise
+  #   container_name: sonarqube
+  #   restart: unless-stopped
+  #   volumes:
+  #     - ${SECONDARY_MOUNT}/sonarqube/data:/opt/sonarqube/data
+  #     - ${SECONDARY_MOUNT}/sonarqube/logs:/opt/sonarqube/logs
+  #     - ${SECONDARY_MOUNT}/sonarqube/extensions:/opt/sonarqube/extensions
+  #   networks:
+  #     - sonarqube-net
+  #   labels:
+  #     - traefik.enable=true
+  #     - traefik.docker.network=sonarqube-net
+  #     - traefik.http.services.sonarqube-svc.loadbalancer.server.port=9000
+  #     - traefik.http.routers.sonarqube-rtr.rule=Host(`sonar.${DNS_DOMAIN}`)
+  #     - traefik.http.routers.sonarqube-rtr.entrypoints=websecure
+  #     - traefik.http.routers.sonarqube-rtr.tls=true
+  #     - traefik.http.routers.sonarqube-rtr.middlewares=ipwhitelist-mddl@docker
 
   #############################
   ## TRANSMISSION_TORRENT
