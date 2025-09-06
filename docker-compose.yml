@@ -146,21 +146,6 @@ services:
       - traefik.http.routers.changedetection-rtr.middlewares=traefik-forward-auth@docker
     networks:
       - changedetection-net
-      - changedetection-private-net
-
-  changedetection-selenium:
-    image: selenium/standalone-chrome-debug:3.141.59
-    container_name: changedetection-selenium
-    restart: unless-stopped
-    volumes:
-      # Workaround to avoid the browser crashing inside a docker container
-      # See https://github.com/SeleniumHQ/docker-selenium#quick-start
-      - /dev/shm:/dev/shm
-    shm_size: '2gb'
-    labels:
-      - traefik.enable=false
-    networks:
-      - changedetection-private-net
 
   #############################
   ## CLOUDFLARE - ROOT
@@ -400,46 +385,6 @@ services:
     networks:
       - portainer-net
 
-  #############################
-  ## RSSHUB
-  #############################
-
-  rsshub:
-    image: diygod/rsshub:chromium-bundled
-    container_name: rsshub
-    restart: always
-    user: ${PUID:-1000}
-    environment:
-      NODE_ENV: production
-      CACHE_TYPE: redis
-      REDIS_URL: "redis://rsshub_redis:6379/"
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=rsshub-net
-      - traefik.http.services.rsshub-svc.loadbalancer.server.port=1200
-      - traefik.http.routers.rsshub-rtr.rule=Host(`rsshub.${DNS_DOMAIN}`)
-      - traefik.http.routers.rsshub-rtr.entrypoints=websecure
-      - traefik.http.routers.rsshub-rtr.tls=true
-    depends_on:
-      - redis
-    networks:
-      - rsshub-net
-      - rsshub-private-net
-
-  redis:
-    image: redis:alpine
-    restart: always
-    container_name: rsshub_redis
-    volumes:
-      - redis-data:/data
-    healthcheck:
-      test: ["CMD", "redis-cli", "ping"]
-      interval: 30s
-      timeout: 10s
-      retries: 5
-      start_period: 5s
-    networks:
-      - rsshub-private-net
 
   #############################
   ## TRANSMISSION_TORRENT
@@ -555,12 +500,10 @@ services:
       - kobodl-net
       - plex-net
       - portainer-net
-      - rsshub-net
       - transmission-net
       - umami-net
       - unifi-net
       - vaultwarden-net
-      - webdav-net
      
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:latest
@@ -701,31 +644,6 @@ services:
       - "traefik.http.services.vaultwarden-ws-svc.loadbalancer.server.port=3012"
 
   #############################
-  ## WEBDAV
-  #############################
-
-  webdav:
-    image: bytemark/webdav
-    container_name: webdav
-    restart: always
-    environment:
-      AUTH_TYPE: Digest
-      USERNAME: admin
-      PASSWORD: password
-    volumes:
-      - "${PRIMARY_MOUNT}/webdav:/var/lib/dav"
-    networks:
-      - webdav-net
-    labels:
-      - "traefik.enable=true"
-      - "traefik.docker.network=webdav-net"
-      - "traefik.http.routers.webdav-rtr.entrypoints=websecure"
-      - "traefik.http.routers.webdav-rtr.rule=Host(`webdav.${DNS_DOMAIN}`)"
-      - "traefik.http.routers.webdav-rtr.service=webdav-svc"
-      - "traefik.http.services.webdav-svc.loadbalancer.server.port=80"
-      - "traefik.http.routers.webdav-rtr.middlewares=ipwhitelist-mddl@docker"
-
-  #############################
   ## WATCHTOWER - ROOT
   #############################
 
@@ -752,8 +670,6 @@ networks:
     name: calibre-net
   changedetection-net:
     name: changedetection-net
-  changedetection-private-net:
-    name: changedetection-private-net
   drone-net:
     name: drone-net
   drone-private-net:
@@ -768,10 +684,6 @@ networks:
     name: plex-net
   portainer-net:
     name: portainer-net
-  rsshub-net:
-    name: rsshub-net
-  rsshub-private-net:
-    name: rsshub-private-net
   transmission-net:
     name: transmission-net
   traefik-net:
@@ -784,8 +696,6 @@ networks:
     name: unifi-net
   vaultwarden-net:
     name: vaultwarden-net
-  webdav-net:
-    name: webdav-net
 
 volumes:
   redis-data:
