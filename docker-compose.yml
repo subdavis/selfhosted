@@ -558,7 +558,7 @@ services:
     image: ghcr.io/umami-software/umami:postgresql-latest
     restart: always
     container_name: umami
-    user: ${PUID:-1000}
+    # user: ${PUID:-1000} # Permissions error after recent change
     depends_on:
       umami_postgres:
         condition: service_healthy
