@@ -43,6 +43,7 @@ services:
       - traefik.http.routers.backrest-rtr.rule=Host(`backrest.${DNS_DOMAIN}`)
       - traefik.http.routers.backrest-rtr.entrypoints=websecure
       - traefik.http.routers.backrest-rtr.tls=true
+      - traefik.http.routers.backrest-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
     volumes:
       - ${SECONDARY_MOUNT}/backrest/data:/data
       - ${SECONDARY_MOUNT}/backrest/config:/config
