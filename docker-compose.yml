@@ -38,7 +38,7 @@ services:
       - backrest-net
     labels:
       - traefik.enable=true
-      - traefik.docker.network=adguard-net
+      - traefik.docker.network=backrest-net
       - traefik.http.services.backrest-svc.loadbalancer.server.port=9898
       - traefik.http.routers.backrest-rtr.rule=Host(`backrest.${DNS_DOMAIN}`)
       - traefik.http.routers.backrest-rtr.entrypoints=websecure
