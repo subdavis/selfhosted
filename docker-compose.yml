@@ -25,6 +25,32 @@ services:
       - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
     dns: "1.1.1.1"
 
+
+  backrest:
+    image: garethgeorge/backrest:v1.9
+    container_name: backrest
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=adguard-net
+      - traefik.http.services.backrest-svc.loadbalancer.server.port=9898
+      - traefik.http.routers.backrest-rtr.rule=Host(`backrest.${DNS_DOMAIN}`)
+      - traefik.http.routers.backrest-rtr.entrypoints=websecure
+      - traefik.http.routers.backrest-rtr.tls=true
+      - traefik.http.routers.backrest-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+    volumes:
+      - ${SECONDARY_MOUNT}/backrest/data:/data
+      - ${SECONDARY_MOUNT}/backrest/config:/config
+      - ${SECONDARY_MOUNT}/backrest/cache:/cache
+      - ${PRIMARY_MOUNT}:/sources/primary
+      - ${LOCAL_MOUNT}:/sources/local
+      - ${SECONDARY_MOUNT}/backrest/repos:/repos # [optional] mount repos if using local storage, not necessary for remotes e.g. B2, S3, etc.
+    environment:
+      - BACKREST_DATA=/data # path for backrest data. restic binary and the database are placed here.
+      - BACKREST_CONFIG=/config/config.json # path for the backrest config file.
+      - XDG_CACHE_HOME=/cache # path for the restic cache which greatly improves performance.
+      - TZ=${TIME_ZONE}
+
   #############################
   ## ARRS
   #############################
@@ -142,7 +168,6 @@ services:
       - traefik.http.routers.changedetection-rtr.rule=Host(`changedetection.${DNS_DOMAIN}`)
       - traefik.http.routers.changedetection-rtr.entrypoints=websecure
       - traefik.http.routers.changedetection-rtr.tls=true
-      - traefik.http.routers.changedetection-rtr.middlewares=traefik-forward-auth@docker
     networks:
       - changedetection-net
 
@@ -513,6 +538,7 @@ services:
       - adguard-net
       - arr-net
       - auth-net
+      - backrest-net
       - calibre-net
       - changedetection-net
       - drone-net
@@ -686,6 +712,8 @@ networks:
     name: adguard-net
   arr-net:
     name: arr-net
+  backrest-net:
+    name: backrest-net
   auth-net:
     name: auth-net
   calibre-net:
