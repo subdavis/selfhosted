@@ -25,11 +25,17 @@ services:
       - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
     dns: "1.1.1.1"
 
+  #############################
+  ## BACKREST
+  #############################
 
   backrest:
     image: garethgeorge/backrest:v1.9
+    user: ${PUID:-1000}
     container_name: backrest
     restart: unless-stopped
+    networks:
+      - backrest-net
     labels:
       - traefik.enable=true
       - traefik.docker.network=adguard-net
@@ -50,6 +56,8 @@ services:
       - BACKREST_CONFIG=/config/config.json # path for the backrest config file.
       - XDG_CACHE_HOME=/cache # path for the restic cache which greatly improves performance.
       - TZ=${TIME_ZONE}
+      - "PUID=${PUID:-1000}"
+      - "PGID=${PUID:-1000}"
 
   #############################
   ## ARRS
