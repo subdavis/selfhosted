@@ -4,7 +4,9 @@ from rss_glue.feeds import DigestFeed, HackerNewsFeed, RedditFeed
 from rss_glue.outputs import Artifact, HTMLIndexOutput, HtmlOutput, OpmlOutput, RssOutput
 from rss_glue.resources import global_config
 
-global_config.configure()
+global_config.configure(
+    base_url="https://rssglue.subdavis.com/"
+)
 
 selfhosted_reddit_top_feed = RedditFeed(
     "https://www.reddit.com/r/selfhosted/top.json?t=week",
