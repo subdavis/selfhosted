@@ -418,6 +418,39 @@ services:
       - portainer-net
 
   #############################
+  ## RSS-Glue
+  #############################
+
+  rssglue:
+    image: ghcr.io/rss-glue/rss-glue:latest
+    container_name: rssglue
+    restart: unless-stopped
+    labels:
+      - traefik.enable=false
+    volumes:
+      - ${PRIMARY_MOUNT}/rss-glue/static:/opt/rssglue/src/static
+      - "./etc/rss-glue/config.py:/opt/rssglue/config.py:ro"
+    command: --config /opt/rssglue/config.py watch --interval 44
+    
+  # Nginx service serves the static files from the rssglue_static volume
+  rssglue_nginx:
+    image: dceoy/nginx-autoindex
+    container_name: rssglue_nginx
+    restart: unless-stopped
+    volumes:
+      -  ${PRIMARY_MOUNT}/rss-glue/static:/var/lib/nginx/html:ro
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=rss-glue-net
+      - traefik.http.services.rssglue-svc.loadbalancer.server.port=80
+      - traefik.http.routers.rssglue-rtr.rule=Host(`rssglue.${DNS_DOMAIN}`)
+      - traefik.http.routers.rssglue-rtr.entrypoints=websecure
+      - traefik.http.routers.rssglue-rtr.tls=true
+    networks:
+      - rss-glue-net
+
+
+  #############################
   ## SonarQube Enterprise
   #############################
 
@@ -555,7 +588,7 @@ services:
       - kobodl-net
       - plex-net
       - portainer-net
-      - sonarqube-net
+      - rss-glue-net
       - transmission-net
       - umami-net
       - unifi-net
@@ -736,14 +769,14 @@ networks:
     name: duplicati-net
   miniflux-net:
     name: miniflux-net
+  rss-glue-net:
+    name: rss-glue-net
   kobodl-net:
     name: kobodl-net
   plex-net:
     name: plex-net
   portainer-net:
     name: portainer-net
-  sonarqube-net:
-    name: sonarqube-net
   transmission-net:
     name: transmission-net
   traefik-net:
