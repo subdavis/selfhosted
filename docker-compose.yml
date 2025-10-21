@@ -422,7 +422,7 @@ services:
   #############################
 
   rssglue:
-    image: ghcr.io/rss-glue/rss-glue:latest
+    image: ghcr.io/subdavis/rss-glue
     container_name: rssglue
     restart: unless-stopped
     labels:
