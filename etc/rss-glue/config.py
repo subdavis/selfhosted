@@ -83,7 +83,7 @@ other_feeds = [
             interval=timedelta(weeks=52),
         ),
         limit=digest_limit,
-        schedule="30 7 * * 1",  # Weekly on Mondays at 7:30am
+        schedule="15 6 * * 1",  # Weekly on Mondays at 7:30am
     ),
     # Reddit r/myog digest
     DigestFeed(
@@ -111,9 +111,9 @@ other_feeds = [
     ),
     # Hacker News best digest
     DigestFeed(
-        source=HackerNewsFeed(feed_type="best"),
+        source=HackerNewsFeed(feed_type="best", interval=timedelta(days=7)),
         limit=10,
-        schedule="0 8 * * *",  # Daily at 8:00am
+        schedule="0 6 * * *",  # Daily at 6:00am
     ),
     # Nasa APOD Weekly Digest
     DigestFeed(
