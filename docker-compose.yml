@@ -496,6 +496,8 @@ services:
     dns: 1.1.1.1
     sysctls:
       - net.ipv6.conf.all.disable_ipv6=1
+    mem_limit: 512m
+    mem_reservation: 256m
     cap_add:
       - NET_ADMIN
     volumes:  
