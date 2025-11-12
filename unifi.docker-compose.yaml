@@ -1,0 +1,34 @@
+services:
+  #############################
+  ## UNIFI CONTROLLER
+  #############################
+  unifi_controller:
+    image: ghcr.io/linuxserver/unifi-controller:latest
+    container_name: unifi_controller
+    restart: unless-stopped
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
+      - MEM_LIMIT=1024
+    ports:
+      - "3478:3478/udp" # STUN
+      - "10001:10001/udp" # Discovery
+      - "8080:8080" # Device comms
+      - "6789:6789" # Mobile speedtest
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=unifi-net
+      - traefik.http.routers.ubiq-rtr.rule=Host(`unifi.${DNS_DOMAIN}`)
+      - traefik.http.routers.ubiq-rtr.entrypoints=websecure
+      - traefik.http.routers.ubiq-rtr.tls=true
+      - traefik.http.routers.ubiq-rtr.middlewares=ipwhitelist-mddl@docker
+      - traefik.http.services.ubiq-svc.loadbalancer.server.scheme=https
+      - traefik.http.services.ubiq-svc.loadbalancer.server.port=8443
+    volumes:
+      - "${PRIMARY_MOUNT}/unifi/config/:/config"
+    networks:
+      - unifi-net
+
+networks:
+  unifi-net:
+    name: unifi-net

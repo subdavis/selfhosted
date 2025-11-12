@@ -133,6 +133,8 @@ After disabling `systemd-resolved.service`, I ususally set a different DNS serve
 
 `systemd-resolve --help` is your friend.
 
+[Also disable AdGuardHome's Rate Limiting](https://nikokultalahti.com/2025/04/09/fixing-server-misbehaving-error-in/) because miniflux will trigger it and throw `server misbehaving` errors.
+
 ## WireGurad and subnet overlap
 
 * use `wg-quick` for simplicity

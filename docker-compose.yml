@@ -215,6 +215,30 @@ services:
       - "DOMAIN1_ZONE_ID=${DNS_DOMAIN_ZONE_ID}"
     dns: 1.1.1.1
 
+
+  #############################
+  ## DOZZLE - ROOT
+  #############################
+
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - dozzle-net
+    environment:
+      DOZZLE_ENABLE_SHELL: true
+      DOZZLE_ENABLE_ACTIONS: true
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dozzle-net
+      - traefik.http.services.dozzle-svc.loadbalancer.server.port=8080
+      - traefik.http.routers.dozzle-rtr.rule=Host(`dozzle.${DNS_DOMAIN}`)
+      - traefik.http.routers.dozzle-rtr.entrypoints=websecure
+      - traefik.http.routers.dozzle-rtr.tls=true
+      - traefik.http.routers.dozzle-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
+
   #############################
   ## DRONE CI - ROOT
   #############################
@@ -261,34 +285,6 @@ services:
       - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
     networks:
       - drone-private-net
-
-  #############################
-  ## DUPLICATI
-  #############################
-
-  duplicati:
-    image: ghcr.io/linuxserver/duplicati:latest
-    container_name: duplicati
-    restart: unless-stopped
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=duplicati-net
-      - traefik.http.services.duplicati-svc.loadbalancer.server.port=8200
-      - traefik.http.routers.duplicati-rtr.rule=Host(`backups.${DNS_DOMAIN}`)
-      - traefik.http.routers.duplicati-rtr.entrypoints=websecure
-      - traefik.http.routers.duplicati-rtr.tls=true
-      - traefik.http.routers.duplicati-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-    environment:
-      - "TZ=${TIME_ZONE}"
-      - "PUID=${XID:-1000}"
-      - "PGID=${XID:-1000}"
-    volumes:
-      - ${PRIMARY_MOUNT}:/sources/primary
-      - ${LOCAL_MOUNT}:/sources/local
-      - ${SECONDARY_MOUNT}/duplicati/config:/config
-      - ${SECONDARY_MOUNT}/duplicati/backups:/backups
-    networks:
-      - duplicati-net
 
   #############################
   ## JELLYFIN
@@ -394,28 +390,6 @@ services:
     command: --config /home/kobodl.json serve -h 0.0.0.0 --output-dir /home/downloads
     networks:
       - kobodl-net
-
-  #############################
-  ## PORTAINER - ROOT
-  #############################
-
-  portainer:
-    image: portainer/portainer-ce:latest
-    restart: unless-stopped
-    container_name: portainer
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=portainer-net
-      - traefik.http.services.portainer-svc.loadbalancer.server.port=9000
-      - traefik.http.routers.portainer-rtr.rule=Host(`portainer.${DNS_DOMAIN}`)
-      - traefik.http.routers.portainer-rtr.entrypoints=websecure
-      - traefik.http.routers.portainer-rtr.tls=true
-      - traefik.http.routers.portainer-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
-    volumes:
-      - ${PRIMARY_MOUNT}/portainer/data/:/data
-      - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
-    networks:
-      - portainer-net
 
   #############################
   ## RSS-Glue
@@ -584,12 +558,11 @@ services:
       - backrest-net
       - calibre-net
       - changedetection-net
+      - dozzle-net
       - drone-net
-      - duplicati-net
       - miniflux-net
       - kobodl-net
       - plex-net
-      - portainer-net
       - rss-glue-net
       - transmission-net
       - umami-net
@@ -674,37 +647,6 @@ services:
       retries: 5
 
   #############################
-  ## UNIFI CONTROLLER
-  #############################
-
-  unifi_controller:
-    image: ghcr.io/linuxserver/unifi-controller:latest
-    container_name: unifi_controller
-    restart: unless-stopped
-    environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PUID:-1000}
-      - MEM_LIMIT=1024
-    ports:
-      - "3478:3478/udp" # STUN
-      - "10001:10001/udp" # Discovery
-      - "8080:8080" # Device comms
-      - "6789:6789" # Mobile speedtest
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=unifi-net
-      - traefik.http.routers.ubiq-rtr.rule=Host(`unifi.${DNS_DOMAIN}`)
-      - traefik.http.routers.ubiq-rtr.entrypoints=websecure
-      - traefik.http.routers.ubiq-rtr.tls=true
-      - traefik.http.routers.ubiq-rtr.middlewares=ipwhitelist-mddl@docker
-      - traefik.http.services.ubiq-svc.loadbalancer.server.scheme=https
-      - traefik.http.services.ubiq-svc.loadbalancer.server.port=8443
-    volumes:
-      - "${PRIMARY_MOUNT}/unifi/config/:/config"
-    networks:
-      - unifi-net
-
-  #############################
   ## VAULTWARDEN
   #############################
 
@@ -763,12 +705,12 @@ networks:
     name: calibre-net
   changedetection-net:
     name: changedetection-net
+  dozzle-net:
+    name: dozzle-net
   drone-net:
     name: drone-net
   drone-private-net:
     name: drone-private-net
-  duplicati-net:
-    name: duplicati-net
   miniflux-net:
     name: miniflux-net
   rss-glue-net:
@@ -777,8 +719,6 @@ networks:
     name: kobodl-net
   plex-net:
     name: plex-net
-  portainer-net:
-    name: portainer-net
   transmission-net:
     name: transmission-net
   traefik-net:
