@@ -399,12 +399,18 @@ services:
     image: ghcr.io/subdavis/rss-glue
     container_name: rssglue
     restart: unless-stopped
+    tty: true
     labels:
       - traefik.enable=false
+    environment:
+      - ANTHROPIC_KEY=${ANTHROPIC_KEY}
+      - INSTA_SC_API_KEY=${INSTA_SC_API_KEY}
+      - TZ=${TIME_ZONE}
+      - PYTHONUNBUFFERED=1
     volumes:
       - ${PRIMARY_MOUNT}/rss-glue/static:/opt/rssglue/src/static
       - "./etc/rss-glue/config.py:/opt/rssglue/config.py:ro"
-    command: --config /opt/rssglue/config.py watch --interval 44
+    command: ["--config", "/opt/rssglue/config.py", "watch"]
     
   # Nginx service serves the static files from the rssglue_static volume
   rssglue_nginx:
@@ -568,6 +574,7 @@ services:
       - umami-net
       - unifi-net
       - vaultwarden-net
+      - zerobyte-net
      
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:latest
@@ -692,6 +699,39 @@ services:
       - "${PRIMARY_MOUNT}/watchtower/config/:/config"
       - "${PRIMARY_MOUNT}/watchtower/docker-config.json:/config.json"
 
+  #############################
+  ## ZeroByte Root
+  #############################
+
+  # zerobyte:
+  #   image: ghcr.io/nicotsx/zerobyte:v0.13
+  #   container_name: zerobyte
+  #   restart: unless-stopped
+  #   cap_add:
+  #     - SYS_ADMIN
+  #   devices:
+  #     - /dev/fuse:/dev/fuse
+  #   networks:
+  #     - zerobyte-net
+  #   environment:
+  #     - TZ=${TIME_ZONE}  # Set your timezone here
+  #   volumes:
+  #     - /etc/localtime:/etc/localtime:ro
+  #     - ${SECONDARY_MOUNT}/zerobyte:/var/lib/zerobyte
+  #     # [optional] mount repos if using local storage, not necessary for remotes e.g. B2, S3, etc.
+  #     - ${SECONDARY_MOUNT}/backrest/repos:/repos
+  #     # User data mounts
+  #     - ${PRIMARY_MOUNT}:/sources/primary
+  #     - ${LOCAL_MOUNT}:/sources/local
+  #   labels:
+  #     - "traefik.enable=true"
+  #     - "traefik.docker.network=zerobyte-net"
+  #     # Entry Point for https
+  #     - "traefik.http.routers.zerobyte-rtr.entrypoints=websecure"
+  #     - "traefik.http.routers.zerobyte-rtr.rule=Host(`zerobyte.${DNS_DOMAIN}`)"
+  #     - "traefik.http.routers.zerobyte-rtr.service=zerobyte-svc"
+  #     - "traefik.http.services.zerobyte-svc.loadbalancer.server.port=4096"
+
 networks:
   adguard-net:
     name: adguard-net
@@ -731,6 +771,8 @@ networks:
     name: unifi-net
   vaultwarden-net:
     name: vaultwarden-net
+  zerobyte-net:
+    name: zerobyte-net
 
 volumes:
   redis-data:

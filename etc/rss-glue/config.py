@@ -1,146 +1,130 @@
-from datetime import datetime, timedelta
+import os
+from datetime import timedelta
 
-from rss_glue.feeds import CacheFeed, DigestFeed, HackerNewsFeed, MergeFeed, RedditFeed, RssFeed
-from rss_glue.outputs import Artifact, HTMLIndexOutput, HtmlOutput, OpmlOutput, RssOutput
-from rss_glue.resources import global_config
+from rss_glue import feeds, resources
 
-global_config.configure(base_url="https://rssglue.subdavis.com/")
-# global_config.configure()
+ai_client = feeds.ClaudeClient(api_key=os.getenv("ANTHROPIC_KEY", ""), model="claude-haiku-4-5")
+scrape_key = os.getenv("INSTA_SC_API_KEY", "")
+digest_limit = 8
 
-cycling_limit = 5
+resources.global_config.configure(base_url="https://rssglue.subdavis.com/", output_limit=6)
+# resources.global_config.configure(output_limit=6)
 
 cycling_feeds = [
-    RssFeed(
-        "behind_bars_instagram",
-        "https://rss.app/feeds/oicb357URm4uKhL4.xml",
-        interval=timedelta(minutes=24),
-        limit=cycling_limit,
-    ),
-    RssFeed(
-        "biking_with_baddies",
-        "https://rss.app/feeds/ChQBUWMjZNihd5CT.xml",
-        interval=timedelta(minutes=27),
-        limit=cycling_limit,
-    ),
-    RssFeed(
-        "perennial_instagram",
-        "https://rss.app/feeds/qh4C9SDdfO2j1Uu9.xml",
-        interval=timedelta(minutes=29),
-        limit=cycling_limit,
-    ),
-    RssFeed(
-        "bone_saw_instagram",
-        "https://rss.app/feeds/Sk5cdDN4jObrm6eB.xml",
-        interval=timedelta(minutes=31),
-        limit=cycling_limit,
-    ),
-    RssFeed(
-        "fast_casual_instagram",
-        "https://rss.app/feeds/KJ2EbycVWNUutfSf.xml",
-        interval=timedelta(minutes=26),
-        limit=cycling_limit,
-    ),
-    RssFeed(
-        "versus_cycles_instagram",
-        "https://rss.app/feeds/nizlLvOeAd0G649l.xml",
-        interval=timedelta(minutes=28),
-        limit=cycling_limit,
-    ),
-    RssFeed(
-        "joyful_rides_instagram",
-        "https://rss.app/feeds/Kq509BvbziDAmPoT.xml",
-        interval=timedelta(minutes=30),
-        limit=cycling_limit,
-    ),
-    RssFeed(
-        "handup_racing_instagram",
-        "https://rss.app/feeds/jSSwBkeL8zSPDpSh.xml",
-        interval=timedelta(minutes=32),
-        limit=cycling_limit,
-    ),
-    RssFeed(
-        "utepils_facebook",
-        "https://rss.app/feeds/wVt5kiZWd4l5jWIq.xml",
-        interval=timedelta(minutes=33),
-        limit=cycling_limit,
+    *[
+        feeds.InstagramFeed(
+            username=username,
+            api_key=scrape_key,
+            interval=timedelta(hours=24),
+        )
+        for username in [
+            "behindbarsbicycleshop",
+            "bikingwithbaddies",
+            "perennialcycle",
+            "bonesawcyclingcollective",
+            "fastcasualmpls",
+            "versusraceteam",
+            "joyfulridersclub",
+            "handupracing",
+        ]
+    ],
+    feeds.FacebookGroupFeed(
+        origin_url="https://www.facebook.com/groups/UtepilsCycling/",
+        title="Utepils Cycling",
+        api_key=scrape_key,
+        interval=timedelta(hours=24),
     ),
 ]
 
-digest_limit = 8
-other_feeds = [
+hn = feeds.HackerNewsFeed(feed_type="best", interval=timedelta(days=2))
+
+cycling_merge = feeds.MergeFeed(
+    "cycling_instagram_merge",
+    *cycling_feeds,
+    title="Cycling Instagram Merge",
+)
+
+apod = feeds.RssFeed(
+    "nasa_apod",
+    "https://www.nasa.gov/feeds/iotd-feed/",
+    interval=timedelta(days=7),
+)
+
+all_feeds = [
+    hn,
     # Reddit r/selfhosted digest
-    DigestFeed(
-        source=RedditFeed(
+    feeds.DigestFeed(
+        source=feeds.RedditFeed(
             "https://www.reddit.com/r/selfhosted/top.json?t=week",
         ),
         limit=digest_limit,
         schedule="15 6 * * 2",  # Weekly on Tuesdays at 6:15am
     ),
     # Reddit r/cyclingmsp digest
-    DigestFeed(
-        source=RedditFeed(
+    feeds.DigestFeed(
+        source=feeds.RedditFeed(
             "https://www.reddit.com/r/cyclingmsp/top.json?t=week",
             interval=timedelta(weeks=52),
         ),
         limit=digest_limit,
-        schedule="15 6 * * 1",  # Weekly on Mondays at 7:30am
+        schedule="30 7 * * 1",  # Weekly on Mondays at 7:30am
     ),
     # Reddit r/myog digest
-    DigestFeed(
-        source=RedditFeed(
+    feeds.DigestFeed(
+        source=feeds.RedditFeed(
             "https://www.reddit.com/r/myog/top.json?t=week",
         ),
         limit=digest_limit,
         schedule="15 6 * * 3",  # Weekly on Wednesdays at 6:15am
     ),
     # Reddit Ezra Klein digest
-    DigestFeed(
-        source=RedditFeed(
+    feeds.DigestFeed(
+        source=feeds.RedditFeed(
             "https://www.reddit.com/r/ezraklein/top.json?t=week",
         ),
         limit=digest_limit,
         schedule="15 6 * * 4",  # Weekly on Thursdays at 6:15am
     ),
     # r/minneapolis digest
-    DigestFeed(
-        source=RedditFeed(
+    feeds.DigestFeed(
+        source=feeds.RedditFeed(
             "https://www.reddit.com/r/minneapolis/top.json?t=week",
         ),
         limit=digest_limit,
         schedule="0 8 * * 5",  # Weekly on Fridays at 8:00am
     ),
     # Hacker News best digest
-    DigestFeed(
-        source=HackerNewsFeed(feed_type="best", interval=timedelta(days=7)),
+    feeds.DigestFeed(
+        source=hn,
         limit=10,
-        schedule="0 6 * * *",  # Daily at 6:00am
+        schedule="0 8 * * *",  # Daily at 8:00am
     ),
     # Nasa APOD Weekly Digest
-    DigestFeed(
-        source=RssFeed(
-            "nasa_apod",
-            "https://www.nasa.gov/feeds/iotd-feed/",
-            interval=timedelta(days=7),
-        ),
+    apod,
+    feeds.DigestFeed(
+        source=apod,
         limit=7,
         schedule="30 9 * * 6",  # Weekly on Saturdays at 9:30am
     ),
-    MergeFeed(
-        "cycling_instagram_merge",
-        *cycling_feeds,
-        title="Cycling Instagram Merge",
+    cycling_merge,
+    # Digest of merged cycling Instagram feeds
+    feeds.DigestFeed(
+        source=cycling_merge,
+        limit=digest_limit,
+        schedule="0 7 * * 2",  # Weekly on Tuesdays at 7:00am
     ),
-]
-
-feeds = [*other_feeds, *cycling_feeds]
-feeds = [CacheFeed(feed) for feed in feeds]
-
-artifacts: list[Artifact] = [
-    HTMLIndexOutput(
-        HtmlOutput(*feeds),
-        RssOutput(*feeds),
-        OpmlOutput(
-            RssOutput(*feeds),
+    *cycling_feeds,
+    feeds.AiFilterFeed(
+        source=cycling_merge,
+        client=feeds.ClaudeClient(api_key=os.getenv("ANTHROPIC_KEY"), model="claude-sonnet-4-5"),
+        prompt=(
+            "This post is relevant if it describes an event, meetup, or group ride that"
+            " is happening in the future and open to the general public.  It is not"
+            " relevant if it's about a previous event or any other type of content."
         ),
+        limit=5,
+        title="Cycling Instagram Event Feed",
     ),
 ]
+
+sources = [feeds.CacheFeed(feed) for feed in all_feeds]
