@@ -371,6 +371,32 @@ services:
   ## KOBODL
   #############################
 
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    user: ${PUID:-1000}:${PGID:-1000}
+    restart: unless-stopped
+    networks:
+      - navidrome-net
+    environment:
+      # Optional: put your config options customization here. Examples:
+      ND_LOGLEVEL: debug
+    volumes:
+      - "${PRIMARY_MOUNT}/navidrome/data:/data"
+      - "${PRIMARY_MOUNT}/data/music:/music:ro"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=navidrome-net
+      - traefik.http.services.navidrome-svc.loadbalancer.server.port=4533
+      - traefik.http.routers.navidrome-rtr.rule=Host(`music.${DNS_DOMAIN}`)
+      - traefik.http.routers.navidrome-rtr.entrypoints=websecure
+      - traefik.http.routers.navidrome-rtr.tls=true
+      - traefik.http.routers.navidrome-rtr.middlewares=traefik-forward-auth@docker
+
+  #############################
+  ## KOBODL
+  #############################
+
   kobodl:
     image: ghcr.io/subdavis/kobodl:latest
     container_name: kobodl
@@ -567,6 +593,7 @@ services:
       - dozzle-net
       - drone-net
       - miniflux-net
+      - navidrome-net
       - kobodl-net
       - plex-net
       - rss-glue-net
@@ -753,6 +780,8 @@ networks:
     name: drone-private-net
   miniflux-net:
     name: miniflux-net
+  navidrome-net:
+    name: navidrome-net
   rss-glue-net:
     name: rss-glue-net
   kobodl-net:
