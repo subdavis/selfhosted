@@ -128,6 +128,28 @@ services:
     networks:
       - arr-net
 
+  lidarr:
+    image: ghcr.io/linuxserver/lidarr:latest
+    container_name: lidarr
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TIME_ZONE}
+    volumes:
+      - ${PRIMARY_MOUNT}/lidarr/config:/config
+      - ${MEDIA_MOUNT}/plex/media/:/data
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=arr-net
+      - traefik.http.services.lidarr-svc.loadbalancer.server.port=8686
+      - traefik.http.routers.lidarr-rtr.rule=Host(`lidarr.${DNS_DOMAIN}`)
+      - traefik.http.routers.lidarr-rtr.entrypoints=websecure
+      - traefik.http.routers.lidarr-rtr.tls=true
+      - traefik.http.routers.lidarr-rtr.middlewares=traefik-forward-auth@docker
+    networks:
+      - arr-net
+
   #############################
   ## CALIBRE
   #############################
@@ -368,7 +390,7 @@ services:
       - miniflux-net
 
   #############################
-  ## KOBODL
+  ## NAVIDROME
   #############################
 
   navidrome:
@@ -376,14 +398,14 @@ services:
     container_name: navidrome
     user: ${PUID:-1000}:${PGID:-1000}
     restart: unless-stopped
+    environment:
+      - ND_LASTFM_APIKEY=${ND_LASTFM_APIKEY}
+      - ND_LASTFM_SECRET=${ND_LASTFM_SECRET}
     networks:
       - navidrome-net
-    environment:
-      # Optional: put your config options customization here. Examples:
-      ND_LOGLEVEL: debug
     volumes:
       - "${PRIMARY_MOUNT}/navidrome/data:/data"
-      - "${PRIMARY_MOUNT}/data/music:/music:ro"
+      - "${MEDIA_MOUNT}/plex/media/music:/music:ro"
     labels:
       - traefik.enable=true
       - traefik.docker.network=navidrome-net
@@ -391,7 +413,31 @@ services:
       - traefik.http.routers.navidrome-rtr.rule=Host(`music.${DNS_DOMAIN}`)
       - traefik.http.routers.navidrome-rtr.entrypoints=websecure
       - traefik.http.routers.navidrome-rtr.tls=true
-      - traefik.http.routers.navidrome-rtr.middlewares=traefik-forward-auth@docker
+
+  beets-flask:
+    image: pspitzner/beets-flask:stable
+    container_name: beets-flask
+    restart: unless-stopped
+    networks:
+      - navidrome-net
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PGID:-1000}
+      - TZ=${TIME_ZONE}
+    volumes:
+      - "./etc/beets/config.yaml:/config/config.yaml:ro"
+      - ${PRIMARY_MOUNT}/beets_config:/config
+      - ${MEDIA_MOUNT}/plex/media/music:/music
+      - ${MEDIA_MOUNT}/plex/media/lidarr:/lidarr
+      - ${MEDIA_MOUNT}/bandcamp:/bandcamp
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=navidrome-net
+      - traefik.http.services.beets-svc.loadbalancer.server.port=5001
+      - traefik.http.routers.beets-rtr.rule=Host(`beets.${DNS_DOMAIN}`)
+      - traefik.http.routers.beets-rtr.entrypoints=websecure
+      - traefik.http.routers.beets-rtr.tls=true
+      - traefik.http.routers.beets-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
 
   #############################
   ## KOBODL
@@ -454,30 +500,6 @@ services:
       - traefik.http.routers.rssglue-rtr.tls=true
     networks:
       - rss-glue-net
-
-
-  #############################
-  ## SonarQube Enterprise
-  #############################
-
-  # sonarqube:
-  #   image: sonarqube:2025.4-enterprise
-  #   container_name: sonarqube
-  #   restart: unless-stopped
-  #   volumes:
-  #     - ${SECONDARY_MOUNT}/sonarqube/data:/opt/sonarqube/data
-  #     - ${SECONDARY_MOUNT}/sonarqube/logs:/opt/sonarqube/logs
-  #     - ${SECONDARY_MOUNT}/sonarqube/extensions:/opt/sonarqube/extensions
-  #   networks:
-  #     - sonarqube-net
-  #   labels:
-  #     - traefik.enable=true
-  #     - traefik.docker.network=sonarqube-net
-  #     - traefik.http.services.sonarqube-svc.loadbalancer.server.port=9000
-  #     - traefik.http.routers.sonarqube-rtr.rule=Host(`sonar.${DNS_DOMAIN}`)
-  #     - traefik.http.routers.sonarqube-rtr.entrypoints=websecure
-  #     - traefik.http.routers.sonarqube-rtr.tls=true
-  #     - traefik.http.routers.sonarqube-rtr.middlewares=ipwhitelist-mddl@docker
 
   #############################
   ## TRANSMISSION_TORRENT
