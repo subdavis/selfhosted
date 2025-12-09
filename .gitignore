@@ -4,3 +4,4 @@ profile.env
 .env.prod
 .env
 etc/passwords.txt
+etc/bandcampsync/config.json

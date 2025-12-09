@@ -50,6 +50,7 @@ services:
       - ${SECONDARY_MOUNT}/backrest/cache:/cache
       - ${PRIMARY_MOUNT}:/sources/primary
       - ${LOCAL_MOUNT}:/sources/local
+      - ${MEDIA_MOUNT}:/sources/media
       - ${SECONDARY_MOUNT}/backrest/repos:/repos # [optional] mount repos if using local storage, not necessary for remotes e.g. B2, S3, etc.
     environment:
       - BACKREST_DATA=/data # path for backrest data. restic binary and the database are placed here.
@@ -414,30 +415,26 @@ services:
       - traefik.http.routers.navidrome-rtr.entrypoints=websecure
       - traefik.http.routers.navidrome-rtr.tls=true
 
-  beets-flask:
-    image: pspitzner/beets-flask:stable
-    container_name: beets-flask
+  bandcamp-sync-flask:
+    image: ghcr.io/subdavis/bandcamp-sync-flask:latest
+    container_name: bandcamp
     restart: unless-stopped
     networks:
       - navidrome-net
+    user: ${PUID:-1000}
     environment:
-      - PUID=${PUID:-1000}
-      - PGID=${PGID:-1000}
-      - TZ=${TIME_ZONE}
+      - CONFIG_PATH=/app/config.json
     volumes:
-      - "./etc/beets/config.yaml:/config/config.yaml:ro"
-      - ${PRIMARY_MOUNT}/beets_config:/config
-      - ${MEDIA_MOUNT}/plex/media/music:/music
-      - ${MEDIA_MOUNT}/plex/media/lidarr:/lidarr
-      - ${MEDIA_MOUNT}/bandcamp:/bandcamp
+      - "./etc/bandcampsync/config.json:/app/config.json:ro"
+      - ${MEDIA_MOUNT}/bandcamp:/downloads
     labels:
       - traefik.enable=true
       - traefik.docker.network=navidrome-net
-      - traefik.http.services.beets-svc.loadbalancer.server.port=5001
-      - traefik.http.routers.beets-rtr.rule=Host(`beets.${DNS_DOMAIN}`)
-      - traefik.http.routers.beets-rtr.entrypoints=websecure
-      - traefik.http.routers.beets-rtr.tls=true
-      - traefik.http.routers.beets-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
+      - traefik.http.services.bandcamp-svc.loadbalancer.server.port=5000
+      - traefik.http.routers.bandcamp-rtr.rule=Host(`bandcamp.${DNS_DOMAIN}`)
+      - traefik.http.routers.bandcamp-rtr.entrypoints=websecure
+      - traefik.http.routers.bandcamp-rtr.tls=true
+      - traefik.http.routers.bandcamp-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
 
   #############################
   ## KOBODL

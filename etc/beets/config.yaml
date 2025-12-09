@@ -1,5 +1,5 @@
-directory: /music
-library: /config/beets/musiclibrary.db
+directory: /media/4tb/plex/media/music
+library: /media/primary/beets_config/beets/musiclibrary.db
 plugins: musicbrainz fetchart embedart convert scrub unimported # replaygain lastgenre chroma web 
 art_filename: albumart
 threaded: yes
@@ -12,7 +12,7 @@ convert:
     opts: -ab 320k -ac 2 -ar 48000
     max_bitrate: 320
     threads: 1
-    
+
 paths:
     default: $albumartist/$album%aunique{}/$track - $title
     singleton: Non-Album/$artist - $title
@@ -26,7 +26,6 @@ import:
     incremental: yes
     quiet_fallback: skip
     timid: no
-    log: /config/beet.log
 
 lastgenre:
     auto: yes
