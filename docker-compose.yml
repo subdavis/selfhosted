@@ -338,6 +338,29 @@ services:
       - plex-net
 
   #############################
+  ## LINKDING
+  #############################
+
+  linkding:
+    container_name: linkding
+    image: sissbruecker/linkding:latest
+    volumes:
+      - ${PRIMARY_MOUNT}/linkding:/etc/linkding/data"
+    restart: unless-stopped
+    networks:
+      - linkding-net
+    environment:
+      - "LD_SUPERUSER_NAME=${LD_SUPERUSER_NAME}"
+      - "LD_SUPERUSER_PASSWORD=${LD_SUPERUSER_PASSWORD}"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=linkding-net
+      - traefik.http.services.linkding-svc.loadbalancer.server.port=9090
+      - traefik.http.routers.linkding-rtr.rule=Host(`links.${DNS_DOMAIN}`)
+      - traefik.http.routers.linkding-rtr.entrypoints=websecure
+      - traefik.http.routers.linkding-rtr.tls=true
+
+  #############################
   ## MINIFLUX
   #############################
 
@@ -407,6 +430,7 @@ services:
     volumes:
       - "${PRIMARY_MOUNT}/navidrome/data:/data"
       - "${MEDIA_MOUNT}/plex/media/music:/music:ro"
+      - "${MEDIA_MOUNT}/music_manual:/music_manual:ro"
     labels:
       - traefik.enable=true
       - traefik.docker.network=navidrome-net
@@ -426,7 +450,7 @@ services:
       - CONFIG_PATH=/app/config.json
     volumes:
       - "./etc/bandcampsync/config.json:/app/config.json:ro"
-      - ${MEDIA_MOUNT}/bandcamp:/downloads
+      - ${MEDIA_MOUNT}/music_manual:/downloads
     labels:
       - traefik.enable=true
       - traefik.docker.network=navidrome-net
@@ -611,6 +635,7 @@ services:
       - changedetection-net
       - dozzle-net
       - drone-net
+      - linkding-net
       - miniflux-net
       - navidrome-net
       - kobodl-net
@@ -745,39 +770,6 @@ services:
       - "${PRIMARY_MOUNT}/watchtower/config/:/config"
       - "${PRIMARY_MOUNT}/watchtower/docker-config.json:/config.json"
 
-  #############################
-  ## ZeroByte Root
-  #############################
-
-  # zerobyte:
-  #   image: ghcr.io/nicotsx/zerobyte:v0.13
-  #   container_name: zerobyte
-  #   restart: unless-stopped
-  #   cap_add:
-  #     - SYS_ADMIN
-  #   devices:
-  #     - /dev/fuse:/dev/fuse
-  #   networks:
-  #     - zerobyte-net
-  #   environment:
-  #     - TZ=${TIME_ZONE}  # Set your timezone here
-  #   volumes:
-  #     - /etc/localtime:/etc/localtime:ro
-  #     - ${SECONDARY_MOUNT}/zerobyte:/var/lib/zerobyte
-  #     # [optional] mount repos if using local storage, not necessary for remotes e.g. B2, S3, etc.
-  #     - ${SECONDARY_MOUNT}/backrest/repos:/repos
-  #     # User data mounts
-  #     - ${PRIMARY_MOUNT}:/sources/primary
-  #     - ${LOCAL_MOUNT}:/sources/local
-  #   labels:
-  #     - "traefik.enable=true"
-  #     - "traefik.docker.network=zerobyte-net"
-  #     # Entry Point for https
-  #     - "traefik.http.routers.zerobyte-rtr.entrypoints=websecure"
-  #     - "traefik.http.routers.zerobyte-rtr.rule=Host(`zerobyte.${DNS_DOMAIN}`)"
-  #     - "traefik.http.routers.zerobyte-rtr.service=zerobyte-svc"
-  #     - "traefik.http.services.zerobyte-svc.loadbalancer.server.port=4096"
-
 networks:
   adguard-net:
     name: adguard-net
@@ -797,6 +789,8 @@ networks:
     name: drone-net
   drone-private-net:
     name: drone-private-net
+  linkding-net:
+    name: linkding-net
   miniflux-net:
     name: miniflux-net
   navidrome-net:
