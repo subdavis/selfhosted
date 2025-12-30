@@ -345,7 +345,7 @@ services:
     container_name: linkding
     image: sissbruecker/linkding:latest
     volumes:
-      - ${PRIMARY_MOUNT}/linkding:/etc/linkding/data"
+      - ${PRIMARY_MOUNT}/linkding:/etc/linkding/data
     restart: unless-stopped
     networks:
       - linkding-net
