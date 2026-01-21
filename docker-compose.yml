@@ -489,36 +489,22 @@ services:
   #############################
 
   rssglue:
-    image: ghcr.io/subdavis/rss-glue
+    image: ghcr.io/subdavis/rss-glue:v2
     container_name: rssglue
     restart: unless-stopped
-    tty: true
-    labels:
-      - traefik.enable=false
-    environment:
-      - ANTHROPIC_KEY=${ANTHROPIC_KEY}
-      - INSTA_SC_API_KEY=${INSTA_SC_API_KEY}
-      - TZ=${TIME_ZONE}
-      - PYTHONUNBUFFERED=1
-    volumes:
-      - ${PRIMARY_MOUNT}/rss-glue/static:/opt/rssglue/src/static
-      - "./etc/rss-glue/config.py:/opt/rssglue/config.py:ro"
-    command: ["--config", "/opt/rssglue/config.py", "watch"]
-    
-  # Nginx service serves the static files from the rssglue_static volume
-  rssglue_nginx:
-    image: dceoy/nginx-autoindex
-    container_name: rssglue_nginx
-    restart: unless-stopped
-    volumes:
-      -  ${PRIMARY_MOUNT}/rss-glue/static:/var/lib/nginx/html:ro
     labels:
       - traefik.enable=true
       - traefik.docker.network=rss-glue-net
-      - traefik.http.services.rssglue-svc.loadbalancer.server.port=80
+      - traefik.http.services.rssglue-svc.loadbalancer.server.port=8000
       - traefik.http.routers.rssglue-rtr.rule=Host(`rssglue.${DNS_DOMAIN}`)
       - traefik.http.routers.rssglue-rtr.entrypoints=websecure
       - traefik.http.routers.rssglue-rtr.tls=true
+      - traefik.http.routers.rssglue-rtr.middlewares=ipwhitelist-mddl@docker
+    environment:
+      - DISPLAY_TIMEZONE=${TIME_ZONE}
+    volumes:
+      - ${PRIMARY_MOUNT}/rss-glue/media:/var/media
+      - "${PRIMARY_MOUNT}/rss-glue/db:/var/data:ro"
     networks:
       - rss-glue-net
 
