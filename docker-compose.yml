@@ -492,6 +492,7 @@ services:
     image: ghcr.io/subdavis/rss-glue:v2
     container_name: rssglue
     restart: unless-stopped
+    user: ${PUID:-1000}
     labels:
       - traefik.enable=true
       - traefik.docker.network=rss-glue-net
@@ -504,7 +505,7 @@ services:
       - DISPLAY_TIMEZONE=${TIME_ZONE}
     volumes:
       - ${PRIMARY_MOUNT}/rss-glue/media:/var/media
-      - "${PRIMARY_MOUNT}/rss-glue/db:/var/data:ro"
+      - ${PRIMARY_MOUNT}/rss-glue/db:/var/data
     networks:
       - rss-glue-net
 
