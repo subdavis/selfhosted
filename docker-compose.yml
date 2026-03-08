@@ -500,9 +500,10 @@ services:
       - traefik.http.routers.rssglue-rtr.rule=Host(`rssglue.${DNS_DOMAIN}`)
       - traefik.http.routers.rssglue-rtr.entrypoints=websecure
       - traefik.http.routers.rssglue-rtr.tls=true
-      - traefik.http.routers.rssglue-rtr.middlewares=ipwhitelist-mddl@docker
+      - traefik.http.routers.rssglue-rtr.middlewares=ratelimit-mddl@docker
     environment:
       - DISPLAY_TIMEZONE=${TIME_ZONE}
+      - SECRET_KEY=${RSSGLUE_SECRET_KEY}
     volumes:
       - ${PRIMARY_MOUNT}/rss-glue/media:/var/media
       - ${PRIMARY_MOUNT}/rss-glue/db:/var/data
@@ -591,6 +592,10 @@ services:
       - "traefik.http.middlewares.ipwhitelist-mddl.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}"
       - "traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://auth:4181"
       - "traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
+      # Rate limit
+      - "traefik.http.middlewares.ratelimit-mddl.ratelimit.average=100"
+      - "traefik.http.middlewares.ratelimit-mddl.ratelimit.period=1s"
+      - "traefik.http.middlewares.ratelimit-mddl.ratelimit.burst=200"
       # For Vaultwarden
       - "traefik.http.middlewares.bw-stripPrefix.stripprefix.prefixes=/notifications/hub"
       - "traefik.http.middlewares.bw-stripPrefix.stripprefix.forceSlash=false"
