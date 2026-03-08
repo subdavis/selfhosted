@@ -628,6 +628,7 @@ services:
       - kobodl-net
       - plex-net
       - rss-glue-net
+      - scrutiny-net
       - transmission-net
       - umami-net
       - unifi-net
@@ -742,6 +743,37 @@ services:
       - "traefik.http.services.vaultwarden-ws-svc.loadbalancer.server.port=3012"
 
   #############################
+  ## SCRUTINY
+  #############################
+
+  scrutiny:
+    image: ghcr.io/starosdev/scrutiny:latest-omnibus
+    container_name: scrutiny
+    restart: unless-stopped
+    cap_add:
+      - SYS_RAWIO
+    volumes:
+      - ${LOCAL_MOUNT}/scrutiny/config:/opt/scrutiny/config
+      - ${LOCAL_MOUNT}/scrutiny/influxdb:/opt/scrutiny/influxdb
+      - /run/udev:/run/udev:ro
+    devices:
+      - /dev/sda:/dev/sda
+      - /dev/sdb:/dev/sdb
+      - /dev/sdc:/dev/sdc
+      - /dev/sdd:/dev/sdd
+      - /dev/sde:/dev/sde
+    networks:
+      - scrutiny-net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=scrutiny-net
+      - traefik.http.services.scrutiny-svc.loadbalancer.server.port=8080
+      - traefik.http.routers.scrutiny-rtr.rule=Host(`scrutiny.${DNS_DOMAIN}`)
+      - traefik.http.routers.scrutiny-rtr.entrypoints=websecure
+      - traefik.http.routers.scrutiny-rtr.tls=true
+      - traefik.http.routers.scrutiny-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+
+  #############################
   ## WATCHTOWER - ROOT
   #############################
 
@@ -784,6 +816,8 @@ networks:
     name: navidrome-net
   rss-glue-net:
     name: rss-glue-net
+  scrutiny-net:
+    name: scrutiny-net
   kobodl-net:
     name: kobodl-net
   plex-net:
