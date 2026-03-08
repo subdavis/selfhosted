@@ -758,8 +758,8 @@ services:
     cap_add:
       - SYS_RAWIO
     volumes:
-      - ${LOCAL_MOUNT}/scrutiny/config:/opt/scrutiny/config
-      - ${LOCAL_MOUNT}/scrutiny/influxdb:/opt/scrutiny/influxdb
+      - ${SECONDARY_MOUNT}/scrutiny/config:/opt/scrutiny/config
+      - ${SECONDARY_MOUNT}/scrutiny/influxdb:/opt/scrutiny/influxdb
       - /run/udev:/run/udev:ro
     devices:
       - /dev/sda:/dev/sda
