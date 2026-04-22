@@ -556,11 +556,12 @@ services:
   #############################
 
   traefik:
-    image: traefik:v2.4
+    image: traefik:traefik:v3.6
     restart: unless-stopped
     container_name: traefik
     command: >
       --api.insecure=true
+      --core.defaultRuleSyntax=v2
       --serversTransport.insecureSkipVerify=true
       --accesslog=true
       --accesslog.filepath=/var/log/traefik/access.log
