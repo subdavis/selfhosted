@@ -783,7 +783,7 @@ services:
   #############################
 
   watchtower:
-    image: containrrr/watchtower:latest
+    image: nickfedor/watchtower:latest
     container_name: watchtower
     restart: unless-stopped
     command: --schedule "0 10 3 * * *" --cleanup
