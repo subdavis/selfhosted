@@ -145,6 +145,22 @@ After disabling `systemd-resolved.service`, I ususally set a different DNS serve
 
 `systemd-resolve --help` is your friend.
 
+### Static `/etc/resolv.conf` (required)
+
+With `systemd-resolved` disabled, `/etc/resolv.conf` must be a real file pointing at a proper upstream DNS server — **not** `127.0.0.1`/AdGuard. Docker's embedded DNS resolver on user-defined networks (127.0.0.11) reads the host's resolv.conf at daemon start to find upstreams; if it can't reach an upstream, every container's DNS breaks. Pointing at AdGuard creates a chicken-and-egg: AdGuard can't start without Docker DNS, and Docker DNS can't resolve anything without AdGuard.
+
+An Ubuntu release upgrade (e.g. 22 → 24) will re-symlink `/etc/resolv.conf` to `stub-resolv.conf` even though `systemd-resolved` is disabled, leaving a dangling symlink and breaking container DNS. Fix:
+
+```bash
+sudo rm /etc/resolv.conf
+sudo tee /etc/resolv.conf <<'EOF'
+nameserver 1.1.1.1
+nameserver 8.8.8.8
+EOF
+sudo chattr +i /etc/resolv.conf   # prevents future upgrades from clobbering it
+sudo systemctl restart docker      # re-read upstream DNS
+```
+
 [Also disable AdGuardHome's Rate Limiting](https://nikokultalahti.com/2025/04/09/fixing-server-misbehaving-error-in/) because miniflux will trigger it and throw `server misbehaving` errors.
 
 ## WireGurad and subnet overlap
