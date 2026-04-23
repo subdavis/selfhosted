@@ -111,6 +111,18 @@ nano .profile
 }
 ```
 
+### Sysctl customizations
+
+```bash
+# Allow containers to bind privileged ports (e.g. 80, 443)
+echo 'net.ipv4.ip_unprivileged_port_start=0' | sudo tee -a /etc/sysctl.d/99-sysctl.conf
+
+# Increase max_map_count for Jellyfin/Elasticsearch
+echo 'vm.max_map_count=262144' | sudo tee -a /etc/sysctl.d/99-sysctl.conf
+
+sudo sysctl --system
+```
+
 Edit `/lib/systemd/system/user@.service` to include dependencies on mounts
 
 ```conf
