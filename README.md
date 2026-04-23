@@ -8,16 +8,19 @@
 This repo contains my production docker services accessible from anywhere over HTTPS using [traefik](https://traefik.io).  These services (and others) run on a single server.  **It used to be [rootless-mode](https://docs.docker.com/engine/security/rootless/)** but slirp4net was too slow and too much of the docker advanced configuration (permissions flags, mostly) were missing.
 
 * Jellyfin
+* Navidrome
+* Linkding
+* Miniflux
 * Sonarr, Radarr, Prowlarr
 * Calibre Web
 * Kobo book downloader (kobodl)
 * Transmission torrent server
 * AdGuard Home DNS
 * Drone CI and runner
-* Duplicati
+* Backrest (restic)
 * Watchtower
 * Cloudflare DNS Automation
-* Portainer
+* Dozzle
 
 # Documentation
 
@@ -163,7 +166,17 @@ sudo systemctl restart docker      # re-read upstream DNS
 
 [Also disable AdGuardHome's Rate Limiting](https://nikokultalahti.com/2025/04/09/fixing-server-misbehaving-error-in/) because miniflux will trigger it and throw `server misbehaving` errors.
 
-## WireGurad and subnet overlap
+## Tailscale as Exit Node
+
+I've switched to tailscale. In Tailscale DNS admin settings, I set the exit node's Tailnet IPv4 address as the DNS server. There should be no need to modify firewall rules on the exit node.
+
+```bash
+tailscale up --advertise-connector --accept-dns=false --advertise-exit-node --advertise-routes=192.168.48.0/20,63.231.151.187/32 --ssh
+```
+
+Troubleshooting: I've had issues with outdated clients not resolving DNS properly when connected to the exit node that were fixed by updating to the latest version.
+
+### Archived: WireGurad and subnet docs
 
 * use `wg-quick` for simplicity
 * May need to [install or symlink resolvconf](https://superuser.com/questions/1500691/usr-bin-wg-quick-line-31-resolvconf-command-not-found-wireguard-debian)
