@@ -14,7 +14,7 @@ services:
       - traefik.http.routers.adguard-rtr.rule=Host(`adguard.${DNS_DOMAIN}`)
       - traefik.http.routers.adguard-rtr.entrypoints=websecure
       - traefik.http.routers.adguard-rtr.tls=true
-      - traefik.http.routers.adguard-rtr.middlewares=ipwhitelist-mddl@docker
+      - traefik.http.routers.adguard-rtr.middlewares=ipallowlist-mddl@docker
     networks:
       - adguard-net
     ports:
@@ -43,7 +43,7 @@ services:
       - traefik.http.routers.backrest-rtr.rule=Host(`backrest.${DNS_DOMAIN}`)
       - traefik.http.routers.backrest-rtr.entrypoints=websecure
       - traefik.http.routers.backrest-rtr.tls=true
-      - traefik.http.routers.backrest-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+      - traefik.http.routers.backrest-rtr.middlewares=ipallowlist-mddl@docker,traefik-forward-auth@docker
     volumes:
       - ${SECONDARY_MOUNT}/backrest/data:/data
       - ${SECONDARY_MOUNT}/backrest/config:/config
@@ -80,7 +80,7 @@ services:
       - traefik.http.routers.prowlarr-rtr.rule=Host(`prowlarr.${DNS_DOMAIN}`)
       - traefik.http.routers.prowlarr-rtr.entrypoints=websecure
       - traefik.http.routers.prowlarr-rtr.tls=true
-      - traefik.http.routers.prowlarr-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+      - traefik.http.routers.prowlarr-rtr.middlewares=ipallowlist-mddl@docker,traefik-forward-auth@docker
     restart: unless-stopped
     networks:
       - arr-net
@@ -100,7 +100,7 @@ services:
       - traefik.http.routers.radarr-rtr.rule=Host(`radarr.${DNS_DOMAIN}`)
       - traefik.http.routers.radarr-rtr.entrypoints=websecure
       - traefik.http.routers.radarr-rtr.tls=true
-      - traefik.http.routers.radarr-rtr.middlewares=ipwhitelist-mddl@docker
+      - traefik.http.routers.radarr-rtr.middlewares=ipallowlist-mddl@docker
     volumes:
       - ${PRIMARY_MOUNT}/radarr/data:/config
       - ${MEDIA_MOUNT}/plex/media/:/data
@@ -122,7 +122,7 @@ services:
       - traefik.http.routers.sonarr-rtr.rule=Host(`sonarr.${DNS_DOMAIN}`)
       - traefik.http.routers.sonarr-rtr.entrypoints=websecure
       - traefik.http.routers.sonarr-rtr.tls=true
-      - traefik.http.routers.sonarr-rtr.middlewares=ipwhitelist-mddl@docker
+      - traefik.http.routers.sonarr-rtr.middlewares=ipallowlist-mddl@docker
     volumes:
       - ${PRIMARY_MOUNT}/sonarr/data:/config
       - ${MEDIA_MOUNT}/plex/media/:/data
@@ -260,7 +260,7 @@ services:
       - traefik.http.routers.dozzle-rtr.rule=Host(`dozzle.${DNS_DOMAIN}`)
       - traefik.http.routers.dozzle-rtr.entrypoints=websecure
       - traefik.http.routers.dozzle-rtr.tls=true
-      - traefik.http.routers.dozzle-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
+      - traefik.http.routers.dozzle-rtr.middlewares=traefik-forward-auth@docker,ipallowlist-mddl@docker
 
   #############################
   ## DRONE CI - ROOT
@@ -458,7 +458,7 @@ services:
       - traefik.http.routers.bandcamp-rtr.rule=Host(`bandcamp.${DNS_DOMAIN}`)
       - traefik.http.routers.bandcamp-rtr.entrypoints=websecure
       - traefik.http.routers.bandcamp-rtr.tls=true
-      - traefik.http.routers.bandcamp-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
+      - traefik.http.routers.bandcamp-rtr.middlewares=traefik-forward-auth@docker,ipallowlist-mddl@docker
 
   #############################
   ## KOBODL
@@ -526,7 +526,7 @@ services:
       - traefik.http.routers.transmission-rtr.rule=Host(`torrent.${DNS_DOMAIN}`)
       - traefik.http.routers.transmission-rtr.entrypoints=websecure
       - traefik.http.routers.transmission-rtr.tls=true
-      - traefik.http.routers.transmission-rtr.middlewares=traefik-forward-auth@docker,ipwhitelist-mddl@docker
+      - traefik.http.routers.transmission-rtr.middlewares=traefik-forward-auth@docker,ipallowlist-mddl@docker
     networks:
       - arr-net
       - transmission-net
@@ -556,12 +556,11 @@ services:
   #############################
 
   traefik:
-    image: traefik:traefik:v3.6
+    image: traefik:v3.6
     restart: unless-stopped
     container_name: traefik
     command: >
       --api.insecure=true
-      --core.defaultRuleSyntax=v2
       --serversTransport.insecureSkipVerify=true
       --accesslog=true
       --accesslog.filepath=/var/log/traefik/access.log
@@ -581,16 +580,16 @@ services:
       --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare
       --certificatesresolvers.myresolver.acme.email="${LETSENCRYPT_EMAIL}"
       --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
-      --certificatesresolvers.myresolver.acme.dnschallenge.resolvers==1.1.1.1:53,1.0.0.1:53
+      --certificatesresolvers.myresolver.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
     labels:
       - "traefik.enable=true"
       # Traefik HTTPS Redirect
       - "traefik.http.routers.http-catchall.entrypoints=web"
-      - "traefik.http.routers.http-catchall.rule=HostRegexp(`{host:.+}`)"
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`.+`)"
       - "traefik.http.routers.http-catchall.middlewares=redirect-to-https-mddl@docker"
       - "traefik.http.middlewares.redirect-to-https-mddl.redirectscheme.scheme=https"
       # Other middlewares
-      - "traefik.http.middlewares.ipwhitelist-mddl.ipwhitelist.sourcerange=127.0.0.1/32,${SUBNET}"
+      - "traefik.http.middlewares.ipallowlist-mddl.ipallowlist.sourcerange=127.0.0.1/32,${SUBNET}"
       - "traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://auth:4181"
       - "traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
       # Rate limit
@@ -599,7 +598,6 @@ services:
       - "traefik.http.middlewares.ratelimit-mddl.ratelimit.burst=200"
       # For Vaultwarden
       - "traefik.http.middlewares.bw-stripPrefix.stripprefix.prefixes=/notifications/hub"
-      - "traefik.http.middlewares.bw-stripPrefix.stripprefix.forceSlash=false"
       # Traefik Dashboard config
       - traefik.http.services.traefik-svc.loadbalancer.server.port=8080
       - traefik.http.routers.traefik-rtr.rule=Host(`traefik.${DNS_DOMAIN}`)
@@ -777,7 +775,7 @@ services:
       - traefik.http.routers.scrutiny-rtr.rule=Host(`scrutiny.${DNS_DOMAIN}`)
       - traefik.http.routers.scrutiny-rtr.entrypoints=websecure
       - traefik.http.routers.scrutiny-rtr.tls=true
-      - traefik.http.routers.scrutiny-rtr.middlewares=ipwhitelist-mddl@docker,traefik-forward-auth@docker
+      - traefik.http.routers.scrutiny-rtr.middlewares=ipallowlist-mddl@docker,traefik-forward-auth@docker
 
   #############################
   ## WATCHTOWER - ROOT
