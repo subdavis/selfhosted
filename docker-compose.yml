@@ -199,6 +199,7 @@ services:
       - traefik.http.routers.changedetection-rtr.rule=Host(`changedetection.${DNS_DOMAIN}`)
       - traefik.http.routers.changedetection-rtr.entrypoints=websecure
       - traefik.http.routers.changedetection-rtr.tls=true
+      - traefik.http.routers.changedetection-rtr.middlewares=ipallowlist-mddl@docker
     networks:
       - changedetection-net
 
