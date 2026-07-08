@@ -639,7 +639,8 @@ services:
       - unifi-net
       - vaultwarden-net
       - zerobyte-net
-     
+      - openwebui-net
+
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:latest
     container_name: auth
@@ -779,6 +780,29 @@ services:
       - traefik.http.routers.scrutiny-rtr.middlewares=ipallowlist-mddl@docker,traefik-forward-auth@docker
 
   #############################
+  ## OPENWEBUI
+  #############################
+
+  openwebui:
+    image: ghcr.io/open-webui/open-webui:v0.10.2
+    container_name: openwebui
+    restart: unless-stopped
+    environment:
+      - WEBUI_SECRET_KEY=${OPENWEBUI_SECRET_KEY}
+    volumes:
+      - ${PRIMARY_MOUNT}/openwebui/data:/app/backend/data
+    networks:
+      - openwebui-net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=openwebui-net
+      - traefik.http.services.openwebui-svc.loadbalancer.server.port=8080
+      - traefik.http.routers.openwebui-rtr.rule=Host(`oi.${DNS_DOMAIN}`)
+      - traefik.http.routers.openwebui-rtr.entrypoints=websecure
+      - traefik.http.routers.openwebui-rtr.tls=true
+      - traefik.http.routers.openwebui-rtr.middlewares=ipallowlist-mddl@docker
+
+  #############################
   ## WATCHTOWER - ROOT
   #############################
 
@@ -841,6 +865,8 @@ networks:
     name: vaultwarden-net
   zerobyte-net:
     name: zerobyte-net
+  openwebui-net:
+    name: openwebui-net
 
 volumes:
   redis-data:
