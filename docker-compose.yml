@@ -797,7 +797,7 @@ services:
       - traefik.enable=true
       - traefik.docker.network=openwebui-net
       - traefik.http.services.openwebui-svc.loadbalancer.server.port=8080
-      - traefik.http.routers.openwebui-rtr.rule=Host(`oi.${DNS_DOMAIN}`)
+      - traefik.http.routers.openwebui-rtr.rule=Host(`ai.${DNS_DOMAIN}`)
       - traefik.http.routers.openwebui-rtr.entrypoints=websecure
       - traefik.http.routers.openwebui-rtr.tls=true
       - traefik.http.routers.openwebui-rtr.middlewares=ipallowlist-mddl@docker

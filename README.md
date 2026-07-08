@@ -172,6 +172,8 @@ I've switched to tailscale. In Tailscale DNS admin settings, I set the exit node
 
 ```bash
 tailscale up --advertise-connector --accept-dns=false --advertise-exit-node --advertise-routes=192.168.48.0/20,63.231.151.187/32 --ssh
+# Will prompt setup for UDP GRO forwarding
+# https://tailscale.com/s/ethtool-config-udp-gro
 ```
 
 Troubleshooting: I've had issues with outdated clients not resolving DNS properly when connected to the exit node that were fixed by updating to the latest version.
