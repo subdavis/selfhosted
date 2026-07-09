@@ -14,6 +14,7 @@ This repo contains my production docker services accessible from anywhere over H
 * Sonarr, Radarr, Prowlarr
 * Calibre Web
 * Kobo book downloader (kobodl)
+* Paperless-ngx document management
 * Transmission torrent server
 * AdGuard Home DNS
 * Drone CI and runner
