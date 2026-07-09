@@ -807,10 +807,32 @@ services:
   ## HERMES
   #############################
 
+  # Provides the agent Python source and runs the gateway daemon (scheduled tasks)
+  hermes-agent:
+    image: nousresearch/hermes-agent:latest
+    container_name: hermes-agent
+    command: gateway run
+    restart: unless-stopped
+    environment:
+      - HERMES_HOME=/home/hermes/.hermes
+      - HERMES_UID=${PUID:-1000}
+      - HERMES_GID=${PGID:-1000}
+      - HERMES_DASHBOARD_HOST=0.0.0.0
+      - HERMES_DASHBOARD_PORT=9119
+    volumes:
+      - hermes-home:/home/hermes/.hermes
+      - hermes-agent-src:/opt/hermes
+    networks:
+      - hermes-net
+    labels:
+      - traefik.enable=false
+
   hermes:
     image: ghcr.io/nesquena/hermes-webui:latest
     container_name: hermes
     restart: unless-stopped
+    depends_on:
+      - hermes-agent
     environment:
       - WANTED_UID=${PUID:-1000}
       - WANTED_GID=${PGID:-1000}
@@ -821,8 +843,10 @@ services:
       - HERMES_WEBUI_ALLOWED_ORIGINS=https://hermes.${DNS_DOMAIN}
       - HERMES_WEBUI_TRUST_FORWARDED_HOST=1
       - HERMES_WEBUI_TRUST_FORWARDED_PROTO=1
+      - HERMES_API_URL=http://hermes-agent:8642
     volumes:
-      - ${PRIMARY_MOUNT}/hermes/data:/home/hermeswebui/.hermes
+      - hermes-home:/home/hermeswebui/.hermes
+      - hermes-agent-src:/home/hermeswebui/.hermes/hermes-agent:ro
       - ${PRIMARY_MOUNT}/hermes/workspace:/workspace
     networks:
       - hermes-net
@@ -905,3 +929,5 @@ networks:
 
 volumes:
   redis-data:
+  hermes-home:
+  hermes-agent-src:
