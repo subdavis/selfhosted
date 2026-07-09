@@ -869,6 +869,9 @@ services:
       - HERMES_GID=${PGID:-1000}
       - HERMES_DASHBOARD_HOST=0.0.0.0
       - HERMES_DASHBOARD_PORT=9119
+      - API_SERVER_ENABLED=true
+      - API_SERVER_HOST=0.0.0.0
+      - API_SERVER_KEY=${HERMES_GATEWAY_API_KEY}
     volumes:
       - hermes-home:/home/hermes/.hermes
       - hermes-agent-src:/opt/hermes
@@ -894,6 +897,7 @@ services:
       - HERMES_WEBUI_TRUST_FORWARDED_HOST=1
       - HERMES_WEBUI_TRUST_FORWARDED_PROTO=1
       - HERMES_API_URL=http://hermes-agent:8642
+      - HERMES_WEBUI_GATEWAY_API_KEY=${HERMES_GATEWAY_API_KEY}
     volumes:
       - hermes-home:/home/hermeswebui/.hermes
       - hermes-agent-src:/home/hermeswebui/.hermes/hermes-agent:ro
