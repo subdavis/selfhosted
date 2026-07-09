@@ -593,7 +593,7 @@ services:
   # https://platform.claude.com/docs/en/api/ip-addresses.md
 
   paperless-mcp:
-    image: ghcr.io/nloui/paperless-mcp
+    image: ghcr.io/nloui/nloui/paperless-mcp:latest@sha256:c1e2132dcb924a53fad912a62fe6056adeddfb0cd178d3f74dfdbfb05296aa9a
     container_name: paperless-mcp
     restart: unless-stopped
     depends_on:
