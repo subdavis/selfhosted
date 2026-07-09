@@ -640,6 +640,7 @@ services:
       - vaultwarden-net
       - zerobyte-net
       - openwebui-net
+      - hermes-net
 
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:latest
@@ -803,6 +804,38 @@ services:
       - traefik.http.routers.openwebui-rtr.middlewares=ipallowlist-mddl@docker
 
   #############################
+  ## HERMES
+  #############################
+
+  hermes:
+    image: ghcr.io/nesquena/hermes-webui:latest
+    container_name: hermes
+    restart: unless-stopped
+    environment:
+      - WANTED_UID=${PUID:-1000}
+      - WANTED_GID=${PGID:-1000}
+      - HERMES_WEBUI_HOST=0.0.0.0
+      - HERMES_WEBUI_PORT=8787
+      - HERMES_WEBUI_STATE_DIR=/home/hermeswebui/.hermes/webui
+      - HERMES_WEBUI_PASSWORD=${HERMES_WEBUI_PASSWORD}
+      - HERMES_WEBUI_ALLOWED_ORIGINS=https://hermes.${DNS_DOMAIN}
+      - HERMES_WEBUI_TRUST_FORWARDED_HOST=1
+      - HERMES_WEBUI_TRUST_FORWARDED_PROTO=1
+    volumes:
+      - ${PRIMARY_MOUNT}/hermes/data:/home/hermeswebui/.hermes
+      - ${PRIMARY_MOUNT}/hermes/workspace:/workspace
+    networks:
+      - hermes-net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=hermes-net
+      - traefik.http.services.hermes-svc.loadbalancer.server.port=8787
+      - traefik.http.routers.hermes-rtr.rule=Host(`hermes.${DNS_DOMAIN}`)
+      - traefik.http.routers.hermes-rtr.entrypoints=websecure
+      - traefik.http.routers.hermes-rtr.tls=true
+      - traefik.http.routers.hermes-rtr.middlewares=ipallowlist-mddl@docker
+
+  #############################
   ## WATCHTOWER - ROOT
   #############################
 
@@ -867,6 +900,8 @@ networks:
     name: zerobyte-net
   openwebui-net:
     name: openwebui-net
+  hermes-net:
+    name: hermes-net
 
 volumes:
   redis-data:
