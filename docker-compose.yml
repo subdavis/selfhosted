@@ -486,6 +486,79 @@ services:
       - kobodl-net
 
   #############################
+  ## PAPERLESS-NGX
+  #############################
+
+  paperless_db:
+    image: postgres:15-alpine
+    container_name: paperless_db
+    restart: unless-stopped
+    volumes:
+      - ${PRIMARY_MOUNT}/paperless/postgres:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: paperless
+      POSTGRES_USER: paperless
+      POSTGRES_PASSWORD: ${PAPERLESS_DB_PASSWORD}
+    networks:
+      - paperless-private-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  paperless_broker:
+    image: redis:7-alpine
+    container_name: paperless_broker
+    restart: unless-stopped
+    volumes:
+      - ${PRIMARY_MOUNT}/paperless/redis:/data
+    networks:
+      - paperless-private-net
+    labels:
+      - traefik.enable=false
+
+  paperless:
+    image: ghcr.io/paperless-ngx/paperless-ngx:latest
+    container_name: paperless
+    restart: unless-stopped
+    depends_on:
+      paperless_db:
+        condition: service_healthy
+      paperless_broker:
+        condition: service_started
+    volumes:
+      - ${PRIMARY_MOUNT}/paperless/data:/usr/src/paperless/data
+      - ${PRIMARY_MOUNT}/paperless/media:/usr/src/paperless/media
+      - ${PRIMARY_MOUNT}/paperless/export:/usr/src/paperless/export
+      - ${PRIMARY_MOUNT}/paperless/consume:/usr/src/paperless/consume
+    environment:
+      - USERMAP_UID=${PUID:-1000}
+      - USERMAP_GID=${PGID:-1000}
+      - PAPERLESS_REDIS=redis://paperless_broker:6379
+      - PAPERLESS_DBHOST=paperless_db
+      - PAPERLESS_DBNAME=paperless
+      - PAPERLESS_DBUSER=paperless
+      - PAPERLESS_DBPASS=${PAPERLESS_DB_PASSWORD}
+      - PAPERLESS_URL=https://paperless.${DNS_DOMAIN}
+      - PAPERLESS_SECRET_KEY=${PAPERLESS_SECRET_KEY}
+      - PAPERLESS_TIME_ZONE=${TIME_ZONE}
+      - PAPERLESS_ADMIN_USER=${PAPERLESS_ADMIN_USER}
+      - PAPERLESS_ADMIN_PASSWORD=${PAPERLESS_ADMIN_PASSWORD}
+      - PAPERLESS_ADMIN_MAIL=${PAPERLESS_ADMIN_MAIL}
+    networks:
+      - paperless-net
+      - paperless-private-net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=paperless-net
+      - traefik.http.services.paperless-svc.loadbalancer.server.port=8000
+      - traefik.http.routers.paperless-rtr.rule=Host(`paperless.${DNS_DOMAIN}`)
+      - traefik.http.routers.paperless-rtr.entrypoints=websecure
+      - traefik.http.routers.paperless-rtr.tls=true
+      - traefik.http.routers.paperless-rtr.middlewares=ipallowlist-mddl@docker
+
+  #############################
   ## RSS-Glue
   #############################
 
@@ -631,6 +704,7 @@ services:
       - miniflux-net
       - navidrome-net
       - kobodl-net
+      - paperless-net
       - plex-net
       - rss-glue-net
       - scrutiny-net
@@ -882,6 +956,10 @@ networks:
     name: scrutiny-net
   kobodl-net:
     name: kobodl-net
+  paperless-net:
+    name: paperless-net
+  paperless-private-net:
+    name: paperless-private-net
   plex-net:
     name: plex-net
   transmission-net:
