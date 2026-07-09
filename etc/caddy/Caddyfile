@@ -1,0 +1,183 @@
+{
+	email {$LETSENCRYPT_EMAIL}
+
+	# Cloudflare DNS challenge for all ACME certificate issuance (enables wildcard certs)
+	acme_dns cloudflare {$CF_TOKEN}
+
+	# Trust Cloudflare proxy IPs so that remote_ip matchers see real client IPs
+	servers {
+		trusted_proxies static \
+			173.245.48.0/20 \
+			103.21.244.0/22 \
+			103.22.200.0/22 \
+			103.31.4.0/22 \
+			141.101.64.0/18 \
+			108.162.192.0/18 \
+			190.93.240.0/20 \
+			188.114.96.0/20 \
+			197.234.240.0/22 \
+			198.41.128.0/17 \
+			162.158.0.0/15 \
+			104.16.0.0/13 \
+			104.24.0.0/14 \
+			172.64.0.0/13 \
+			131.0.72.0/22
+	}
+
+	log {
+		output file /var/log/caddy/access.log {
+			roll_size 100mb
+			roll_keep 5
+		}
+		format json
+	}
+}
+
+# Restrict access to LAN / private networks only
+(private_only) {
+	@public not remote_ip 127.0.0.1/32 192.168.0.0/16 10.0.0.0/8 172.16.0.0/12
+	abort @public
+}
+
+# Google OAuth via traefik-forward-auth (thomseddon/traefik-forward-auth)
+(google_auth) {
+	forward_auth auth:4181 {
+		uri /
+		copy_headers X-Forwarded-User
+	}
+}
+
+(private_auth) {
+	import private_only
+	import google_auth
+}
+
+##############################################################################
+# Services
+##############################################################################
+
+adguard.{$DNS_DOMAIN} {
+	import private_only
+	reverse_proxy adguard:80
+}
+
+auth.{$DNS_DOMAIN} {
+	# forward_auth on the auth host itself is intentional: traefik-forward-auth
+	# self-exempts /_oauth so the OAuth callback always passes through.
+	import google_auth
+	reverse_proxy auth:4181
+}
+
+backrest.{$DNS_DOMAIN} {
+	import private_auth
+	reverse_proxy backrest:9898
+}
+
+bandcamp.{$DNS_DOMAIN} {
+	import private_auth
+	reverse_proxy bandcamp:5000
+}
+
+calibre.{$DNS_DOMAIN} {
+	import google_auth
+	reverse_proxy calibre_web:8083
+}
+
+changedetection.{$DNS_DOMAIN} {
+	import private_only
+	reverse_proxy changedetection:5000
+}
+
+dozzle.{$DNS_DOMAIN} {
+	import private_auth
+	reverse_proxy dozzle:8080
+}
+
+drone.{$DNS_DOMAIN} {
+	reverse_proxy drone:80
+}
+
+jellyfin.{$DNS_DOMAIN} {
+	reverse_proxy jellyfin:8096
+}
+
+kobodl.{$DNS_DOMAIN} {
+	import google_auth
+	reverse_proxy kobodl:5000
+}
+
+lidarr.{$DNS_DOMAIN} {
+	import google_auth
+	reverse_proxy lidarr:8686
+}
+
+links.{$DNS_DOMAIN} {
+	reverse_proxy linkding:9090
+}
+
+miniflux.{$DNS_DOMAIN} {
+	reverse_proxy miniflux:8080
+}
+
+music.{$DNS_DOMAIN} {
+	reverse_proxy navidrome:4533
+}
+
+prowlarr.{$DNS_DOMAIN} {
+	import private_auth
+	reverse_proxy prowlarr:9696
+}
+
+radarr.{$DNS_DOMAIN} {
+	import private_only
+	reverse_proxy radarr:7878
+}
+
+rssglue.{$DNS_DOMAIN} {
+	# requires github.com/mholt/caddy-ratelimit built into the image (see Dockerfile)
+	rate_limit {
+		zone rssglue {
+			key     {http.request.remote.host}
+			events  100
+			window  1s
+		}
+	}
+	reverse_proxy rssglue:8000
+}
+
+scrutiny.{$DNS_DOMAIN} {
+	import private_auth
+	reverse_proxy scrutiny:8080
+}
+
+sonarr.{$DNS_DOMAIN} {
+	import private_only
+	reverse_proxy sonarr:8989
+}
+
+torrent.{$DNS_DOMAIN} {
+	import private_auth
+	reverse_proxy transmission:9091
+}
+
+umami.{$DNS_DOMAIN} {
+	reverse_proxy umami:3000
+}
+
+# Vaultwarden: Caddy proxies WebSocket transparently on port 80.
+# If WEBSOCKET_ENABLED=true (legacy dual-port mode), route /notifications/hub
+# to the dedicated WebSocket port and everything else to HTTP port.
+vaultwarden.{$DNS_DOMAIN} {
+	reverse_proxy /notifications/hub vaultwarden:3012
+	reverse_proxy vaultwarden:80
+}
+
+# Unifi controller uses a self-signed HTTPS backend
+unifi.{$DNS_DOMAIN} {
+	import private_only
+	reverse_proxy https://unifi_controller:8443 {
+		transport http {
+			tls_insecure_skip_verify
+		}
+	}
+}

@@ -713,7 +713,6 @@ services:
       - unifi-net
       - vaultwarden-net
       - zerobyte-net
-      - hermes-net
 
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:latest
@@ -854,66 +853,6 @@ services:
       - traefik.http.routers.scrutiny-rtr.middlewares=ipallowlist-mddl@docker,traefik-forward-auth@docker
 
   #############################
-  ## HERMES
-  #############################
-
-  # Provides the agent Python source and runs the gateway daemon (scheduled tasks)
-  hermes-agent:
-    image: nousresearch/hermes-agent:latest
-    container_name: hermes-agent
-    command: gateway run
-    restart: unless-stopped
-    environment:
-      - HERMES_HOME=/home/hermes/.hermes
-      - HERMES_UID=${PUID:-1000}
-      - HERMES_GID=${PGID:-1000}
-      - HERMES_DASHBOARD_HOST=0.0.0.0
-      - HERMES_DASHBOARD_PORT=9119
-      - API_SERVER_ENABLED=true
-      - API_SERVER_HOST=0.0.0.0
-      - API_SERVER_KEY=${HERMES_GATEWAY_API_KEY}
-    volumes:
-      - hermes-home:/home/hermes/.hermes
-      - hermes-agent-src:/opt/hermes
-    networks:
-      - hermes-net
-    labels:
-      - traefik.enable=false
-
-  hermes:
-    image: ghcr.io/nesquena/hermes-webui:latest
-    container_name: hermes
-    restart: unless-stopped
-    depends_on:
-      - hermes-agent
-    environment:
-      - WANTED_UID=${PUID:-1000}
-      - WANTED_GID=${PGID:-1000}
-      - HERMES_WEBUI_HOST=0.0.0.0
-      - HERMES_WEBUI_PORT=8787
-      - HERMES_WEBUI_STATE_DIR=/home/hermeswebui/.hermes/webui
-      - HERMES_WEBUI_PASSWORD=${HERMES_WEBUI_PASSWORD}
-      - HERMES_WEBUI_ALLOWED_ORIGINS=https://hermes.${DNS_DOMAIN}
-      - HERMES_WEBUI_TRUST_FORWARDED_HOST=1
-      - HERMES_WEBUI_TRUST_FORWARDED_PROTO=1
-      - HERMES_API_URL=http://hermes-agent:8642
-      - HERMES_WEBUI_GATEWAY_API_KEY=${HERMES_GATEWAY_API_KEY}
-    volumes:
-      - hermes-home:/home/hermeswebui/.hermes
-      - hermes-agent-src:/home/hermeswebui/.hermes/hermes-agent:ro
-      - ${PRIMARY_MOUNT}/hermes/workspace:/workspace
-    networks:
-      - hermes-net
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=hermes-net
-      - traefik.http.services.hermes-svc.loadbalancer.server.port=8787
-      - traefik.http.routers.hermes-rtr.rule=Host(`hermes.${DNS_DOMAIN}`)
-      - traefik.http.routers.hermes-rtr.entrypoints=websecure
-      - traefik.http.routers.hermes-rtr.tls=true
-      - traefik.http.routers.hermes-rtr.middlewares=ipallowlist-mddl@docker
-
-  #############################
   ## WATCHTOWER - ROOT
   #############################
 
@@ -980,10 +919,6 @@ networks:
     name: vaultwarden-net
   zerobyte-net:
     name: zerobyte-net
-  hermes-net:
-    name: hermes-net
 
 volumes:
   redis-data:
-  hermes-home:
-  hermes-agent-src:
