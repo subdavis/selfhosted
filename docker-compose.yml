@@ -556,7 +556,7 @@ services:
       - traefik.http.routers.paperless-rtr.rule=Host(`paperless.${DNS_DOMAIN}`)
       - traefik.http.routers.paperless-rtr.entrypoints=websecure
       - traefik.http.routers.paperless-rtr.tls=true
-      - traefik.http.routers.paperless-rtr.middlewares=ipallowlist-mddl@docker
+      - traefik.http.routers.paperless-rtr.middlewares=ratelimit-mddl@docker
 
   #############################
   ## PAPERLESS-AI
@@ -580,39 +580,6 @@ services:
       - traefik.http.routers.paperless-ai-rtr.entrypoints=websecure
       - traefik.http.routers.paperless-ai-rtr.tls=true
       - traefik.http.routers.paperless-ai-rtr.middlewares=ipallowlist-mddl@docker
-
-  #############################
-  ## PAPERLESS-MCP
-  #############################
-  # Publicly reachable so Claude web (cloud-hosted) can add it as a remote
-  # MCP connector. No OAuth support upstream, so it's gated by two Traefik
-  # middlewares instead: an IP allowlist restricted to Anthropic's documented
-  # outbound range, and a secret path segment (PAPERLESS_MCP_TOKEN) that gets
-  # stripped before the request reaches the container. Both must match or the
-  # request never reaches paperless-mcp. See:
-  # https://platform.claude.com/docs/en/api/ip-addresses.md
-
-  paperless-mcp:
-    image: ghcr.io/nloui/nloui/paperless-mcp:latest@sha256:c1e2132dcb924a53fad912a62fe6056adeddfb0cd178d3f74dfdbfb05296aa9a
-    container_name: paperless-mcp
-    restart: unless-stopped
-    depends_on:
-      - paperless
-    environment:
-      - PAPERLESS_URL=http://paperless:8000
-      - API_KEY=${PAPERLESS_MCP_API_KEY}
-    networks:
-      - paperless-net
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=paperless-net
-      - traefik.http.services.paperless-mcp-svc.loadbalancer.server.port=3000
-      - traefik.http.routers.paperless-mcp-rtr.rule=Host(`paperless-mcp.${DNS_DOMAIN}`) && PathPrefix(`/${PAPERLESS_MCP_TOKEN}`)
-      - traefik.http.routers.paperless-mcp-rtr.entrypoints=websecure
-      - traefik.http.routers.paperless-mcp-rtr.tls=true
-      - traefik.http.routers.paperless-mcp-rtr.middlewares=paperless-mcp-ipallowlist-mddl@docker,paperless-mcp-strip-mddl@docker
-      - traefik.http.middlewares.paperless-mcp-ipallowlist-mddl.ipallowlist.sourcerange=160.79.104.0/21
-      - traefik.http.middlewares.paperless-mcp-strip-mddl.stripprefix.prefixes=/${PAPERLESS_MCP_TOKEN}
 
   #############################
   ## RSS-Glue
