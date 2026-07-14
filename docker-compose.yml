@@ -239,7 +239,6 @@ services:
       - "DOMAIN1_ZONE_ID=${DNS_DOMAIN_ZONE_ID}"
     dns: 1.1.1.1
 
-
   #############################
   ## DOZZLE - ROOT
   #############################
@@ -557,29 +556,6 @@ services:
       - traefik.http.routers.paperless-rtr.entrypoints=websecure
       - traefik.http.routers.paperless-rtr.tls=true
       - traefik.http.routers.paperless-rtr.middlewares=ratelimit-mddl@docker
-
-  #############################
-  ## PAPERLESS-AI
-  #############################
-
-  paperless-ai:
-    image: clusterzx/paperless-ai
-    container_name: paperless-ai
-    restart: unless-stopped
-    depends_on:
-      - paperless
-    volumes:
-      - ${PRIMARY_MOUNT}/paperless-ai/data:/app/data
-    networks:
-      - paperless-net
-    labels:
-      - traefik.enable=true
-      - traefik.docker.network=paperless-net
-      - traefik.http.services.paperless-ai-svc.loadbalancer.server.port=3000
-      - traefik.http.routers.paperless-ai-rtr.rule=Host(`paperless-ai.${DNS_DOMAIN}`)
-      - traefik.http.routers.paperless-ai-rtr.entrypoints=websecure
-      - traefik.http.routers.paperless-ai-rtr.tls=true
-      - traefik.http.routers.paperless-ai-rtr.middlewares=ipallowlist-mddl@docker
 
   #############################
   ## RSS-Glue
