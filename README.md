@@ -99,6 +99,9 @@ systemctl --user enable logrotate.timer --now
 # enable traefik logrotate
 cp etc/traefik-logrotate.conf /etc/logrotate.d/traefik
 
+# Create workflow-explorer config and edit
+cp etc/workflow-explorer/.env.example etc/workflow-explorer/.env
+
 # Add to .profile
 # export DOCKER_HOST=unix://$XDG_RUNTIME_DIR/docker.sock
 nano .profile
