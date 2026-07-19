@@ -572,7 +572,7 @@ services:
     volumes:
       - ${PRIMARY_MOUNT}/workflow_explorer/postgres:/var/lib/postgresql/data
     networks:
-      - workflow-explorer-private-net
+      - workflow-explorer-net
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
       interval: 5s
@@ -953,8 +953,6 @@ networks:
     name: paperless-private-net
   workflow-explorer-net:
     name: workflow-explorer-net
-  workflow-explorer-private-net:
-    name: workflow-explorer-private-net
   plex-net:
     name: plex-net
   transmission-net:
