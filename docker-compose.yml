@@ -694,11 +694,14 @@ services:
       - WEBUI_PORT=8080
     # tests egress, not the webui: if gluetun restarts, this container is left in a
     # dead netns with a working loopback, so localhost:8080 would still answer.
+    # plain http on purpose (no TLS dep), and curl-or-wget so a missing binary
+    # can't wedge autoheal into a restart loop. not gluetun's control server:
+    # that requires auth by default since ~v3.39.1.
     healthcheck:
-      test: ["CMD", "curl", "-fsS", "-m", "10", "https://api.ipify.org"]
+      test: ["CMD-SHELL", "curl -fsS -m 10 -o /dev/null http://cp.cloudflare.com/generate_204 2>/dev/null || wget -q -T 10 -O /dev/null http://cp.cloudflare.com/generate_204"]
       interval: 1m
       timeout: 15s
-      start_period: 2m
+      start_period: 3m
       retries: 3
 
   # restarts containers labelled autoheal=true when their healthcheck fails.
