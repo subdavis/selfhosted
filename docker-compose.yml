@@ -622,45 +622,98 @@ services:
       - rss-glue-net
 
   #############################
-  ## TRANSMISSION_TORRENT
+  ## QBITTORRENT + GLUETUN
   #############################
 
-  transmission:
-    image: haugene/transmission-openvpn:4
-    container_name: transmission
+  gluetun:
+    image: qmcgaw/gluetun:v3
+    container_name: gluetun
     restart: unless-stopped
-    labels: 
+    labels:
       - "com.centurylinklabs.watchtower.enable=false"
+      - autoheal=true
       - traefik.enable=true
       - traefik.docker.network=transmission-net
-      - traefik.http.services.transmission-svc.loadbalancer.server.port=9091
-      - traefik.http.routers.transmission-rtr.rule=Host(`torrent.${DNS_DOMAIN}`)
-      - traefik.http.routers.transmission-rtr.entrypoints=websecure
-      - traefik.http.routers.transmission-rtr.tls=true
-      - traefik.http.routers.transmission-rtr.middlewares=traefik-forward-auth@docker,ipallowlist-mddl@docker
+      - traefik.http.services.qbittorrent-svc.loadbalancer.server.port=8080
+      - traefik.http.routers.qbittorrent-rtr.rule=Host(`torrent.${DNS_DOMAIN}`)
+      - traefik.http.routers.qbittorrent-rtr.entrypoints=websecure
+      - traefik.http.routers.qbittorrent-rtr.tls=true
+      - traefik.http.routers.qbittorrent-rtr.middlewares=traefik-forward-auth@docker,ipallowlist-mddl@docker
     networks:
       - arr-net
       - transmission-net
-    dns: 1.1.1.1
-    sysctls:
-      - net.ipv6.conf.all.disable_ipv6=1
-    mem_limit: 512m
-    mem_reservation: 256m
     cap_add:
       - NET_ADMIN
-    volumes:  
+    devices:
+      - /dev/net/tun:/dev/net/tun
+    volumes:
+      - ${PRIMARY_MOUNT}/gluetun/config:/gluetun
+    environment:
+      - TZ=${TIME_ZONE}
+      - VPN_SERVICE_PROVIDER=private internet access
+      # PIA has no native wireguard support in gluetun; openvpn is the only
+      # documented path for provider=private internet access.
+      - VPN_TYPE=openvpn
+      - OPENVPN_USER=${TORRENT_USERNAME}
+      - OPENVPN_PASSWORD=${TORRENT_PASSWORD}
+      - SERVER_REGIONS=${PIA_REGIONS}
+      - VPN_PORT_FORWARDING=on
+      # note: true/false, NOT on/off. refuses to pick a non-PF server.
+      - PORT_FORWARD_ONLY=true
+      - FIREWALL_OUTBOUND_SUBNETS=${LOCAL_NETWORK}
+      # push the forwarded port into qbittorrent on every renewal. verbatim from
+      # the gluetun wiki (setup/advanced/vpn-port-forwarding.md). the DOWN command
+      # is required too: qbittorrent has a reconnect bug without it.
+      # needs "Bypass authentication for clients on localhost" in the qbt webui.
+      - |-
+        VPN_PORT_FORWARDING_UP_COMMAND=/bin/sh -c 'wget -O- -nv --retry-connrefused --post-data "json={\"listen_port\":{{PORT}},\"current_network_interface\":\"{{VPN_INTERFACE}}\",\"random_port\":false,\"upnp\":false}" http://127.0.0.1:8080/api/v2/app/setPreferences'
+      - |-
+        VPN_PORT_FORWARDING_DOWN_COMMAND=/bin/sh -c 'wget -O- -nv --retry-connrefused --post-data "json={\"listen_port\":0,\"current_network_interface\":\"lo\"}" http://127.0.0.1:8080/api/v2/app/setPreferences'
+
+  qbittorrent:
+    image: ghcr.io/linuxserver/qbittorrent:latest
+    container_name: qbittorrent
+    restart: unless-stopped
+    # shares gluetun's network namespace, so it has no `networks` of its own.
+    # the *arr apps and traefik reach it at gluetun:8080.
+    network_mode: "service:gluetun"
+    depends_on:
+      - gluetun
+    labels:
+      - autoheal=true
+    mem_limit: 1g
+    mem_reservation: 256m
+    volumes:
+      - ${PRIMARY_MOUNT}/qbittorrent/config:/config
       - ${MEDIA_MOUNT}/plex/media/:/data
       - /etc/localtime:/etc/localtime:ro
     environment:
       - PUID=${PUID:-1000}
       - PGID=${PUID:-1000}
-      - "OPENVPN_CONFIG=${OPENVPN_CONFIG}"
-      - "OPENVPN_PROVIDER=${OPENVPN_PROVIDER}"
-      - "OPENVPN_USERNAME=${TORRENT_USERNAME}"
-      - "OPENVPN_PASSWORD=${TORRENT_PASSWORD}"
-      - "OPENVPN_OPTS=--inactive 3600 --ping 10 --ping-exit 60"
-      - "LOCAL_NETWORK=${LOCAL_NETWORK}"
-      - "PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp"
+      - TZ=${TIME_ZONE}
+      - WEBUI_PORT=8080
+    # tests egress, not the webui: if gluetun restarts, this container is left in a
+    # dead netns with a working loopback, so localhost:8080 would still answer.
+    healthcheck:
+      test: ["CMD", "curl", "-fsS", "-m", "10", "https://api.ipify.org"]
+      interval: 1m
+      timeout: 15s
+      start_period: 2m
+      retries: 3
+
+  # restarts containers labelled autoheal=true when their healthcheck fails.
+  # docker itself never acts on an unhealthy container.
+  autoheal:
+    image: willfarrell/autoheal:latest
+    container_name: autoheal
+    restart: unless-stopped
+    network_mode: none
+    environment:
+      - AUTOHEAL_CONTAINER_LABEL=autoheal
+      - AUTOHEAL_INTERVAL=30
+      - AUTOHEAL_START_PERIOD=120
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
 
   #############################
   ## TRAEFIK - ROOT

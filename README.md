@@ -15,7 +15,7 @@ This repo contains my production docker services accessible from anywhere over H
 * Calibre Web
 * Kobo book downloader (kobodl)
 * Paperless-ngx document management
-* Transmission torrent server
+* qBittorrent torrent server (behind gluetun VPN)
 * AdGuard Home DNS
 * Drone CI and runner
 * Backrest (restic)
