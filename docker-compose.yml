@@ -631,7 +631,9 @@ services:
     restart: unless-stopped
     labels:
       - "com.centurylinklabs.watchtower.enable=false"
-      - autoheal=true
+      # deliberately NOT autoheal=true: gluetun restarts the tunnel in-place on
+      # its own healthcheck failure. letting autoheal kill the container instead
+      # SIGTERMs openvpn mid-handshake and it never finishes connecting.
       - traefik.enable=true
       - traefik.docker.network=transmission-net
       - traefik.http.services.qbittorrent-svc.loadbalancer.server.port=8080
@@ -657,6 +659,9 @@ services:
       - OPENVPN_USER=${TORRENT_USERNAME}
       - OPENVPN_PASSWORD=${TORRENT_PASSWORD}
       - SERVER_REGIONS=${PIA_REGIONS}
+      # tcp to match the old transmission setup (PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp).
+      # udp/8080 (gluetun's default for the "strong" preset) got zero reply packets.
+      - OPENVPN_PROTOCOL=tcp
       - VPN_PORT_FORWARDING=on
       # note: true/false, NOT on/off. refuses to pick a non-PF server.
       - PORT_FORWARD_ONLY=true
