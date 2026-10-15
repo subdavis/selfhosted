@@ -659,13 +659,19 @@ services:
       - OPENVPN_USER=${TORRENT_USERNAME}
       - OPENVPN_PASSWORD=${TORRENT_PASSWORD}
       - SERVER_REGIONS=${PIA_REGIONS}
-      # tcp to match the old transmission setup (PIA_OPENVPN_CONFIG_BUNDLE=openvpn-tcp).
-      # udp/8080 (gluetun's default for the "strong" preset) got zero reply packets.
-      - OPENVPN_PROTOCOL=tcp
+      # protocol/preset left at gluetun defaults (udp, strong / AES-256-GCM).
+      # the connect failures were stale baked-in server IPs, not ports: refresh
+      # with `gluetun update -providers` after pulling a new image.
+      # if udp won't connect once the list is fresh, try OPENVPN_PROTOCOL=tcp.
       - VPN_PORT_FORWARDING=on
       # note: true/false, NOT on/off. refuses to pick a non-PF server.
       - PORT_FORWARD_ONLY=true
       - FIREWALL_OUTBOUND_SUBNETS=${LOCAL_NETWORK}
+      # refresh the server list periodically so baked-in IPs can't go stale again.
+      # wiki says no less than 360h. note this only fires one period after start
+      # and runs through the tunnel, so it can't bootstrap a dead list: for that,
+      # use the one-shot `gluetun update -providers` CLI.
+      - UPDATER_PERIOD=480h
       # push the forwarded port into qbittorrent on every renewal. verbatim from
       # the gluetun wiki (setup/advanced/vpn-port-forwarding.md). the DOWN command
       # is required too: qbittorrent has a reconnect bug without it.
