@@ -1,9 +1,14 @@
+Include /etc/ssh/sshd_config.d/*.conf
+PermitRootLogin no
+IgnoreRhosts yes
+PermitEmptyPasswords no
 ChallengeResponseAuthentication no
-UsePAM no
+UsePAM yes
 X11Forwarding no
-PasswordAuthentication no
-PrintMotd yes
+PrintMotd no
+UseDNS yes
 AcceptEnv LANG LC_*
-Subsystem sftp  /usr/lib/openssh/sftp-server
+Subsystem sftp	/usr/lib/openssh/sftp-server
+PasswordAuthentication no
 Match User edgerouter-backup
     PasswordAuthentication yes

@@ -79,6 +79,7 @@ Resolving the IP address of your home network is annoying because most DNS provi
   a [Understanding UID remapping](https://medium.com/@tonistiigi/experimenting-with-rootless-docker-416c9ad8c0d6)
   a. ignore the env exports it says to set, see below
 1. make sure `UsePAM yes` is set in `/etc/ssh/sshd_config` [read more](https://superuser.com/questions/1561076/systemctl-use-failed-to-connect-to-bus-no-such-file-or-directory-debian-9)
+1. copy `etc/docker/daemon.json` to `/etc/docker/daemon.json` and restart docker. `userland-proxy: false` stops docker from relaying IPv6 into IPv4-only containers, which rewrites the client address to a bridge gateway IP and defeats IP allowlists.
 
 ```bash
 cd selfhosted
