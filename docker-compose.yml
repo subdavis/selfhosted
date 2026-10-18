@@ -922,6 +922,7 @@ services:
       - "${PRIMARY_MOUNT}/vaultwarden/data/:/data"
     environment:
       - WEBSOCKET_ENABLED=true
+      - LOG_FILE=/data/vaultwarden.log
     networks:
       - vaultwarden-net
     labels:
