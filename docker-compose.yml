@@ -362,11 +362,11 @@ services:
       - traefik.http.routers.linkding-rtr.middlewares=ratelimit-mddl@docker
       # Crawler trap: tag links on the public /bookmarks/shared page stack
       # (q=#AI #Climate #AI ...), giving bots an endless URL space. Legit use
-      # never has a q this long. Matching requests (plus known scraper UAs) hit
+      # never searches 3+ tags at once. Matching requests (plus known scraper UAs) hit
       # a higher-priority router whose allowlist only permits localhost => 403.
       - traefik.http.middlewares.linkding-deny.ipallowlist.sourcerange=127.0.0.1/32
       - traefik.http.routers.linkding-block-rtr.priority=1000
-      - traefik.http.routers.linkding-block-rtr.rule=Host(`links.${DNS_DOMAIN}`) && (HeaderRegexp(`User-Agent`, `(?i)(meta-externalagent|facebookexternalhit|lightpanda|bytespider|barkrowler|gptbot|claudebot|amazonbot|petalbot|semrush|ahrefs)`) || QueryRegexp(`q`, `.{40,}`) || (PathPrefix(`/login`) && QueryRegexp(`next`, `q=.{40,}`)))
+      - traefik.http.routers.linkding-block-rtr.rule=Host(`links.${DNS_DOMAIN}`) && (HeaderRegexp(`User-Agent`, `(?i)(meta-externalagent|facebookexternalhit|lightpanda|bytespider|barkrowler|gptbot|claudebot|amazonbot|petalbot|semrush|ahrefs)`) || QueryRegexp(`q`, `(#|%23).*(#|%23).*(#|%23)`) || (PathPrefix(`/login`) && QueryRegexp(`next`, `q=.*(#|%23).*(#|%23).*(#|%23)`)))
       - traefik.http.routers.linkding-block-rtr.entrypoints=websecure
       - traefik.http.routers.linkding-block-rtr.tls=true
       - traefik.http.routers.linkding-block-rtr.middlewares=linkding-deny@docker
