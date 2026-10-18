@@ -924,13 +924,7 @@ services:
       - traefik.http.routers.umami-rtr.rule=Host(`umami.${DNS_DOMAIN}`)
       - traefik.http.routers.umami-rtr.entrypoints=websecure
       - traefik.http.routers.umami-rtr.tls=true
-      - traefik.http.routers.umami-rtr.middlewares=ipallowlist-mddl@docker
-      # tracker endpoints stay public
-      - traefik.http.routers.umami-pub-rtr.rule=Host(`umami.${DNS_DOMAIN}`) && (Path(`/script.js`) || Path(`/api/send`))
-      - traefik.http.routers.umami-pub-rtr.entrypoints=websecure
-      - traefik.http.routers.umami-pub-rtr.tls=true
-      - traefik.http.routers.umami-pub-rtr.service=umami-svc
-      - traefik.http.routers.umami-pub-rtr.middlewares=ratelimit-mddl@docker
+      - traefik.http.routers.umami-rtr.middlewares=ratelimit-mddl@docker
     networks:
       - umami-net
       - umami-private-net
