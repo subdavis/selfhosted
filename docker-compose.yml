@@ -573,7 +573,7 @@ services:
       - traefik.http.routers.paperless-rtr.rule=Host(`paperless.${DNS_DOMAIN}`)
       - traefik.http.routers.paperless-rtr.entrypoints=websecure
       - traefik.http.routers.paperless-rtr.tls=true
-      - traefik.http.routers.paperless-rtr.middlewares=ratelimit-mddl@docker
+      - traefik.http.routers.paperless-rtr.middlewares=ipallowlist-mddl@docker,ratelimit-mddl@docker
 
   #############################
   ## WORKFLOW-EXPLORER
