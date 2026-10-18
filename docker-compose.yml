@@ -17,9 +17,11 @@ services:
       - traefik.http.routers.adguard-rtr.middlewares=ipallowlist-mddl@docker
     networks:
       - adguard-net
+    # IPv4 only: an IPv6 publish on this IPv4-only container would be relayed
+    # by docker-proxy, hiding every v6 client behind the bridge gateway address.
     ports:
-      - "53:53/udp"
-      - "53:53/tcp"
+      - "0.0.0.0:53:53/udp"
+      - "0.0.0.0:53:53/tcp"
     volumes:
       - "${LOCAL_MOUNT}/adguard/data:/opt/adguardhome/work"
       - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
@@ -228,9 +230,11 @@ services:
     image: tiredofit/traefik-cloudflare-companion
     container_name: cloudflare-companion
     restart: unless-stopped
-    volumes:
-      - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+    networks:
+      - default
+      - socket-net
     environment:
+      - "DOCKER_HOST=tcp://socket-proxy:2375"
       - "TRAEFIK_VERSION=2"
       # - "CF_EMAIL=" Leave blank for scopepd
       - "CF_TOKEN=${CF_TOKEN}"
@@ -251,7 +255,7 @@ services:
     networks:
       - dozzle-net
     environment:
-      DOZZLE_ENABLE_SHELL: true
+      # no DOZZLE_ENABLE_SHELL: with the host docker socket it is a root shell in a browser.
       DOZZLE_ENABLE_ACTIONS: true
     labels:
       - traefik.enable=true
@@ -410,9 +414,6 @@ services:
       - "BASE_URL=https://miniflux.${DNS_DOMAIN}"
       - "DATABASE_URL=postgres://miniflux:miniflux@miniflux_postgres/miniflux?sslmode=disable"
       - RUN_MIGRATIONS=1
-      - CREATE_ADMIN=1
-      - ADMIN_USERNAME=admin
-      - ADMIN_PASSWORD=miniflux
     volumes:
       - ${PRIMARY_MOUNT}/miniflux/config:/config
     labels:
@@ -652,6 +653,9 @@ services:
       - traefik.http.routers.qbittorrent-rtr.entrypoints=websecure
       - traefik.http.routers.qbittorrent-rtr.tls=true
       # no forward-auth: ip allowlist + qbittorrent's own webui password.
+      # the webui's "bypass authentication for whitelisted subnets" must stay OFF:
+      # every request arrives from traefik's container IP, so any 172.16/12
+      # whitelist silently disables the password.
       - traefik.http.routers.qbittorrent-rtr.middlewares=ipallowlist-mddl@docker
     networks:
       - arr-net
@@ -750,14 +754,14 @@ services:
     restart: unless-stopped
     container_name: traefik
     command: >
-      --api.insecure=true
-      --serversTransport.insecureSkipVerify=true
+      --api.dashboard=true
       --accesslog=true
       --accesslog.filepath=/var/log/traefik/access.log
       --accesslog.fields.headers.names.Content-Type=keep
       --accesslog.fields.headers.names.Referer=keep
       --accesslog.fields.headers.names.User-Agent=keep
       --providers.docker=true
+      --providers.docker.endpoint=tcp://socket-proxy:2375
       --providers.docker.exposedByDefault=false
       --entrypoints.web.address=:80
       --entrypoints.websecure.address=:443
@@ -786,50 +790,70 @@ services:
       - "traefik.http.middlewares.ratelimit-mddl.ratelimit.average=100"
       - "traefik.http.middlewares.ratelimit-mddl.ratelimit.period=1s"
       - "traefik.http.middlewares.ratelimit-mddl.ratelimit.burst=200"
-      # For Vaultwarden
-      - "traefik.http.middlewares.bw-stripPrefix.stripprefix.prefixes=/notifications/hub"
       # Traefik Dashboard config
-      - traefik.http.services.traefik-svc.loadbalancer.server.port=8080
       - traefik.http.routers.traefik-rtr.rule=Host(`traefik.${DNS_DOMAIN}`)
       - traefik.http.routers.traefik-rtr.entrypoints=websecure
       - traefik.http.routers.traefik-rtr.tls=true
-      - traefik.http.routers.traefik-rtr.middlewares=traefik-forward-auth@docker
+      - traefik.http.routers.traefik-rtr.service=api@internal
+      - traefik.http.routers.traefik-rtr.middlewares=ipallowlist-mddl@docker,traefik-forward-auth@docker
     environment:
       - CF_API_EMAIL=${CF_EMAIL}
       - CF_DNS_API_TOKEN=${CF_TOKEN}
       - CF_ZONE_API_TOKEN=${CF_TOKEN}
     volumes:
-      - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
       - "${LOCAL_MOUNT}/traefik/letsencrypt:/letsencrypt"
       - "${LOCAL_MOUNT}/traefik/logs:/var/log/traefik"
-      - "./etc/traefik:/etc/traefik"
     ports:
       - "80:80"
       - "443:443"
     networks:
-      - traefik-net
-      - adguard-net
-      - arr-net
-      - auth-net
-      - backrest-net
-      - calibre-net
-      - changedetection-net
-      - dozzle-net
-      - drone-net
-      - linkding-net
-      - miniflux-net
-      - navidrome-net
-      - kobodl-net
-      - paperless-net
-      - workflow-explorer-net
-      - plex-net
-      - rss-glue-net
-      - scrutiny-net
-      - transmission-net
-      - umami-net
-      - unifi-net
-      - vaultwarden-net
-      - zerobyte-net
+      # published ports bind on the gateway network. ingress-net is dual-stack,
+      # so IPv6 is DNAT'd by ip6tables and traefik sees the real client address
+      # (instead of docker-proxy rewriting every v6 client to a bridge gateway IP).
+      ingress-net:
+        gw_priority: 100
+      socket-net: {}
+      traefik-net: {}
+      adguard-net: {}
+      arr-net: {}
+      auth-net: {}
+      backrest-net: {}
+      calibre-net: {}
+      changedetection-net: {}
+      dozzle-net: {}
+      drone-net: {}
+      linkding-net: {}
+      miniflux-net: {}
+      navidrome-net: {}
+      kobodl-net: {}
+      paperless-net: {}
+      workflow-explorer-net: {}
+      plex-net: {}
+      rss-glue-net: {}
+      scrutiny-net: {}
+      transmission-net: {}
+      umami-net: {}
+      unifi-net: {}
+      vaultwarden-net: {}
+      zerobyte-net: {}
+
+  # read-only, filtered docker API for traefik and cloudflare-companion.
+  socket-proxy:
+    image: lscr.io/linuxserver/socket-proxy:latest
+    container_name: socket-proxy
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /run
+    environment:
+      - CONTAINERS=1
+      - POST=0
+    labels:
+      - traefik.enable=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - socket-net
 
   traefik-forward-auth:
     image: thomseddon/traefik-forward-auth:latest
@@ -891,7 +915,8 @@ services:
     environment:
       DATABASE_URL: postgresql://umami:umami@umami_postgres:5432/umami
       DATABASE_TYPE: postgresql
-      APP_SECRET: ${DNS_DOMAIN_ZONE_ID}
+      # signs login tokens: must be random and private
+      APP_SECRET: ${UMAMI_APP_SECRET:?set UMAMI_APP_SECRET in .env}
     labels:
       - traefik.enable=true
       - traefik.docker.network=umami-net
@@ -899,7 +924,13 @@ services:
       - traefik.http.routers.umami-rtr.rule=Host(`umami.${DNS_DOMAIN}`)
       - traefik.http.routers.umami-rtr.entrypoints=websecure
       - traefik.http.routers.umami-rtr.tls=true
-      - traefik.http.routers.umami-rtr.middlewares=ratelimit-mddl@docker
+      - traefik.http.routers.umami-rtr.middlewares=ipallowlist-mddl@docker
+      # tracker endpoints stay public
+      - traefik.http.routers.umami-pub-rtr.rule=Host(`umami.${DNS_DOMAIN}`) && (Path(`/script.js`) || Path(`/api/send`))
+      - traefik.http.routers.umami-pub-rtr.entrypoints=websecure
+      - traefik.http.routers.umami-pub-rtr.tls=true
+      - traefik.http.routers.umami-pub-rtr.service=umami-svc
+      - traefik.http.routers.umami-pub-rtr.middlewares=ratelimit-mddl@docker
     networks:
       - umami-net
       - umami-private-net
@@ -921,7 +952,7 @@ services:
     volumes:
       - "${PRIMARY_MOUNT}/vaultwarden/data/:/data"
     environment:
-      - WEBSOCKET_ENABLED=true
+      - SIGNUPS_ALLOWED=false
       - LOG_FILE=/data/vaultwarden.log
     networks:
       - vaultwarden-net
@@ -934,13 +965,6 @@ services:
       - "traefik.http.routers.vaultwarden-rtr.service=vaultwarden-svc"
       - "traefik.http.services.vaultwarden-svc.loadbalancer.server.port=80"
       - "traefik.http.routers.vaultwarden-rtr.middlewares=ipallowlist-mddl@docker"
-      # websocket
-      - "traefik.http.routers.vaultwarden-ws-rtr.entrypoints=websecure"
-      - "traefik.http.routers.vaultwarden-ws-rtr.rule=Host(`vaultwarden.${DNS_DOMAIN}`) && Path(`/notifications/hub`)"
-      - "traefik.http.middlewares.vaultwarden-ws-rtr=bw-stripPrefix@file"
-      - "traefik.http.routers.vaultwarden-ws-rtr.service=vaultwarden-ws-svc"
-      - "traefik.http.services.vaultwarden-ws-svc.loadbalancer.server.port=3012"
-      - "traefik.http.routers.vaultwarden-ws-rtr.middlewares=ipallowlist-mddl@docker"
 
   #############################
   ## SCRUTINY
@@ -1008,6 +1032,13 @@ networks:
     name: drone-net
   drone-private-net:
     name: drone-private-net
+  ingress-net:
+    name: ingress-net
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 172.16.40.0/24
+        - subnet: fd42:5e1f:7a11::/64
   linkding-net:
     name: linkding-net
   miniflux-net:
@@ -1018,6 +1049,9 @@ networks:
     name: rss-glue-net
   scrutiny-net:
     name: scrutiny-net
+  socket-net:
+    name: socket-net
+    internal: true
   kobodl-net:
     name: kobodl-net
   paperless-net:

@@ -1,0 +1,7 @@
+{
+    "userland-proxy": false,
+    "default-address-pools": [
+        {"base":"172.16.0.0/16","size":24},
+        {"base":"172.20.0.0/16","size":24}
+    ]
+}
