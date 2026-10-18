@@ -651,13 +651,8 @@ services:
       - traefik.http.routers.qbittorrent-rtr.rule=Host(`torrent.${DNS_DOMAIN}`)
       - traefik.http.routers.qbittorrent-rtr.entrypoints=websecure
       - traefik.http.routers.qbittorrent-rtr.tls=true
-      - traefik.http.routers.qbittorrent-rtr.middlewares=traefik-forward-auth@docker,ipallowlist-mddl@docker,qbittorrent-strip-referer@docker
-      # qbittorrent's WebUI rejects requests whose Referer header is cross-origin
-      # (its own CSRF check, separate from AuthSubnetWhitelist). the SSO redirect
-      # from accounts.google.com leaves that header set, so qbittorrent 401s right
-      # after a successful forward-auth login. strip it here since forward-auth +
-      # the ip allowlist already gate access.
-      - traefik.http.middlewares.qbittorrent-strip-referer.headers.customrequestheaders.Referer=
+      # no forward-auth: ip allowlist + qbittorrent's own webui password.
+      - traefik.http.routers.qbittorrent-rtr.middlewares=ipallowlist-mddl@docker
     networks:
       - arr-net
       - transmission-net
