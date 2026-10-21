@@ -924,6 +924,11 @@ services:
       DATABASE_TYPE: postgresql
       # signs login tokens: must be random and private
       APP_SECRET: ${UMAMI_APP_SECRET:?set UMAMI_APP_SECRET in .env}
+      # msp.bike tracks server-side from a Cloudflare Worker, so requests to
+      # /api/send arrive from Cloudflare's egress IP. The Worker sends the
+      # visitor's real IP in x-client-ip; prefer it over the built-in header
+      # list (requests without the header fall back to the normal lookup).
+      CLIENT_IP_HEADER: x-client-ip
     labels:
       - traefik.enable=true
       - traefik.docker.network=umami-net
