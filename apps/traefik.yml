@@ -137,25 +137,12 @@ services:
       - traefik.http.routers.auth-rtr.tls=true
       - traefik.http.routers.auth-rtr.middlewares=traefik-forward-auth
 
+# Per-app networks (adguard-net, arr-net, ...) are declared in their own apps/*.yml;
+# this file relies on them being included alongside it. unifi-net and zerobyte-net
+# have no service here and are declared only so traefik can join them.
 networks:
-  adguard-net:
-    name: adguard-net
-  arr-net:
-    name: arr-net
-  backrest-net:
-    name: backrest-net
   auth-net:
     name: auth-net
-  calibre-net:
-    name: calibre-net
-  changedetection-net:
-    name: changedetection-net
-  dozzle-net:
-    name: dozzle-net
-  drone-net:
-    name: drone-net
-  drone-private-net:
-    name: drone-private-net
   ingress-net:
     name: ingress-net
     enable_ipv6: true
@@ -163,40 +150,12 @@ networks:
       config:
         - subnet: 172.16.40.0/24
         - subnet: fd42:5e1f:7a11::/64
-  linkding-net:
-    name: linkding-net
-  miniflux-net:
-    name: miniflux-net
-  navidrome-net:
-    name: navidrome-net
-  rss-glue-net:
-    name: rss-glue-net
-  scrutiny-net:
-    name: scrutiny-net
   socket-net:
     name: socket-net
     internal: true
-  kobodl-net:
-    name: kobodl-net
-  paperless-net:
-    name: paperless-net
-  paperless-private-net:
-    name: paperless-private-net
-  workflow-explorer-net:
-    name: workflow-explorer-net
-  plex-net:
-    name: plex-net
-  transmission-net:
-    name: transmission-net
   traefik-net:
     name: traefik-net
-  umami-net:
-    name: umami-net
-  umami-private-net:
-    name: umami-private-net
   unifi-net:
     name: unifi-net
-  vaultwarden-net:
-    name: vaultwarden-net
   zerobyte-net:
     name: zerobyte-net

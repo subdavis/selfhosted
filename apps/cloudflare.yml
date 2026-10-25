@@ -38,7 +38,4 @@ services:
       - "DOMAIN1_ZONE_ID=${DNS_DOMAIN_ZONE_ID}"
     dns: 1.1.1.1
 
-networks:
-  socket-net:
-    name: socket-net
-    internal: true
+# socket-net is declared in traefik.yml.
