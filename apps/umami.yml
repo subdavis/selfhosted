@@ -23,7 +23,7 @@ services:
       retries: 5
 
   umami:
-    image: ghcr.io/umami-software/umami:postgresql-v2.20.2
+    image: ghcr.io/umami-software/umami:3.4.1
     restart: always
     container_name: umami
     # user: ${PUID:-1000} # Permissions error after recent change
