@@ -5,7 +5,7 @@ services:
   #############################
 
   traefik:
-    image: traefik:v3.6
+    image: traefik:v3.6.25
     restart: unless-stopped
     container_name: traefik
     command: >
@@ -94,7 +94,7 @@ services:
 
   # read-only, filtered docker API for traefik and cloudflare-companion.
   socket-proxy:
-    image: lscr.io/linuxserver/socket-proxy:latest
+    image: lscr.io/linuxserver/socket-proxy:3.4.7
     container_name: socket-proxy
     restart: unless-stopped
     read_only: true
@@ -111,7 +111,7 @@ services:
       - socket-net
 
   traefik-forward-auth:
-    image: thomseddon/traefik-forward-auth:latest
+    image: thomseddon/traefik-forward-auth:2.2.0
     container_name: auth
     restart: unless-stopped
     user: ${PUID:-1000}

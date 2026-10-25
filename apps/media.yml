@@ -26,7 +26,7 @@ services:
       - arr-net
 
   radarr:
-    image: ghcr.io/linuxserver/radarr:latest
+    image: ghcr.io/linuxserver/radarr:version-6.4.4.10685
     container_name: radarr
     restart: unless-stopped
     environment:
@@ -48,7 +48,7 @@ services:
       - arr-net
 
   sonarr:
-    image: ghcr.io/linuxserver/sonarr
+    image: ghcr.io/linuxserver/sonarr:version-4.0.20.3014
     container_name: sonarr
     restart: unless-stopped
     environment:
@@ -70,7 +70,7 @@ services:
       - arr-net
 
   lidarr:
-    image: ghcr.io/linuxserver/lidarr:latest
+    image: ghcr.io/linuxserver/lidarr:version-3.1.0.4875
     container_name: lidarr
     environment:
       - PUID=${PUID:-1000}
@@ -96,7 +96,7 @@ services:
   #############################
 
   jellyfin:
-    image: lscr.io/linuxserver/jellyfin
+    image: lscr.io/linuxserver/jellyfin:version-12.3ubu2604
     container_name: jellyfin
     restart: unless-stopped
     labels:
@@ -124,11 +124,10 @@ services:
   #############################
 
   gluetun:
-    image: qmcgaw/gluetun:v3
+    image: qmcgaw/gluetun:v3.41.3
     container_name: gluetun
     restart: unless-stopped
     labels:
-      - "com.centurylinklabs.watchtower.enable=false"
       # deliberately NOT autoheal=true: gluetun restarts the tunnel in-place on
       # its own healthcheck failure. letting autoheal kill the container instead
       # SIGTERMs openvpn mid-handshake and it never finishes connecting.
@@ -184,7 +183,7 @@ services:
         VPN_PORT_FORWARDING_DOWN_COMMAND=/bin/sh -c 'wget -O- -nv --retry-connrefused --post-data "json={\"listen_port\":0,\"current_network_interface\":\"lo\"}" http://127.0.0.1:8080/api/v2/app/setPreferences'
 
   qbittorrent:
-    image: ghcr.io/linuxserver/qbittorrent:latest
+    image: ghcr.io/linuxserver/qbittorrent:version-5.3.0_v2.1.2
     container_name: qbittorrent
     restart: unless-stopped
     # shares gluetun's network namespace, so it has no `networks` of its own.
@@ -220,7 +219,7 @@ services:
   # restarts containers labelled autoheal=true when their healthcheck fails.
   # docker itself never acts on an unhealthy container.
   autoheal:
-    image: willfarrell/autoheal:latest
+    image: willfarrell/autoheal:1.2.0
     container_name: autoheal
     restart: unless-stopped
     network_mode: none

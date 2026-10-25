@@ -1,0 +1,31 @@
+{
+  "$schema": "https://docs.renovatebot.com/renovate-schema.json",
+  "extends": ["config:recommended"],
+  "enabledManagers": ["docker-compose"],
+  "docker-compose": {
+    "managerFilePatterns": ["/^docker-compose\\.ya?ml$/", "/^apps/.+\\.ya?ml$/"]
+  },
+  "timezone": "America/Chicago",
+  "schedule": ["before 6am on saturday"],
+  "prConcurrentLimit": 5,
+  "minimumReleaseAge": "7 days",
+  "internalChecksFilter": "strict",
+  "packageRules": [
+    {
+      "description": "Majors wait longer: they often need migration or config changes.",
+      "matchUpdateTypes": ["major"],
+      "minimumReleaseAge": "21 days"
+    },
+    {
+      "description": "Stay on the current major: traefik v3 stays on v3 even once v4 exists. Databases and drone also need manual migration; remove a package from this list to start receiving its major bumps.",
+      "matchPackageNames": ["traefik", "postgres", "valkey/valkey", "docker.io/valkey/valkey", "drone/drone", "drone/drone-runner-docker", "qmcgaw/gluetun"],
+      "matchUpdateTypes": ["major"],
+      "enabled": false
+    },
+    {
+      "description": "No release versions to track and the project is unmaintained; only changes by hand.",
+      "matchPackageNames": ["oznu/cloudflare-ddns"],
+      "enabled": false
+    }
+  ]
+}

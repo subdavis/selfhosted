@@ -22,7 +22,7 @@ services:
   #############################
 
   cloudflare-companion:
-    image: tiredofit/traefik-cloudflare-companion
+    image: ghcr.io/tiredofit/docker-traefik-cloudflare-companion:7.4.0
     container_name: cloudflare-companion
     restart: unless-stopped
     networks:

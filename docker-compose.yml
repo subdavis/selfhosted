@@ -37,8 +37,6 @@ include:
     project_directory: .
   - path: ./apps/scrutiny.yml
     project_directory: .
-  - path: ./apps/watchtower.yml
-    project_directory: .
 
 volumes:
   redis-data:

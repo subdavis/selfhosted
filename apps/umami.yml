@@ -5,7 +5,7 @@ services:
   #############################
 
   umami_postgres:
-    image: postgres:15-alpine
+    image: postgres:15.19-alpine
     restart: always
     container_name: umami_postgres
     volumes:
@@ -23,7 +23,7 @@ services:
       retries: 5
 
   umami:
-    image: ghcr.io/umami-software/umami:postgresql-latest
+    image: ghcr.io/umami-software/umami:postgresql-v2.20.2
     restart: always
     container_name: umami
     # user: ${PUID:-1000} # Permissions error after recent change

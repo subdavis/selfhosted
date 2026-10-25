@@ -5,7 +5,7 @@ services:
   #############################
 
   calibre_web:
-    image: ghcr.io/linuxserver/calibre-web:latest
+    image: ghcr.io/linuxserver/calibre-web:version-0.6.27
     container_name: calibre_web
     restart: unless-stopped
     labels:

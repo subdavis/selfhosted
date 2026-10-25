@@ -5,7 +5,7 @@ services:
   #############################
 
   navidrome:
-    image: deluan/navidrome:latest
+    image: deluan/navidrome:0.64.2
     container_name: navidrome
     user: ${PUID:-1000}:${PGID:-1000}
     restart: unless-stopped

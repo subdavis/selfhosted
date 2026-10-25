@@ -5,7 +5,7 @@ services:
   #############################
 
   backrest:
-    image: garethgeorge/backrest:v1.9
+    image: garethgeorge/backrest:v1.14.1
     user: ${PUID:-1000}
     container_name: backrest
     restart: unless-stopped

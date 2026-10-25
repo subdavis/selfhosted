@@ -19,7 +19,6 @@ This repo contains my production docker services accessible from anywhere over H
 * AdGuard Home DNS
 * Drone CI and runner
 * Backrest (restic)
-* Watchtower
 * Cloudflare DNS Automation
 * Dozzle
 
