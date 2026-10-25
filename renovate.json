@@ -23,8 +23,8 @@
       "enabled": false
     },
     {
-      "description": "No release versions to track; these are pinned by digest and only change by hand.",
-      "matchPackageNames": ["oznu/cloudflare-ddns", "tiredofit/traefik-cloudflare-companion"],
+      "description": "No release versions to track and the project is unmaintained; only changes by hand.",
+      "matchPackageNames": ["oznu/cloudflare-ddns"],
       "enabled": false
     }
   ]
