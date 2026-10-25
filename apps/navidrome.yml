@@ -1,0 +1,52 @@
+services:
+
+  #############################
+  ## NAVIDROME
+  #############################
+
+  navidrome:
+    image: deluan/navidrome:latest
+    container_name: navidrome
+    user: ${PUID:-1000}:${PGID:-1000}
+    restart: unless-stopped
+    environment:
+      - ND_LASTFM_APIKEY=${ND_LASTFM_APIKEY}
+      - ND_LASTFM_SECRET=${ND_LASTFM_SECRET}
+    networks:
+      - navidrome-net
+    volumes:
+      - "${PRIMARY_MOUNT}/navidrome/data:/data"
+      - "${MEDIA_MOUNT}/plex/media/music:/music:ro"
+      - "${MEDIA_MOUNT}/music_manual:/music_manual:ro"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=navidrome-net
+      - traefik.http.services.navidrome-svc.loadbalancer.server.port=4533
+      - traefik.http.routers.navidrome-rtr.rule=Host(`music.${DNS_DOMAIN}`)
+      - traefik.http.routers.navidrome-rtr.entrypoints=websecure
+      - traefik.http.routers.navidrome-rtr.tls=true
+
+  bandcamp-sync-flask:
+    image: ghcr.io/subdavis/bandcamp-sync-flask:latest
+    container_name: bandcamp
+    restart: unless-stopped
+    networks:
+      - navidrome-net
+    user: ${PUID:-1000}
+    environment:
+      - CONFIG_PATH=/app/config.json
+    volumes:
+      - "./etc/bandcampsync/config.json:/app/config.json:ro"
+      - ${MEDIA_MOUNT}/music_manual:/downloads
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=navidrome-net
+      - traefik.http.services.bandcamp-svc.loadbalancer.server.port=5000
+      - traefik.http.routers.bandcamp-rtr.rule=Host(`bandcamp.${DNS_DOMAIN}`)
+      - traefik.http.routers.bandcamp-rtr.entrypoints=websecure
+      - traefik.http.routers.bandcamp-rtr.tls=true
+      - traefik.http.routers.bandcamp-rtr.middlewares=traefik-forward-auth@docker,ipallowlist-mddl@docker
+
+networks:
+  navidrome-net:
+    name: navidrome-net

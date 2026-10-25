@@ -1,0 +1,17 @@
+services:
+
+  #############################
+  ## WATCHTOWER - ROOT
+  #############################
+
+  watchtower:
+    image: nickfedor/watchtower:latest
+    container_name: watchtower
+    restart: unless-stopped
+    command: --schedule "0 10 3 * * *" --cleanup
+    labels:
+      - traefik.enable=false
+    volumes:
+      - ${SOCK_PATH:-/var/run/docker.sock}:/var/run/docker.sock
+      - "${PRIMARY_MOUNT}/watchtower/config/:/config"
+      - "${PRIMARY_MOUNT}/watchtower/docker-config.json:/config.json"

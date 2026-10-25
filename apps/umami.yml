@@ -1,0 +1,70 @@
+services:
+
+  #############################
+  ## Umami
+  #############################
+
+  umami_postgres:
+    image: postgres:15-alpine
+    restart: always
+    container_name: umami_postgres
+    volumes:
+      - ${PRIMARY_MOUNT}/postgres_15:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: umami
+      POSTGRES_USER: umami
+      POSTGRES_PASSWORD: umami
+    networks:
+      - umami-private-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  umami:
+    image: ghcr.io/umami-software/umami:postgresql-latest
+    restart: always
+    container_name: umami
+    # user: ${PUID:-1000} # Permissions error after recent change
+    depends_on:
+      umami_postgres:
+        condition: service_healthy
+    environment:
+      DATABASE_URL: postgresql://umami:umami@umami_postgres:5432/umami
+      DATABASE_TYPE: postgresql
+      # signs login tokens: must be random and private
+      APP_SECRET: ${UMAMI_APP_SECRET:?set UMAMI_APP_SECRET in .env}
+      # msp.bike tracks server-side from a Cloudflare Worker, so requests to
+      # /api/send arrive from Cloudflare's egress IP. The Worker sends the
+      # visitor's real IP in x-client-ip; prefer it over the built-in header
+      # list (requests without the header fall back to the normal lookup).
+      CLIENT_IP_HEADER: x-client-ip
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=umami-net
+      - traefik.http.services.umami-svc.loadbalancer.server.port=3000
+      - traefik.http.routers.umami-rtr.rule=Host(`umami.${DNS_DOMAIN}`)
+      - traefik.http.routers.umami-rtr.entrypoints=websecure
+      - traefik.http.routers.umami-rtr.tls=true
+      - traefik.http.routers.umami-rtr.middlewares=ipallowlist-mddl@docker
+      # tracker endpoints stay public
+      - traefik.http.routers.umami-pub-rtr.rule=Host(`umami.${DNS_DOMAIN}`) && (Path(`/script.js`) || Path(`/api/send`))
+      - traefik.http.routers.umami-pub-rtr.entrypoints=websecure
+      - traefik.http.routers.umami-pub-rtr.tls=true
+      - traefik.http.routers.umami-pub-rtr.service=umami-svc
+      - traefik.http.routers.umami-pub-rtr.middlewares=ratelimit-mddl@docker
+    networks:
+      - umami-net
+      - umami-private-net
+    healthcheck:
+      test: ["CMD-SHELL", "curl http://localhost:3000/api/heartbeat"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+networks:
+  umami-net:
+    name: umami-net
+  umami-private-net:
+    name: umami-private-net

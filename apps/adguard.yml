@@ -1,0 +1,33 @@
+services:
+
+  #############################
+  ## ADGUARD - ROOT
+  #############################
+
+  adguard:
+    image: adguard/adguardhome:latest
+    container_name: adguardhome
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=adguard-net
+      - traefik.http.services.adguard-svc.loadbalancer.server.port=80
+      - traefik.http.routers.adguard-rtr.rule=Host(`adguard.${DNS_DOMAIN}`)
+      - traefik.http.routers.adguard-rtr.entrypoints=websecure
+      - traefik.http.routers.adguard-rtr.tls=true
+      - traefik.http.routers.adguard-rtr.middlewares=ipallowlist-mddl@docker
+    networks:
+      - adguard-net
+    # IPv4 only: an IPv6 publish on this IPv4-only container would be relayed
+    # by docker-proxy, hiding every v6 client behind the bridge gateway address.
+    ports:
+      - "0.0.0.0:53:53/udp"
+      - "0.0.0.0:53:53/tcp"
+    volumes:
+      - "${LOCAL_MOUNT}/adguard/data:/opt/adguardhome/work"
+      - "${LOCAL_MOUNT}/adguard/conf:/opt/adguardhome/conf"
+    dns: "1.1.1.1"
+
+networks:
+  adguard-net:
+    name: adguard-net

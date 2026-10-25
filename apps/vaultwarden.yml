@@ -1,0 +1,31 @@
+services:
+
+  #############################
+  ## VAULTWARDEN
+  #############################
+
+  vaultwarden:
+    image: vaultwarden/server:latest
+    container_name: vaultwarden
+    restart: always
+    user: ${PUID:-1000}
+    volumes:
+      - "${PRIMARY_MOUNT}/vaultwarden/data/:/data"
+    environment:
+      - SIGNUPS_ALLOWED=false
+      - LOG_FILE=/data/vaultwarden.log
+    networks:
+      - vaultwarden-net
+    labels:
+      - "traefik.enable=true"
+      - "traefik.docker.network=vaultwarden-net"
+      # Entry Point for https
+      - "traefik.http.routers.vaultwarden-rtr.entrypoints=websecure"
+      - "traefik.http.routers.vaultwarden-rtr.rule=Host(`vaultwarden.${DNS_DOMAIN}`)"
+      - "traefik.http.routers.vaultwarden-rtr.service=vaultwarden-svc"
+      - "traefik.http.services.vaultwarden-svc.loadbalancer.server.port=80"
+      - "traefik.http.routers.vaultwarden-rtr.middlewares=ipallowlist-mddl@docker"
+
+networks:
+  vaultwarden-net:
+    name: vaultwarden-net

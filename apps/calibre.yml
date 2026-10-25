@@ -1,0 +1,32 @@
+services:
+
+  #############################
+  ## CALIBRE
+  #############################
+
+  calibre_web:
+    image: ghcr.io/linuxserver/calibre-web:latest
+    container_name: calibre_web
+    restart: unless-stopped
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=calibre-net
+      - traefik.http.services.calibre-svc.loadbalancer.server.port=8083
+      - traefik.http.routers.calibre-rtr.rule=Host(`calibre.${DNS_DOMAIN}`)
+      - traefik.http.routers.calibre-rtr.entrypoints=websecure
+      - traefik.http.routers.calibre-rtr.tls=true
+      - traefik.http.routers.calibre-rtr.middlewares=ipallowlist-mddl@docker,traefik-forward-auth@docker
+    environment:
+      - PUID=${PUID:-1000}
+      - PGID=${PUID:-1000}
+      - "TZ=${TIME_ZONE}"
+      - "DOCKER_MODS=linuxserver/calibre-web:calibre"
+    volumes:
+      - ${PRIMARY_MOUNT}/calibre/config:/config
+      - ${PRIMARY_MOUNT}/calibre/books:/books
+    networks:
+      - calibre-net
+
+networks:
+  calibre-net:
+    name: calibre-net

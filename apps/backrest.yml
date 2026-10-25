@@ -1,0 +1,40 @@
+services:
+
+  #############################
+  ## BACKREST
+  #############################
+
+  backrest:
+    image: garethgeorge/backrest:v1.9
+    user: ${PUID:-1000}
+    container_name: backrest
+    restart: unless-stopped
+    networks:
+      - backrest-net
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=backrest-net
+      - traefik.http.services.backrest-svc.loadbalancer.server.port=9898
+      - traefik.http.routers.backrest-rtr.rule=Host(`backrest.${DNS_DOMAIN}`)
+      - traefik.http.routers.backrest-rtr.entrypoints=websecure
+      - traefik.http.routers.backrest-rtr.tls=true
+      - traefik.http.routers.backrest-rtr.middlewares=ipallowlist-mddl@docker,traefik-forward-auth@docker
+    volumes:
+      - ${SECONDARY_MOUNT}/backrest/data:/data
+      - ${SECONDARY_MOUNT}/backrest/config:/config
+      - ${SECONDARY_MOUNT}/backrest/cache:/cache
+      - ${PRIMARY_MOUNT}:/sources/primary
+      - ${LOCAL_MOUNT}:/sources/local
+      - ${MEDIA_MOUNT}:/sources/media
+      - ${SECONDARY_MOUNT}/backrest/repos:/repos # [optional] mount repos if using local storage, not necessary for remotes e.g. B2, S3, etc.
+    environment:
+      - BACKREST_DATA=/data # path for backrest data. restic binary and the database are placed here.
+      - BACKREST_CONFIG=/config/config.json # path for the backrest config file.
+      - XDG_CACHE_HOME=/cache # path for the restic cache which greatly improves performance.
+      - TZ=${TIME_ZONE}
+      - "PUID=${PUID:-1000}"
+      - "PGID=${PUID:-1000}"
+
+networks:
+  backrest-net:
+    name: backrest-net
