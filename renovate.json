@@ -21,6 +21,11 @@
       "matchPackageNames": ["traefik", "postgres", "valkey/valkey", "docker.io/valkey/valkey", "drone/drone", "drone/drone-runner-docker", "qmcgaw/gluetun"],
       "matchUpdateTypes": ["major"],
       "enabled": false
+    },
+    {
+      "description": "No release versions to track; these are pinned by digest and only change by hand.",
+      "matchPackageNames": ["oznu/cloudflare-ddns", "tiredofit/traefik-cloudflare-companion"],
+      "enabled": false
     }
   ]
 }
