@@ -6,7 +6,7 @@ services:
 
   linkding:
     container_name: linkding
-    image: sissbruecker/linkding:latest
+    image: sissbruecker/linkding:1.47.0
     volumes:
       - ${PRIMARY_MOUNT}/linkding:/etc/linkding/data
     restart: unless-stopped

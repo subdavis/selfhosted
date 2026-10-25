@@ -5,7 +5,7 @@ services:
   #############################
 
   drone:
-    image: drone/drone:1
+    image: drone/drone:1.10.1
     restart: unless-stopped
     container_name: drone
     user: ${PUID:-1000}
@@ -38,7 +38,7 @@ services:
       - drone-private-net
 
   drone-runner:
-    image: drone/drone-runner-docker:1
+    image: drone/drone-runner-docker:1.8.5
     restart: unless-stopped
     container_name: drone_runner_1
     environment:

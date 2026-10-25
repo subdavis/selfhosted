@@ -5,7 +5,7 @@ services:
   #############################
 
   adguard:
-    image: adguard/adguardhome:latest
+    image: adguard/adguardhome:v0.107.79
     container_name: adguardhome
     restart: unless-stopped
     labels:

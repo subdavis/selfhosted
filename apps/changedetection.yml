@@ -5,7 +5,7 @@ services:
   #############################
 
   changedetection:
-    image: ghcr.io/dgtlmoon/changedetection.io
+    image: ghcr.io/dgtlmoon/changedetection.io:0.60.9
     container_name: changedetection
     restart: unless-stopped
     volumes:

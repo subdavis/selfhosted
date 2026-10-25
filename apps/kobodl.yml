@@ -5,7 +5,7 @@ services:
   #############################
 
   kobodl:
-    image: ghcr.io/subdavis/kobodl:latest
+    image: ghcr.io/subdavis/kobodl:0.14.0
     container_name: kobodl
     restart: unless-stopped
     user: ${PUID:-1000}
