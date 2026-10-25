@@ -1,0 +1,31 @@
+services:
+
+  #############################
+  ## RSS-Glue
+  #############################
+
+  rssglue:
+    image: ghcr.io/subdavis/rss-glue:v2
+    container_name: rssglue
+    restart: unless-stopped
+    user: ${PUID:-1000}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=rss-glue-net
+      - traefik.http.services.rssglue-svc.loadbalancer.server.port=8000
+      - traefik.http.routers.rssglue-rtr.rule=Host(`rssglue.${DNS_DOMAIN}`)
+      - traefik.http.routers.rssglue-rtr.entrypoints=websecure
+      - traefik.http.routers.rssglue-rtr.tls=true
+      - traefik.http.routers.rssglue-rtr.middlewares=ratelimit-mddl@docker
+    environment:
+      - DISPLAY_TIMEZONE=${TIME_ZONE}
+      - SECRET_KEY=${RSSGLUE_SECRET_KEY}
+    volumes:
+      - ${PRIMARY_MOUNT}/rss-glue/media:/var/media
+      - ${PRIMARY_MOUNT}/rss-glue/db:/var/data
+    networks:
+      - rss-glue-net
+
+networks:
+  rss-glue-net:
+    name: rss-glue-net

@@ -1,0 +1,56 @@
+services:
+
+  #############################
+  ## MINIFLUX
+  #############################
+
+  miniflux_postgres:
+    image: postgres:15-alpine
+    restart: unless-stopped
+    container_name: miniflux_postgres
+    volumes:
+      - ${PRIMARY_MOUNT}/miniflux_postgres_15:/var/lib/postgresql/data
+    environment:
+      POSTGRES_DB: miniflux
+      POSTGRES_USER: miniflux
+      POSTGRES_PASSWORD: miniflux
+    networks:
+      - miniflux-net
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U $${POSTGRES_USER} -d $${POSTGRES_DB}"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  miniflux:
+    image: ghcr.io/miniflux/miniflux:latest
+    container_name: miniflux
+    restart: unless-stopped
+    depends_on:
+      miniflux_postgres:
+        condition: service_healthy
+    healthcheck:
+      test: ["CMD", "/usr/bin/miniflux", "-healthcheck", "auto"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    environment:
+      - "BASE_URL=https://miniflux.${DNS_DOMAIN}"
+      - "DATABASE_URL=postgres://miniflux:miniflux@miniflux_postgres/miniflux?sslmode=disable"
+      - RUN_MIGRATIONS=1
+    volumes:
+      - ${PRIMARY_MOUNT}/miniflux/config:/config
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=miniflux-net
+      - traefik.http.services.miniflux-svc.loadbalancer.server.port=8080
+      - traefik.http.routers.miniflux-rtr.rule=Host(`miniflux.${DNS_DOMAIN}`)
+      - traefik.http.routers.miniflux-rtr.entrypoints=websecure
+      - traefik.http.routers.miniflux-rtr.tls=true
+      - traefik.http.routers.miniflux-rtr.middlewares=ratelimit-mddl@docker
+    networks:
+      - miniflux-net
+
+networks:
+  miniflux-net:
+    name: miniflux-net

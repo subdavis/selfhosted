@@ -1,0 +1,28 @@
+services:
+
+  #############################
+  ## DOZZLE - ROOT
+  #############################
+
+  dozzle:
+    container_name: dozzle
+    image: amir20/dozzle:latest
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock
+    networks:
+      - dozzle-net
+    environment:
+      # no DOZZLE_ENABLE_SHELL: with the host docker socket it is a root shell in a browser.
+      DOZZLE_ENABLE_ACTIONS: true
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=dozzle-net
+      - traefik.http.services.dozzle-svc.loadbalancer.server.port=8080
+      - traefik.http.routers.dozzle-rtr.rule=Host(`dozzle.${DNS_DOMAIN}`)
+      - traefik.http.routers.dozzle-rtr.entrypoints=websecure
+      - traefik.http.routers.dozzle-rtr.tls=true
+      - traefik.http.routers.dozzle-rtr.middlewares=traefik-forward-auth@docker,ipallowlist-mddl@docker
+
+networks:
+  dozzle-net:
+    name: dozzle-net

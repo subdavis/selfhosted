@@ -1,0 +1,202 @@
+services:
+
+  #############################
+  ## TRAEFIK - ROOT
+  #############################
+
+  traefik:
+    image: traefik:v3.6
+    restart: unless-stopped
+    container_name: traefik
+    command: >
+      --api.dashboard=true
+      --accesslog=true
+      --accesslog.filepath=/var/log/traefik/access.log
+      --accesslog.fields.headers.names.Content-Type=keep
+      --accesslog.fields.headers.names.Referer=keep
+      --accesslog.fields.headers.names.User-Agent=keep
+      --providers.docker=true
+      --providers.docker.endpoint=tcp://socket-proxy:2375
+      --providers.docker.exposedByDefault=false
+      --entrypoints.web.address=:80
+      --entrypoints.websecure.address=:443
+      --entrypoints.websecure.forwardedHeaders.trustedIPs=173.245.48.0/20,103.21.244.0/22,103.22.200.0/22,103.31.4.0/22,141.101.64.0/18,108.162.192.0/18,190.93.240.0/20,188.114.96.0/20,197.234.240.0/22,198.41.128.0/17,162.158.0.0/15,104.16.0.0/12,172.64.0.0/13,131.0.72.0/22
+      --entrypoints.websecure.http.tls.certresolver=myresolver
+      --entrypoints.websecure.http.tls.domains[0].main=*.${DNS_DOMAIN}
+      --entrypoints.websecure.http.tls.domains[0].sans=${DNS_DOMAIN}
+      --certificatesResolvers.myresolver.acme.caServer="https://acme-v02.api.letsencrypt.org/directory"
+      --certificatesresolvers.myresolver.acme.dnschallenge=true
+      --certificatesresolvers.myresolver.acme.dnschallenge.provider=cloudflare
+      --certificatesresolvers.myresolver.acme.email="${LETSENCRYPT_EMAIL}"
+      --certificatesresolvers.myresolver.acme.storage=/letsencrypt/acme.json
+      --certificatesresolvers.myresolver.acme.dnschallenge.resolvers=1.1.1.1:53,1.0.0.1:53
+    labels:
+      - "traefik.enable=true"
+      # Traefik HTTPS Redirect
+      - "traefik.http.routers.http-catchall.entrypoints=web"
+      - "traefik.http.routers.http-catchall.rule=HostRegexp(`.+`)"
+      - "traefik.http.routers.http-catchall.middlewares=redirect-to-https-mddl@docker"
+      - "traefik.http.middlewares.redirect-to-https-mddl.redirectscheme.scheme=https"
+      # Other middlewares
+      - "traefik.http.middlewares.ipallowlist-mddl.ipallowlist.sourcerange=${SUBNET}"
+      - "traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://auth:4181"
+      - "traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
+      # Rate limit
+      - "traefik.http.middlewares.ratelimit-mddl.ratelimit.average=100"
+      - "traefik.http.middlewares.ratelimit-mddl.ratelimit.period=1s"
+      - "traefik.http.middlewares.ratelimit-mddl.ratelimit.burst=200"
+      # Traefik Dashboard config
+      - traefik.http.routers.traefik-rtr.rule=Host(`traefik.${DNS_DOMAIN}`)
+      - traefik.http.routers.traefik-rtr.entrypoints=websecure
+      - traefik.http.routers.traefik-rtr.tls=true
+      - traefik.http.routers.traefik-rtr.service=api@internal
+      - traefik.http.routers.traefik-rtr.middlewares=ipallowlist-mddl@docker,traefik-forward-auth@docker
+    environment:
+      - CF_API_EMAIL=${CF_EMAIL}
+      - CF_DNS_API_TOKEN=${CF_TOKEN}
+      - CF_ZONE_API_TOKEN=${CF_TOKEN}
+    volumes:
+      - "${LOCAL_MOUNT}/traefik/letsencrypt:/letsencrypt"
+      - "${LOCAL_MOUNT}/traefik/logs:/var/log/traefik"
+    ports:
+      - "80:80"
+      - "443:443"
+    networks:
+      # published ports bind on the gateway network. ingress-net is dual-stack,
+      # so IPv6 is DNAT'd by ip6tables and traefik sees the real client address
+      # (instead of docker-proxy rewriting every v6 client to a bridge gateway IP).
+      ingress-net:
+        gw_priority: 100
+      socket-net: {}
+      traefik-net: {}
+      adguard-net: {}
+      arr-net: {}
+      auth-net: {}
+      backrest-net: {}
+      calibre-net: {}
+      changedetection-net: {}
+      dozzle-net: {}
+      drone-net: {}
+      linkding-net: {}
+      miniflux-net: {}
+      navidrome-net: {}
+      kobodl-net: {}
+      paperless-net: {}
+      workflow-explorer-net: {}
+      plex-net: {}
+      rss-glue-net: {}
+      scrutiny-net: {}
+      transmission-net: {}
+      umami-net: {}
+      unifi-net: {}
+      vaultwarden-net: {}
+      zerobyte-net: {}
+
+  # read-only, filtered docker API for traefik and cloudflare-companion.
+  socket-proxy:
+    image: lscr.io/linuxserver/socket-proxy:latest
+    container_name: socket-proxy
+    restart: unless-stopped
+    read_only: true
+    tmpfs:
+      - /run
+    environment:
+      - CONTAINERS=1
+      - POST=0
+    labels:
+      - traefik.enable=false
+    volumes:
+      - /var/run/docker.sock:/var/run/docker.sock:ro
+    networks:
+      - socket-net
+
+  traefik-forward-auth:
+    image: thomseddon/traefik-forward-auth:latest
+    container_name: auth
+    restart: unless-stopped
+    user: ${PUID:-1000}
+    networks:
+      - auth-net
+    environment:
+      - "PROVIDERS_GOOGLE_CLIENT_ID=${AUTH_PROVIDERS_GOOGLE_CLIENT_ID}"
+      - "PROVIDERS_GOOGLE_CLIENT_SECRET=${AUTH_PROVIDERS_GOOGLE_CLIENT_SECRET}"
+      - "SECRET=${AUTH_SECRET}"
+      - "WHITELIST=${AUTH_WHITELIST}"
+    command: >
+      --cookie-domain="${DNS_DOMAIN}"
+      --auth-host="auth.${DNS_DOMAIN}"
+      --config=/etc/authconfig.ini
+    volumes:
+      - "./etc/authconfig.ini:/etc/authconfig.ini:ro"
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=auth-net
+      - traefik.http.services.traefik-forward-auth-svc.loadbalancer.server.port=4181
+      - traefik.http.routers.auth-rtr.rule=Host(`auth.${DNS_DOMAIN}`)
+      - traefik.http.routers.auth-rtr.entrypoints=websecure
+      - traefik.http.routers.auth-rtr.tls=true
+      - traefik.http.routers.auth-rtr.middlewares=traefik-forward-auth
+
+networks:
+  adguard-net:
+    name: adguard-net
+  arr-net:
+    name: arr-net
+  backrest-net:
+    name: backrest-net
+  auth-net:
+    name: auth-net
+  calibre-net:
+    name: calibre-net
+  changedetection-net:
+    name: changedetection-net
+  dozzle-net:
+    name: dozzle-net
+  drone-net:
+    name: drone-net
+  drone-private-net:
+    name: drone-private-net
+  ingress-net:
+    name: ingress-net
+    enable_ipv6: true
+    ipam:
+      config:
+        - subnet: 172.16.40.0/24
+        - subnet: fd42:5e1f:7a11::/64
+  linkding-net:
+    name: linkding-net
+  miniflux-net:
+    name: miniflux-net
+  navidrome-net:
+    name: navidrome-net
+  rss-glue-net:
+    name: rss-glue-net
+  scrutiny-net:
+    name: scrutiny-net
+  socket-net:
+    name: socket-net
+    internal: true
+  kobodl-net:
+    name: kobodl-net
+  paperless-net:
+    name: paperless-net
+  paperless-private-net:
+    name: paperless-private-net
+  workflow-explorer-net:
+    name: workflow-explorer-net
+  plex-net:
+    name: plex-net
+  transmission-net:
+    name: transmission-net
+  traefik-net:
+    name: traefik-net
+  umami-net:
+    name: umami-net
+  umami-private-net:
+    name: umami-private-net
+  unifi-net:
+    name: unifi-net
+  vaultwarden-net:
+    name: vaultwarden-net
+  zerobyte-net:
+    name: zerobyte-net

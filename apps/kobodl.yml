@@ -1,0 +1,29 @@
+services:
+
+  #############################
+  ## KOBODL
+  #############################
+
+  kobodl:
+    image: ghcr.io/subdavis/kobodl:latest
+    container_name: kobodl
+    restart: unless-stopped
+    user: ${PUID:-1000}
+    labels:
+      - traefik.enable=true
+      - traefik.docker.network=kobodl-net
+      - traefik.http.services.kobodl-svc.loadbalancer.server.port=5000
+      - traefik.http.routers.kobodl-rtr.rule=Host(`kobodl.${DNS_DOMAIN}`)
+      - traefik.http.routers.kobodl-rtr.entrypoints=websecure
+      - traefik.http.routers.kobodl-rtr.tls=true
+      - traefik.http.routers.kobodl-rtr.middlewares=ipallowlist-mddl@docker,traefik-forward-auth@docker
+    volumes:
+      - ${PRIMARY_MOUNT}/kobodl/kobodl.json:/home/kobodl.json
+      - ${PRIMARY_MOUNT}/kobodl/downloads:/home/downloads
+    command: --config /home/kobodl.json serve -h 0.0.0.0 --output-dir /home/downloads
+    networks:
+      - kobodl-net
+
+networks:
+  kobodl-net:
+    name: kobodl-net

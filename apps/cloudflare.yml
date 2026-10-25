@@ -1,0 +1,44 @@
+services:
+
+  #############################
+  ## CLOUDFLARE - ROOT
+  #############################
+
+  cloudflare:
+    image: oznu/cloudflare-ddns:latest
+    restart: unless-stopped
+    container_name: cloudflare
+    labels:
+      - traefik.enable=false
+    environment:
+      - "API_KEY=${CF_TOKEN}"
+      - "ZONE=${DNS_DOMAIN}"
+      - "SUBDOMAIN=${SUBDOMAIN}"
+      - "DNS_SERVER=1.0.0.1"
+    dns: 1.1.1.1
+
+  #############################
+  ## CLOUDFLARE-COMPANION - ROOT
+  #############################
+
+  cloudflare-companion:
+    image: tiredofit/traefik-cloudflare-companion
+    container_name: cloudflare-companion
+    restart: unless-stopped
+    networks:
+      - default
+      - socket-net
+    environment:
+      - "DOCKER_HOST=tcp://socket-proxy:2375"
+      - "TRAEFIK_VERSION=2"
+      # - "CF_EMAIL=" Leave blank for scopepd
+      - "CF_TOKEN=${CF_TOKEN}"
+      - "TARGET_DOMAIN=${SUBDOMAIN}.${DNS_DOMAIN}"
+      - "DOMAIN1=${DNS_DOMAIN}"
+      - "DOMAIN1_ZONE_ID=${DNS_DOMAIN_ZONE_ID}"
+    dns: 1.1.1.1
+
+networks:
+  socket-net:
+    name: socket-net
+    internal: true
