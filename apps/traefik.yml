@@ -39,8 +39,8 @@ services:
       - "traefik.http.middlewares.redirect-to-https-mddl.redirectscheme.scheme=https"
       # Other middlewares
       - "traefik.http.middlewares.ipallowlist-mddl.ipallowlist.sourcerange=${SUBNET}"
-      - "traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://auth:4181"
-      - "traefik.http.middlewares.traefik-forward-auth.forwardauth.authResponseHeaders=X-Forwarded-User"
+      # name kept from the old thomseddon/traefik-forward-auth so app labels don't change; served by tinyauth.
+      - "traefik.http.middlewares.traefik-forward-auth.forwardauth.address=http://auth:3000/api/auth/traefik"
       # Rate limit
       - "traefik.http.middlewares.ratelimit-mddl.ratelimit.average=100"
       - "traefik.http.middlewares.ratelimit-mddl.ratelimit.period=1s"
@@ -110,37 +110,38 @@ services:
     networks:
       - socket-net
 
-  traefik-forward-auth:
-    # not 2.2.0: it has one shared csrf cookie, so apps that fire parallel requests
-    # while logged out (dozzle) clobber it and the callback fails "Not authorized".
-    # concurrent csrf cookies (#187) only ship in this untagged 2021 master build. amd64 only.
-    # v2.3.0 has them too but was released as binaries only, never pushed to docker hub:
-    # https://github.com/thomseddon/traefik-forward-auth/releases/tag/v2.3.0
-    image: thomseddon/traefik-forward-auth:latest@sha256:b364aa6a4117569163eff793999901f9f5a0c4f7f2da18b4ecbcd140d7b6107b
+  # google login for every router using the traefik-forward-auth middleware.
+  # google console redirect uri: https://auth.${DNS_DOMAIN}/api/oauth/callback/google
+  tinyauth:
+    image: ghcr.io/tinyauthapp/tinyauth:v5.2.0
     container_name: auth
     restart: unless-stopped
     user: ${PUID:-1000}
     networks:
       - auth-net
     environment:
-      - "PROVIDERS_GOOGLE_CLIENT_ID=${AUTH_PROVIDERS_GOOGLE_CLIENT_ID}"
-      - "PROVIDERS_GOOGLE_CLIENT_SECRET=${AUTH_PROVIDERS_GOOGLE_CLIENT_SECRET}"
-      - "SECRET=${AUTH_SECRET}"
-      - "WHITELIST=${AUTH_WHITELIST}"
-    command: >
-      --cookie-domain="${DNS_DOMAIN}"
-      --auth-host="auth.${DNS_DOMAIN}"
-      --config=/etc/authconfig.ini
+      # session cookie goes on the parent domain, so one login covers every subdomain.
+      - "TINYAUTH_APPURL=https://auth.${DNS_DOMAIN}"
+      - "TINYAUTH_AUTH_SECURECOOKIE=true"
+      - "TINYAUTH_OAUTH_PROVIDERS_GOOGLE_CLIENTID=${AUTH_PROVIDERS_GOOGLE_CLIENT_ID}"
+      - "TINYAUTH_OAUTH_PROVIDERS_GOOGLE_CLIENTSECRET=${AUTH_PROVIDERS_GOOGLE_CLIENT_SECRET}"
+      # exact emails. if this is empty, any google account gets in.
+      - "TINYAUTH_OAUTH_WHITELIST=${AUTH_WHITELIST}"
+      # skip tinyauth's login page and go straight to google.
+      - "TINYAUTH_OAUTH_AUTOREDIRECT=google"
+      # no docker socket: no per-app label acls, the whitelist covers every app.
+      - "TINYAUTH_LABELPROVIDER=none"
+      - "TINYAUTH_ANALYTICS_ENABLED=false"
     volumes:
-      - "./etc/authconfig.ini:/etc/authconfig.ini:ro"
+      # sessions live in sqlite here; without it every restart logs everyone out.
+      - "${PRIMARY_MOUNT}/tinyauth:/data"
     labels:
       - traefik.enable=true
       - traefik.docker.network=auth-net
-      - traefik.http.services.traefik-forward-auth-svc.loadbalancer.server.port=4181
+      - traefik.http.services.tinyauth-svc.loadbalancer.server.port=3000
       - traefik.http.routers.auth-rtr.rule=Host(`auth.${DNS_DOMAIN}`)
       - traefik.http.routers.auth-rtr.entrypoints=websecure
       - traefik.http.routers.auth-rtr.tls=true
-      - traefik.http.routers.auth-rtr.middlewares=traefik-forward-auth
 
 # Per-app networks (adguard-net, arr-net, ...) are declared in their own apps/*.yml;
 # this file relies on them being included alongside it. unifi-net and zerobyte-net
