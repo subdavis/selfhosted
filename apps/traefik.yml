@@ -111,7 +111,12 @@ services:
       - socket-net
 
   traefik-forward-auth:
-    image: thomseddon/traefik-forward-auth:2.2.0
+    # not 2.2.0: it has one shared csrf cookie, so apps that fire parallel requests
+    # while logged out (dozzle) clobber it and the callback fails "Not authorized".
+    # concurrent csrf cookies (#187) only ship in this untagged 2021 master build. amd64 only.
+    # v2.3.0 has them too but was released as binaries only, never pushed to docker hub:
+    # https://github.com/thomseddon/traefik-forward-auth/releases/tag/v2.3.0
+    image: thomseddon/traefik-forward-auth:latest@sha256:b364aa6a4117569163eff793999901f9f5a0c4f7f2da18b4ecbcd140d7b6107b
     container_name: auth
     restart: unless-stopped
     user: ${PUID:-1000}

@@ -7,3 +7,6 @@ etc/passwords.txt
 etc/bandcampsync/config.json
 etc/workflow-explorer/.env
 etc/secrets
+.DS_Store
+.agents/
+skills-lock.json
