@@ -1,0 +1,28 @@
+services:
+
+  #############################
+  ## iSponsorBlockTV
+  #############################
+
+  # No web UI, no ports. Talks to the TV through YouTube's lounge API (outbound
+  # only), so it stays on its own bridge network instead of the upstream
+  # network_mode: host. Devices are paired by TV code; DIAL discovery is never used.
+  # Setup: docker compose run --rm isponsorblocktv --setup-cli
+  isponsorblocktv:
+    image: ghcr.io/dmunozv04/isponsorblocktv:v2.11.0
+    container_name: isponsorblocktv
+    restart: unless-stopped
+    user: ${PUID:-1000}
+    read_only: true
+    cap_drop:
+      - ALL
+    security_opt:
+      - no-new-privileges:true
+    volumes:
+      - ${PRIMARY_MOUNT}/isponsorblocktv:/app/data
+    networks:
+      - isponsorblocktv-net
+
+networks:
+  isponsorblocktv-net:
+    name: isponsorblocktv-net

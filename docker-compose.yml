@@ -17,6 +17,8 @@ include:
     project_directory: .
   - path: ./apps/drone.yml
     project_directory: .
+  - path: ./apps/isponsorblocktv.yml
+    project_directory: .
   - path: ./apps/linkding.yml
     project_directory: .
   - path: ./apps/miniflux.yml
