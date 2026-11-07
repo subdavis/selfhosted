@@ -6,7 +6,7 @@
     "managerFilePatterns": ["/^docker-compose\\.ya?ml$/", "/^apps/.+\\.ya?ml$/"]
   },
   "timezone": "America/Chicago",
-  "schedule": ["before 6am on saturday"],
+  "schedule": ["* * * * 0,6"],
   "prConcurrentLimit": 5,
   "minimumReleaseAge": "7 days",
   "internalChecksFilter": "strict",
