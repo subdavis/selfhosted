@@ -5,7 +5,7 @@ services:
   #############################
 
   traefik:
-    image: traefik:v3.6.25
+    image: traefik:v3.7.16
     restart: unless-stopped
     container_name: traefik
     command: >
