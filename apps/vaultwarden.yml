@@ -5,7 +5,7 @@ services:
   #############################
 
   vaultwarden:
-    image: vaultwarden/server:1.37.4
+    image: vaultwarden/server:1.37.5
     container_name: vaultwarden
     restart: always
     user: ${PUID:-1000}
