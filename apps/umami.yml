@@ -5,7 +5,7 @@ services:
   #############################
 
   umami_postgres:
-    image: postgres:15.19-alpine
+    image: postgres:15.20-alpine
     restart: always
     container_name: umami_postgres
     volumes:

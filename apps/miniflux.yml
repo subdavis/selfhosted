@@ -5,7 +5,7 @@ services:
   #############################
 
   miniflux_postgres:
-    image: postgres:15.19-alpine
+    image: postgres:15.20-alpine
     restart: unless-stopped
     container_name: miniflux_postgres
     volumes:
